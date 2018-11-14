@@ -1,0 +1,8 @@
+1. Copy all items (including Parent folder "Parsec Script Files" to the desktop
+2. Open Parsec Script Files and Right click Loader.ps1 and Run with Powershell
+4. Machine will auto reboot after a long period of installing Windows updates
+5. Login via RDP again
+6. Right click PostInstallLoader.ps1 on Desktop and Run with Powershell
+7. Accept and install any software.  Close any software after it has installed.
+8. Machine will auto reboot, after that, it will be configured to be logged in via VNC
+9. Once logged in via VNC, there is a script on desktop called AWS-FINISH.ps1, right click and run with powershell to shutdown the machine and prepare for pre-warming
