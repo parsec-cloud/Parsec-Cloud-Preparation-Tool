@@ -1,4 +1,8 @@
-﻿$path = [Environment]::GetFolderPath("Desktop")
+﻿### Written by James Stringer for Parsec Cloud Inc ###
+### http://parsecgaming.com ###
+### Contribute: 
+
+$path = [Environment]::GetFolderPath("Desktop")
 $currentusersid = Get-LocalUser "$env:USERNAME" | Select-Object SID | ft -HideTableHeaders | Out-String | ForEach-Object { $_.Trim() }
 
 #moving initial files to correct place
@@ -140,7 +144,6 @@ Set-itemproperty -path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer
 #disable logout start menu
 function disable-logout {
 Write-Output "Disabling Logout"
-#New-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer -Name StartMenuLogOff -Value 1
 New-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer -Name StartMenuLogOff -Value 1 | Out-Null
 }
 
@@ -159,13 +162,34 @@ New-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer -Prope
 
 #enable auto login - remove user password
 
-function auto-login {
-Write-Output "Administrator password to blank"
-secedit /export /cfg c:\secpol.cfg
-(gc C:\secpol.cfg).replace("PasswordComplexity = 1", "PasswordComplexity = 0") | Out-File C:\secpol.cfg
-secedit /configure /db c:\windows\security\local.sdb /cfg c:\secpol.cfg /areas SECURITYPOLICY
-rm -force c:\secpol.cfg -confirm:$false
-cmd.exe /c 'C:\users\%username%\Desktop\ParsecTemp\PostInstall\Password.bat'
+function autoLogin { Write-output "Automatically log into Windows when the machine starts? 
+Required if you want to use Parsec without logging into RDP first.
+Doing so will require storing your Windows password in the registry in plain text"
+$ReadHost = Read-Host "(Y/N)"
+    Switch ($ReadHost) 
+     { 
+       Y {$password = Read-Host "Enter your password in plain text - the one you use to log into RDP"
+       if (($password.lengh -lt 1) -eq $true) {Write-output "Looks like you entered a blank password, is this correct?"
+            $retry = Read-Host "Press Y to continue or N to re-enter your password"
+            Switch ($retry)
+            {
+               Y {
+                    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value $env:USERNAME | Out-Null
+                    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultPassword -Value $password | Out-Null
+                    New-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogin -Value 1 | Out-Null
+                    Write-Output "
+                    Done, if you change your Windows password for any reason,
+                    please rerun the Auto Login Setup script in the 
+                    Parsec Tools folder on the Desktop or change the following
+                    registry entry
+                    HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\DefaultPassword"
+                  }
+               N {autoLoginOption}
+            }}
+       Else {}
+       }
+       N {} 
+     } 
 }
 
 #createshortcut
@@ -215,7 +239,7 @@ Remove-Item -Path "$path\EC2 Microsoft Windows Guide.website"
 
 function aws-setup{
 clean-aws
-auto-login
+autologin
 Write-Output "Installing VNC, Setting Auto Login, writing Json File, and changing computer name to Parsec-AWS"
 New-Item -Path C:\ParsecTemp\VirtualAudioCable -ItemType Directory| Out-Null
 Start-BitsTransfer -source https://s3.amazonaws.com/parsec-files-ami-setup/VNC/tightvnc.msi -Destination C:\ParsecTemp\Apps\
