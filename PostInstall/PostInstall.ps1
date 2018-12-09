@@ -61,13 +61,12 @@ Stop-Process -Name Explorer -Force
 #download-files-S3
 function download-resources {
 Write-Output "Downloading Apps"
-Start-BitsTransfer -Source https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe -Destination C:\ParsecTemp\Apps\ 
-Start-Bitstransfer -source https://s3.amazonaws.com/parsec-files-ami-setup/Devcon/devcon.exe -Destination C:\ParsecTemp\Apps\
-Start-BitsTransfer -Source https://s3.amazonaws.com/parsec-build/package/parsec-windows.exe -Destination C:\ParsecTemp\Apps\
-Start-BitsTransfer -Source https://s3.amazonaws.com/parseccloud/image/parsec+desktop.png -Destination C:\ParsecTemp\
-Start-BitsTransfer -Source https://s3.amazonaws.com/parseccloud/image/white_ico_agc_icon.ico -Destination C:\ParsecTemp\
+(New-Object System.Net.WebClient).DownloadFile("https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe", "C:\ParsecTemp\Apps\directx_Jun2010_redist.exe") 
+(New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parsec-files-ami-setup/Devcon/devcon.exe", "C:\ParsecTemp\Apps\devcon.exe")
+(New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parsec-build/package/parsec-windows.exe", "C:\ParsecTemp\Apps\parsec-windows.exe")
+(New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/parsec+desktop.png", "C:\ParsecTemp\parsec+desktop.png")
+(New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/white_ico_agc_icon.ico", "C:\ParsecTemp\white_ico_agc_icon.ico")
 }
-
 
 #install-base-files-silently
 function install-windows-features {
@@ -119,7 +118,6 @@ Set-Itemproperty -Path 'HKCU:\Control Panel\Mouse' -Name MouseSpeed -Value 1 | O
 #disable shutdown start menu
 function remove-shutdown {
 Write-Output "Disabling Shutdown Option in Start Menu"
-#New-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer -Name NoClose -Value 1
 New-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer -Name NoClose -Value 1 | Out-Null
 }
 
@@ -242,16 +240,15 @@ clean-aws
 autologin
 Write-Output "Installing VNC, Setting Auto Login, writing Json File, and changing computer name to Parsec-AWS"
 New-Item -Path C:\ParsecTemp\VirtualAudioCable -ItemType Directory| Out-Null
-Start-BitsTransfer -source https://s3.amazonaws.com/parsec-files-ami-setup/VNC/tightvnc.msi -Destination C:\ParsecTemp\Apps\
-Start-Bitstransfer -source https://s3.amazonaws.com/parsec-files-ami-setup/VirtualAudioCable/VirtualAudioCable.zip -Destination C:\ParsecTemp\Apps\
+(New-Object System.Net.WebClient).DownloadFile($(((Invoke-WebRequest -Uri https://www.tightvnc.com/download.php -UseBasicParsing).Links.OuterHTML -like "*Installer for Windows (64-bit)*").split('"')[1].split('"')[0]), "C:\ParsecTemp\Apps\tightvnc.msi")
+(New-Object System.Net.WebClient).DownloadFile("http://rzr.to/surround-pc-download", "C:\ParsecTemp\Apps\razer-surround-driver.exe")
 start-process msiexec.exe -ArgumentList '/i C:\ParsecTemp\Apps\TightVNC.msi /quiet /norestart ADDLOCAL=Server SET_USECONTROLAUTHENTICATION=1 VALUE_OF_USECONTROLAUTHENTICATION=1 SET_CONTROLPASSWORD=1 VALUE_OF_CONTROLPASSWORD=4ubg9sde SET_USEVNCAUTHENTICATION=1 VALUE_OF_USEVNCAUTHENTICATION=1 SET_PASSWORD=1 VALUE_OF_PASSWORD=4ubg9sde' -Wait
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value $env:USERNAME | Out-Null
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value "" | Out-Null
 New-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogin -Value 1 | Out-Null
 Rename-Computer -NewName "Parsec-AWS"
-Expand-Archive C:\ParsecTemp\Apps\VirtualAudioCable.zip -DestinationPath C:\ParsecTemp\VirtualAudioCable\ 
-Write-Output "WAITING FOR YOU TO CLICK YES ON VIRTUAL AUDIO CABLE - IT COULD BE HIDING BEHIND ANOTHER WINDOW"
-Start-Process C:\ParsecTemp\VirtualAudioCable\setup64.exe -Wait -NoNewWindow
+Write-Output "WAITING FOR YOU TO CLICK YES ON Razer Surround Driver - IT COULD BE HIDING BEHIND ANOTHER WINDOW"
+Start-Process C:\ParsecTemp\Apps\azer-surround-driver.exe -Wait -NoNewWindow
 Set-Service -Name audiosrv -StartupType Automatic
 }
 
