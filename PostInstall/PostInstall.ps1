@@ -266,28 +266,32 @@ $deviceuppdate = if($gputype.substring(13,8) -eq "DEV_13F2") {
 #AWS G3.4xLarge M60
 Write-Output "Tesla M60 Detected"
 aws-setup
-gpu-update
 }
 ElseIF($gputype.Substring(13,8) -eq "DEV_118A")
 {#AWS G2.2xLarge K520
 aws-setup
 Write-Output "GRID K520 Detected"
-gpu-update
+
 }
 ElseIF($gputype.Substring(13,8) -eq "DEV_1BB1") {
 #Paperspace P4000
 Write-Output "Quadro P4000 Detected"
-gpu-update
+
 } 
 Elseif($gputype.Substring(13,8) -eq "DEV_1BB0") {
 #Paperspace P5000
 Write-Output "Quadro P5000 Detected"
-gpu-update
+
 }
 Elseif($gputype.substring(13,8) -eq "DEV_DEV_15F8") {
 #Tesla P1000
 Write-Output "Tesla P100 Detected"
-gpu-update
+
+}
+Elseif($gputype.substring(13,8) -eq "DEV_DEV_1430") {
+#Tesla P1000
+Write-Output "Quadro M2000 Detected"
+
 }
 }
 
