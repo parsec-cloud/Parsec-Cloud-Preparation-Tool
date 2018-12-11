@@ -248,7 +248,7 @@ Start-Process C:\ParsecTemp\Apps\razer-surround-driver.exe -Wait -NoNewWindow
 Set-Service -Name audiosrv -StartupType Automatic
 }
 
-function gpu-update {
+function gpu-update-shortcut {
 (New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPU%20Updater%20Tool.ps1", "$ENV:Appdata\ParsecGPU\GPU Updater Tool.ps1")
 Unblock-File -Path "$ENV:Appdata\ParsecLoader\GPU Updater Tool.ps1"
 Write-Output "GPU-Update-Shortcut"
@@ -382,6 +382,7 @@ Install-Gaming-Apps
 Write-Output "Done installing apps"
 Start-Sleep -s 5
 create-shortcut-app
+gpu-update-shortcut
 disable-devices
 clean-up
 clean-up-recent
