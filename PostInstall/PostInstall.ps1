@@ -77,7 +77,6 @@ Install-WindowsFeature Direct-Play | Out-Null
 Install-WindowsFeature Net-Framework-Core | Out-Null
 }
 
-
 #setup Pip
 Function setup-pip {
 Write-Output "Setting up Pip" 
@@ -204,7 +203,6 @@ $ShortCut.Description = "ClearProxy shortcut";
 $ShortCut.Save()
 }
 
-
 #create shortcut for electron app
 function create-shortcut-app {
 Write-Output "Moving Parsec Electron shortcut to Desktop"
@@ -232,9 +230,7 @@ remove-item -path "$path\EC2 Feedback.Website"
 Remove-Item -Path "$path\EC2 Microsoft Windows Guide.website"
 }
 
-
 #AWS Specific tweaks
-
 function aws-setup{
 clean-aws
 autologin
@@ -252,6 +248,13 @@ Start-Process C:\ParsecTemp\Apps\azer-surround-driver.exe -Wait -NoNewWindow
 Set-Service -Name audiosrv -StartupType Automatic
 }
 
+function gpu-update {
+(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPU%20Updater%20Tool.ps1", "C:\ParsecTemp\GPU Updater Tool.ps1")
+Start-Job -FilePath "C:\ParsecTemp\GPU Updater Tool.ps1" -Name "GPUUpdate"
+start-sleep -s 1
+Receive-Job GPUUpdate
+}
+
 #Provider specific driver install and setup
 Function provider-specific
 {
@@ -261,36 +264,30 @@ $gputype = get-wmiobject -query "select DeviceID from Win32_PNPEntity Where devi
 
 $deviceuppdate = if($gputype.substring(13,8) -eq "DEV_13F2") {
 #AWS G3.4xLarge M60
-Write-Output "AWS G3.4xLarge Detected"
+Write-Output "Tesla M60 Detected"
 aws-setup
-Start-BitsTransfer -Source https://s3.amazonaws.com/parsec-files-ami-setup/NvidiaDriver/M60.exe -Destination C:\ParsecTemp\Drivers
-Start-Process -FilePath C:\ParsecTemp\Drivers\M60.exe -ArgumentList "/s /n" -Wait
+gpu-update
 }
 ElseIF($gputype.Substring(13,8) -eq "DEV_118A")
 {#AWS G2.2xLarge K520
 aws-setup
-Write-Output "AWS G2.2xLarge Detected"
-Start-BitsTransfer -Source https://s3.amazonaws.com/parsec-files-ami-setup/NvidiaDriver/K520.exe -Destination C:\ParsecTemp\Drivers
-Start-Process -FilePath C:\ParsecTemp\Drivers\K520.exe -ArgumentList "/s /n" -Wait
+Write-Output "GRID K520 Detected"
+gpu-update
 }
 ElseIF($gputype.Substring(13,8) -eq "DEV_1BB1") {
 #Paperspace P4000
-Write-Output "Paperspace P4000 Detected"
-Start-BitsTransfer -Source https://s3.amazonaws.com/parsec-files-ami-setup/NvidiaDriver/PX000.exe -Destination C:\ParsecTemp\Drivers
-Start-Process -FilePath C:\ParsecTemp\Drivers\PX000.exe -ArgumentList "/s /n" -Wait
+Write-Output "Quadro P4000 Detected"
+gpu-update
 } 
 Elseif($gputype.Substring(13,8) -eq "DEV_1BB0") {
 #Paperspace P5000
-Write-Output "Paperspace P5000 Detected"
-Start-BitsTransfer -Source https://s3.amazonaws.com/parsec-files-ami-setup/NvidiaDriver/PX000.exe -Destination C:\ParsecTemp\Drivers
-Start-Process -FilePath C:\ParsecTemp\Drivers\PX000.exe -ArgumentList "/s /n" -Wait
+Write-Output "Quadro P5000 Detected"
+gpu-update
 }
-Elseif($gputype.Substring(13,8) -eq "DEV_1430") {
-#Paperspace M2000 -Test
-aws-setup
-Write-Output "Test Machine Detected"
-Start-BitsTransfer -Source https://s3.amazonaws.com/parsec-files-ami-setup/NvidiaDriver/PX000.exe -Destination C:\ParsecTemp\Drivers
-Start-Process -FilePath C:\ParsecTemp\Drivers\PX000.exe -ArgumentList "/s /n" -Wait
+Elseif($gputype.substring(13,8) -eq "DEV_DEV_15F8") {
+#Tesla P1000
+Write-Output "Tesla P100 Detected"
+gpu-update
 }
 }
 
@@ -320,7 +317,6 @@ Remove-Item -Path C:\ParsecTemp\Apps -force -Recurse | Out-Null
 Remove-Item -Path $path\ParsecTemp -force -Recurse
 remove-item -Path "$path\ParsecPrep" -Recurse -Force
 }
-
 
 #cleanup recent files
 function clean-up-recent {
@@ -357,7 +353,6 @@ Write-Host -foregroundcolor cyan "
 
                     
 "   
-
 create-directories
 disable-iesecurity
 download-resources
@@ -374,14 +369,14 @@ set-time
 set-wallpaper
 Create-ClearProxy-Shortcut
 disable-server-manager
-#provider-specific
 Install-Gaming-Apps
 Write-Output "Done installing apps"
 Start-Sleep -s 5
 create-shortcut-app
 disable-devices
-clean-up
+#clean-up
 clean-up-recent
+provider-specific
 Write-Output "All Done"
 Start-Sleep -s 60
-#Restart-Computer
+pause
