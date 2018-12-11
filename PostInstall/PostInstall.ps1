@@ -244,7 +244,7 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlo
 New-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogin -Value 1 | Out-Null
 Rename-Computer -NewName "Parsec-AWS"
 Write-Output "WAITING FOR YOU TO CLICK YES ON Razer Surround Driver - IT COULD BE HIDING BEHIND ANOTHER WINDOW"
-Start-Process C:\ParsecTemp\Apps\azer-surround-driver.exe -Wait -NoNewWindow
+Start-Process C:\ParsecTemp\Apps\razer-surround-driver.exe -Wait -NoNewWindow
 Set-Service -Name audiosrv -StartupType Automatic
 }
 
