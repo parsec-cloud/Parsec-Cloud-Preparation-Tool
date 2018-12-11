@@ -66,7 +66,6 @@ Write-Output "Downloading Apps"
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parsec-build/package/parsec-windows.exe", "C:\ParsecTemp\Apps\parsec-windows.exe")
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/parsec+desktop.png", "C:\ParsecTemp\parsec+desktop.png")
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/white_ico_agc_icon.ico", "C:\ParsecTemp\white_ico_agc_icon.ico")
-(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPU%20Updater%20Tool.ps1", "$env:USERPROFILE\AppData\Roaming\ParsecLoader\GPU Updater Tool.ps1")
 }
 
 #install-base-files-silently
@@ -193,15 +192,14 @@ $ReadHost = Read-Host "(Y/N)"
 #createshortcut
 function Create-ClearProxy-Shortcut
 {
-Unblock-File -Path "$env:USERPROFILE\AppData\Roaming\ParsecLoader\GPU Updater Tool.ps1"
-Write-Output "Create GPU-Update-Shortcut"
+Write-Output "Create ClearProxy shortcut"
 $Shell = New-Object -ComObject ("WScript.Shell")
-$ShortCut = $Shell.CreateShortcut("$path\GPU Updater.lnk")
+$ShortCut = $Shell.CreateShortcut("$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\Clear-Proxy.lnk")
 $ShortCut.TargetPath="powershell.exe"
-$ShortCut.Arguments='-windowstyle hidden -ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\GPU Updater Tool.ps1"'
+$ShortCut.Arguments='-windowstyle hidden -ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\Clear-Proxy.ps1"'
 $ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
 $ShortCut.WindowStyle = 0;
-$ShortCut.Description = "GPU Upate Shortcut";
+$ShortCut.Description = "ClearProxy shortcut";
 $ShortCut.Save()
 }
 
@@ -251,15 +249,16 @@ Set-Service -Name audiosrv -StartupType Automatic
 }
 
 function gpu-update {
-(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPU%20Updater%20Tool.ps1", "$env:USERPROFILE\AppData\Roaming\ParsecLoader\GPU Updater Tool.ps1")
-Write-Output "Create ClearProxy shortcut"
+(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPU%20Updater%20Tool.ps1", "$ENV:Appdata\ParsecGPU\GPU Updater Tool.ps1")
+Unblock-File -Path "$ENV:Appdata\ParsecLoader\GPU Updater Tool.ps1"
+Write-Output "GPU-Update-Shortcut"
 $Shell = New-Object -ComObject ("WScript.Shell")
-$ShortCut = $Shell.CreateShortcut("$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\Clear-Proxy.lnk")
+$ShortCut = $Shell.CreateShortcut("$path\GPU Updater.lnk")
 $ShortCut.TargetPath="powershell.exe"
-$ShortCut.Arguments='-windowstyle hidden -ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\Clear-Proxy.ps1"'
+$ShortCut.Arguments='-ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\GPU Updater Tool.ps1"'
 $ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
 $ShortCut.WindowStyle = 0;
-$ShortCut.Description = "ClearProxy shortcut";
+$ShortCut.Description = "GPU Updater shortcut";
 $ShortCut.Save()
 }
 
