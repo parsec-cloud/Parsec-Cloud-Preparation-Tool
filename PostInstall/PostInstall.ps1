@@ -13,7 +13,7 @@ New-Item -Path $env:USERPROFILE\AppData\Roaming\ParsecLoader -ItemType directory
 Move-Item -Path $path\ParsecTemp\PreInstall\psscripts.ini -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\ -Force | Out-Null
 Move-Item -Path $path\ParsecTemp\PreInstall\NetworkRestore.ps1 -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown 
 Move-Item -Path $path\ParsecTemp\PreInstall\clear-proxy.ps1 -Destination $env:USERPROFILE\AppData\Roaming\ParsecLoader
-
+Move-Item -Path $path\ParsecTemp\PreInstall\GPU-Update.ico -Destination $env:USERPROFILE\AppData\Roaming\ParsecLoader
 
 function add-gpo-modifications {
 $querygpt = Get-content C:\Windows\System32\GroupPolicy\gpt.ini
@@ -232,7 +232,7 @@ Remove-Item -Path "$path\EC2 Microsoft Windows Guide.website"
 
 #AWS Specific tweaks
 function aws-setup{
-clean-aws
+#clean-aws
 autologin
 Write-Output "Installing VNC, Setting Auto Login, writing Json File, and changing computer name to Parsec-AWS"
 New-Item -Path C:\ParsecTemp\VirtualAudioCable -ItemType Directory| Out-Null
@@ -257,6 +257,7 @@ $ShortCut = $Shell.CreateShortcut("$path\GPU Updater.lnk")
 $ShortCut.TargetPath="powershell.exe"
 $ShortCut.Arguments='-ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\GPU Updater Tool.ps1"'
 $ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
+$ShortCut.IconLocation = "$path\ParsecTemp\PreInstall\GPU-Update.ico, 0";
 $ShortCut.WindowStyle = 0;
 $ShortCut.Description = "GPU Updater shortcut";
 $ShortCut.Save()
@@ -278,17 +279,14 @@ ElseIF($gputype.Substring(13,8) -eq "DEV_118A")
 {#AWS G2.2xLarge K520
 aws-setup
 Write-Output "GRID K520 Detected"
-
 }
 ElseIF($gputype.Substring(13,8) -eq "DEV_1BB1") {
 #Paperspace P4000
 Write-Output "Quadro P4000 Detected"
-
 } 
 Elseif($gputype.Substring(13,8) -eq "DEV_1BB0") {
 #Paperspace P5000
 Write-Output "Quadro P5000 Detected"
-
 }
 Elseif($gputype.substring(13,8) -eq "DEV_DEV_15F8") {
 #Tesla P1000
