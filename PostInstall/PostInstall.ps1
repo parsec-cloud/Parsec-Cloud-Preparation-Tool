@@ -195,6 +195,8 @@ $ShortCut.Save()
                N {autoLogin}
             }}
        Else {
+$username = $env:USERNAME
+$computername = $env:COMPUTERNAME
 Write-Host "Setting Windows to automatically login"
 (New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
 Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader"
