@@ -1,1 +1,0 @@
-net user administrator ""

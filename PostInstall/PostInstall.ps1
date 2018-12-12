@@ -168,33 +168,38 @@ $ReadHost = Read-Host "(Y/N)"
     Switch ($ReadHost) 
      { 
        Y {$password = Read-Host "Enter your password in plain text - the one you use to log into RDP"
+          $username = $env:USERNAME
        
        if (($password.length -le 1) -eq $true) {Write-output "Looks like you entered a blank password, is this correct?"
             $retry = Read-Host "Press Y to continue or N to re-enter your password"
             Switch ($retry)
             {
                Y {
-                    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value $env:USERNAME | Out-Null
-                    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultPassword -Value $password | Out-Null
-                    New-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogin -Value 1 | Out-Null
-                    Write-Output "
-                    Done, if you change your Windows password for any reason,
-                    please rerun the Auto Login Setup script in the 
-                    Parsec Tools folder on the Desktop or change the following
-                    registry entry
-                    HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\DefaultPassword"
+(New-Object System.Net.WebClient).DownloadFile("https://live.sysinternals.com/Autologon.exe", "$env:appdata\ParsecLoader\Autologin.exe")
+Start-Process -FilePath "$env:appdata\ParsecLoader\Autologin.exe" -Wait
+Write-Output "Change Auto Login Password"
+$Shell = New-Object -ComObject ("WScript.Shell")
+$ShortCut = $Shell.CreateShortcut("$Path\Change Auto Login Password.lnk")
+$ShortCut.TargetPath="Autologin.exe"
+$ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
+$ShortCut.WindowStyle = 0;
+$ShortCut.Description = "ClearProxy shortcut";
+$ShortCut.Save()
                   }
                N {autoLogin}
             }}
-       Else {       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value $env:USERNAME | Out-Null
-                    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultPassword -Value $password | Out-Null
-                    New-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogin -Value 1 | Out-Null
-                    Write-Output "
-                    Done, if you change your Windows password for any reason,
-                    please rerun the Auto Login Setup script in the 
-                    Parsec Tools folder on the Desktop or change the following
-                    registry entry
-                    HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\DefaultPassword"}
+       Else {
+(New-Object System.Net.WebClient).DownloadFile("https://live.sysinternals.com/Autologon.exe", "$env:appdata\ParsecLoader\Autologin.exe")
+Start-Process -FilePath "$env:appdata\ParsecLoader\Autologin.exe" -Wait
+Write-Output "Change Auto Login Password"
+$Shell = New-Object -ComObject ("WScript.Shell")
+$ShortCut = $Shell.CreateShortcut("$Path\Change Auto Login Password.lnk")
+$ShortCut.TargetPath="Autologin.exe"
+$ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
+$ShortCut.WindowStyle = 0;
+$ShortCut.Description = "ClearProxy shortcut";
+$ShortCut.Save()
+       }
        }
        N {} 
      } 
