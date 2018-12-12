@@ -178,7 +178,7 @@ $ReadHost = Read-Host "(Y/N)"
 Write-Host "Setting Windows to automatically login"
 (New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
 Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader"
-Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -RunAs -ArgumentList "$username $env:COMPUTERNAME $password" -Wait
+Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -ArgumentList "$username", "$env:COMPUTERNAME", "$password", "/accepteula" -Wait
 Write-Output "Changed Auto Login Password"
 $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$path\Change Auto Login Password.lnk")
@@ -195,7 +195,7 @@ $ShortCut.Save()
 Write-Host "Setting Windows to automatically login"
 (New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
 Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader"
-Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -RunAs -ArgumentList "$username $env:COMPUTERNAME $password" -Wait
+Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -ArgumentList "$username", "$env:COMPUTERNAME", "$password", "/accepteula" -Wait
 Write-Output "Changed Auto Login Password"
 $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$path\Change Auto Login Password.lnk")
@@ -326,7 +326,7 @@ aws-setup
 function Install-Gaming-Apps {
 Write-Output "Installing Parsec - YOU WILL NEED TO MANUALLY CLICK THROUGH THIS, AND CLICK YES"
 Start-Process -FilePath C:\ParsecTemp\Apps\Parsec-Windows.exe -wait
-New-ItemProperty -path HKCU:\Software\Microsoft\Windows\CurrentVersion\Run -Name "Parsec.App.0" -Value "$ENV:AppData\Parsec\electron\parsec.exe hidden=1" | Out-Null
+New-ItemProperty -path HKCU:\Software\Microsoft\Windows\CurrentVersion\Run -Name "Parsec.App.0" -Value "$ENV:AppData\Parsec\electron\parsec.exe" | Out-Null
 Stop-Process -name parsec
 Write-Output "app_host=1" | Out-File -FilePath $ENV:AppData\Parsec\config.txt -Encoding ascii
 }
