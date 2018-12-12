@@ -169,6 +169,7 @@ $ReadHost = Read-Host "(Y/N)"
      { 
        Y {$password = Read-Host "Enter your password in plain text - the one you use to log into RDP"
           $username = $env:USERNAME
+          $computername = $env:COMPUTERNAME
        
        if (($password.length -le 1) -eq $true) {Write-output "Looks like you entered a blank password, is this correct?"
             $retry = Read-Host "Press Y to continue or N to re-enter your password"
@@ -178,7 +179,7 @@ $ReadHost = Read-Host "(Y/N)"
 Write-Host "Setting Windows to automatically login"
 (New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
 Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader"
-Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -ArgumentList "$env:USERNAME", "$env:COMPUTERNAME", "$password", "/accepteula" -Wait
+Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -ArgumentList "$username", "$computername", "$password", "/accepteula" -Wait
 Write-Output "Changed Auto Login Password
 If you ever change your login password, you should update the auto login system, you can do so by clicking Change Auto Login Password on your Desktop"
 
@@ -197,7 +198,7 @@ $ShortCut.Save()
 Write-Host "Setting Windows to automatically login"
 (New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
 Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader"
-Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -ArgumentList "$env:USERNAME", "$env:COMPUTERNAME", "$password", "/accepteula" -Wait
+Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -ArgumentList "$username", "$computername", "$password", "/accepteula" -Wait
 Write-Output "Changed Auto Login Password"
 $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$path\Change Auto Login Password.lnk")
@@ -257,7 +258,7 @@ Remove-Item -Path "$path\EC2 Microsoft Windows Guide.website"
 #AWS Specific tweaks
 function aws-setup{
 #clean-aws
-Write-Output "Installing VNC, Setting machine to auto login, and installing audio driver"
+Write-Output "Installing VNC, and installing audio driver"
 (New-Object System.Net.WebClient).DownloadFile($(((Invoke-WebRequest -Uri https://www.tightvnc.com/download.php -UseBasicParsing).Links.OuterHTML -like "*Installer for Windows (64-bit)*").split('"')[1].split('"')[0]), "C:\ParsecTemp\Apps\tightvnc.msi")
 (New-Object System.Net.WebClient).DownloadFile("http://rzr.to/surround-pc-download", "C:\ParsecTemp\Apps\razer-surround-driver.exe")
 start-process msiexec.exe -ArgumentList '/i C:\ParsecTemp\Apps\TightVNC.msi /quiet /norestart ADDLOCAL=Server SET_USECONTROLAUTHENTICATION=1 VALUE_OF_USECONTROLAUTHENTICATION=1 SET_CONTROLPASSWORD=1 VALUE_OF_CONTROLPASSWORD=4ubg9sde SET_USEVNCAUTHENTICATION=1 VALUE_OF_USEVNCAUTHENTICATION=1 SET_PASSWORD=1 VALUE_OF_PASSWORD=4ubg9sde' -Wait
