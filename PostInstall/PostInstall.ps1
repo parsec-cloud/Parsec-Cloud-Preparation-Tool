@@ -334,7 +334,6 @@ Remove-Item -Path C:\ParsecTemp\DirectX -force -Recurse
 Remove-Item -Path C:\ParsecTemp\Drivers -force -Recurse
 Remove-Item -Path C:\ParsecTemp\Apps -force -Recurse | Out-Null
 Remove-Item -Path $path\ParsecTemp -force -Recurse
-remove-item -Path "$path\ParsecPrep" -Recurse -Force
 }
 
 #cleanup recent files
