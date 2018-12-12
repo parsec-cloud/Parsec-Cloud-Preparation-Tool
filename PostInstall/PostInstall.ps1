@@ -268,7 +268,7 @@ $ShortCut = $Shell.CreateShortcut("$path\GPU Updater.lnk")
 $ShortCut.TargetPath="powershell.exe"
 $ShortCut.Arguments='-ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\GPU Updater Tool.ps1"'
 $ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
-$ShortCut.IconLocation = "$path\ParsecTemp\PreInstall\GPU-Update.ico, 0";
+$ShortCut.IconLocation = "$env:USERPROFILE\AppData\Roaming\ParsecLoader\GPU-Update.ico, 0";
 $ShortCut.WindowStyle = 0;
 $ShortCut.Description = "GPU Updater shortcut";
 $ShortCut.Save()
