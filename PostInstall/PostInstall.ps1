@@ -167,47 +167,14 @@ Doing so will require storing your Windows password in the registry in plain tex
 $ReadHost = Read-Host "(Y/N)"
     Switch ($ReadHost) 
      { 
-       Y {$password = Read-Host "Enter your password in plain text - the one you use to log into RDP"
-
-       
-       if (($password.length -le 1) -eq $true) {Write-output "Looks like you entered a blank password, is this correct?"
-            $retry = Read-Host "Press Y to continue or N to re-enter your password"
-            Switch ($retry)
-            {
-               Y {
-$username = "$env:USERNAME"
-$computername = "$env:COMPUTERNAME"
-$pwrd = "$password"
-$eula = "/accepteula"
-$autologinargs = "$eula $username $computername $password"
-Write-Host "Setting Windows to automatically login"
+       Y {
+Write-Host "Accept the EULA and enter the following details
+Username: $env:username
+Domain: $env:Computername
+Password: The password you use to log into RDP"
 (New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
 Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader"
-Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -ArgumentList $autologinargs -Wait
-Write-Output "Changed Auto Login Password
-If you ever change your login password, you should update the auto login system, you can do so by clicking Change Auto Login Password on your Desktop"
-
-$Shell = New-Object -ComObject ("WScript.Shell")
-$ShortCut = $Shell.CreateShortcut("$path\Change Auto Login Password.lnk")
-$ShortCut.TargetPath="$env:USERPROFILE\AppData\Roaming\ParsecLoader\Autologon.exe"
-$ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
-$ShortCut.WindowStyle = 0;
-$ShortCut.Description = "Auto Login";
-$ShortCut.Save()
-
-                  }
-               N {autoLogin}
-            }}
-       Else {
-$username = "$env:USERNAME"
-$computername = "$env:COMPUTERNAME"
-$pwrd = "$password"
-$eula = "/accepteula"
-$autologinargs = "$eula $username $computername $password"
-Write-Host "Setting Windows to automatically login"
-(New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
-Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader"
-Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -ArgumentList $autologinargs -Wait
+Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -wait
 Write-Output "Changed Auto Login Password"
 $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$path\Change Auto Login Password.lnk")
@@ -216,10 +183,9 @@ $ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
 $ShortCut.WindowStyle = 0;
 $ShortCut.Description = "Auto Login";
 $ShortCut.Save()
-       }
-       }
        N {} 
      } 
+}
 }
 
 
