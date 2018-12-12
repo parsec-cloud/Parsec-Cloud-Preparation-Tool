@@ -245,18 +245,17 @@ Remove-Item -Path "$path\EC2 Microsoft Windows Guide.website"
 function aws-setup{
 #clean-aws
 autologin
-Write-Output "Installing VNC, Setting Auto Login, writing Json File, and changing computer name to Parsec-AWS"
-New-Item -Path C:\ParsecTemp\VirtualAudioCable -ItemType Directory| Out-Null
+Write-Output "Installing VNC, Setting machine to auto login, and installing audio driver"
 (New-Object System.Net.WebClient).DownloadFile($(((Invoke-WebRequest -Uri https://www.tightvnc.com/download.php -UseBasicParsing).Links.OuterHTML -like "*Installer for Windows (64-bit)*").split('"')[1].split('"')[0]), "C:\ParsecTemp\Apps\tightvnc.msi")
 (New-Object System.Net.WebClient).DownloadFile("http://rzr.to/surround-pc-download", "C:\ParsecTemp\Apps\razer-surround-driver.exe")
 start-process msiexec.exe -ArgumentList '/i C:\ParsecTemp\Apps\TightVNC.msi /quiet /norestart ADDLOCAL=Server SET_USECONTROLAUTHENTICATION=1 VALUE_OF_USECONTROLAUTHENTICATION=1 SET_CONTROLPASSWORD=1 VALUE_OF_CONTROLPASSWORD=4ubg9sde SET_USEVNCAUTHENTICATION=1 VALUE_OF_USEVNCAUTHENTICATION=1 SET_PASSWORD=1 VALUE_OF_PASSWORD=4ubg9sde' -Wait
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value $env:USERNAME | Out-Null
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value "" | Out-Null
 New-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogin -Value 1 | Out-Null
-Rename-Computer -NewName "Parsec-AWS"
 Write-Output "WAITING FOR YOU TO CLICK YES ON Razer Surround Driver - IT COULD BE HIDING BEHIND ANOTHER WINDOW"
 Start-Process C:\ParsecTemp\Apps\razer-surround-driver.exe -Wait -NoNewWindow
 Set-Service -Name audiosrv -StartupType Automatic
+pause
 }
 
 function gpu-update-shortcut {
