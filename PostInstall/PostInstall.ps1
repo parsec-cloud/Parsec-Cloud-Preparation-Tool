@@ -178,10 +178,12 @@ $ReadHost = Read-Host "(Y/N)"
 $username = "$env:USERNAME"
 $computername = "$env:COMPUTERNAME"
 $pwrd = "$password"
+$eula = "/accepteula"
+$autologinargs = "$eula $username $computername $password"
 Write-Host "Setting Windows to automatically login"
 (New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
 Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader"
-Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -ArgumentList "/accepteula", $username, $computername, $pwrd -Wait
+Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -ArgumentList $autologinargs -Wait
 Write-Output "Changed Auto Login Password
 If you ever change your login password, you should update the auto login system, you can do so by clicking Change Auto Login Password on your Desktop"
 
@@ -200,10 +202,12 @@ $ShortCut.Save()
 $username = "$env:USERNAME"
 $computername = "$env:COMPUTERNAME"
 $pwrd = "$password"
+$eula = "/accepteula"
+$autologinargs = "$eula $username $computername $password"
 Write-Host "Setting Windows to automatically login"
 (New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
 Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader"
-Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -ArgumentList "/accepteula", $username, $computername, $pwrd -Wait
+Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -ArgumentList $autologinargs -Wait
 Write-Output "Changed Auto Login Password"
 $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$path\Change Auto Login Password.lnk")
