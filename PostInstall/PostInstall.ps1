@@ -398,3 +398,4 @@ clean-up
 clean-up-recent
 provider-specific
 Write-Output "All Done"
+pause
