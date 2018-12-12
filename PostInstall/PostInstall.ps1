@@ -298,13 +298,13 @@ Elseif($gputype.Substring(13,8) -eq "DEV_1BB0") {
 #Paperspace P5000
 Write-Output "Quadro P5000 Detected"
 }
-Elseif($gputype.substring(13,8) -eq "DEV_DEV_15F8") {
+Elseif($gputype.substring(13,8) -eq "DEV_15F8") {
 #Tesla P1000
 Write-Output "Tesla P100 Detected"
 aws-setup
 }
-Elseif($gputype.substring(13,8) -eq "DEV_DEV_1430") {
-#Tesla M2000
+Elseif($gputype.substring(13,8) -eq "DEV_1430") {
+#Quadro M2000
 Write-Output "Quadro M2000 Detected"
 aws-setup
 }
