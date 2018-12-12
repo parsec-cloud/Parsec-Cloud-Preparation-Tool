@@ -259,7 +259,7 @@ pause
 }
 
 function gpu-update-shortcut {
-(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPU%20Updater%20Tool.ps1", "$ENV:Appdata\ParsecGPU\GPU Updater Tool.ps1")
+(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPU%20Updater%20Tool.ps1", "$ENV:Appdata\ParsecLoader\GPU Updater Tool.ps1")
 Unblock-File -Path "$ENV:Appdata\ParsecLoader\GPU Updater Tool.ps1"
 Write-Output "GPU-Update-Shortcut"
 $Shell = New-Object -ComObject ("WScript.Shell")
