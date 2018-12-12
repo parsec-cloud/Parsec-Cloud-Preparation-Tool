@@ -3,10 +3,10 @@ $getdisabled = Get-WmiObject win32_videocontroller | Where-Object {$_.name -like
 if ($getdisabled -ne $null) {"Enabling GPU"
 $var = $getdisabled.Substring(0,21)
 $arguement = "/r enable"+ ' ' + "*"+ "$var"+ "*"
-Start-Process -FilePath "C:\ParsecTemp\Apps\devcon.exe" -ArgumentList $arguement
+Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList $arguement
 }
 Else {"Device is enabled"
-Start-Process -FilePath "C:\ParsecTemp\Apps\devcon.exe" -ArgumentList '/m /r'}
+Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/m /r'}
 }
 Function provider-specific
 {

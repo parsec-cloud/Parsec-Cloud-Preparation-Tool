@@ -48,6 +48,7 @@ New-Item -Path C:\ParsecTemp -ItemType directory | Out-Null
 New-Item -Path C:\ParsecTemp\Apps -ItemType directory | Out-Null
 New-Item -Path C:\ParsecTemp\DirectX -ItemType directory | Out-Null
 New-Item -Path C:\ParsecTemp\Drivers -ItemType Directory | Out-Null
+New-Item -Path C:\ParsecTemp\Devcon -ItemType Directory | Out-Null
 }
 
 #disable IE security
@@ -62,7 +63,7 @@ Stop-Process -Name Explorer -Force
 function download-resources {
 Write-Output "Downloading Apps"
 (New-Object System.Net.WebClient).DownloadFile("https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe", "C:\ParsecTemp\Apps\directx_Jun2010_redist.exe") 
-(New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parsec-files-ami-setup/Devcon/devcon.exe", "C:\ParsecTemp\Apps\devcon.exe")
+(New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parsec-files-ami-setup/Devcon/devcon.exe", "C:\ParsecTemp\Devcon\devcon.exe")
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parsec-build/package/parsec-windows.exe", "C:\ParsecTemp\Apps\parsec-windows.exe")
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/parsec+desktop.png", "C:\ParsecTemp\parsec+desktop.png")
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/white_ico_agc_icon.ico", "C:\ParsecTemp\white_ico_agc_icon.ico")
@@ -323,9 +324,9 @@ Write-Output "app_host=1" | Out-File -FilePath $ENV:AppData\Parsec\config.txt -E
 #Disable Devices
 function disable-devices {
 write-output "Disabling devices not required"
-Start-Process -FilePath "C:\ParsecTemp\Apps\devcon.exe" -ArgumentList '/r disable "HDAUDIO\FUNC_01&VEN_10DE&DEV_0083&SUBSYS_10DE11A3*"'
-Start-Process -FilePath "C:\ParsecTemp\Apps\devcon.exe" -ArgumentList '/r disable "PCI\VEN_1234&DEV_1111&SUBSYS_00015853*"'
-Start-Process -FilePath "C:\ParsecTemp\Apps\devcon.exe" -ArgumentList '/r disable "PCI\VEN_1013&DEV_00B8&SUBSYS_00015853*"'
+Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/r disable "HDAUDIO\FUNC_01&VEN_10DE&DEV_0083&SUBSYS_10DE11A3*"'
+Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/r disable "PCI\VEN_1234&DEV_1111&SUBSYS_00015853*"'
+Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/r disable "PCI\VEN_1013&DEV_00B8&SUBSYS_00015853*"'
 }
 
 #Cleanup
