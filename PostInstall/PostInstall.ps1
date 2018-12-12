@@ -244,7 +244,6 @@ Remove-Item -Path "$path\EC2 Microsoft Windows Guide.website"
 #AWS Specific tweaks
 function aws-setup{
 #clean-aws
-autologin
 Write-Output "Installing VNC, Setting machine to auto login, and installing audio driver"
 (New-Object System.Net.WebClient).DownloadFile($(((Invoke-WebRequest -Uri https://www.tightvnc.com/download.php -UseBasicParsing).Links.OuterHTML -like "*Installer for Windows (64-bit)*").split('"')[1].split('"')[0]), "C:\ParsecTemp\Apps\tightvnc.msi")
 (New-Object System.Net.WebClient).DownloadFile("http://rzr.to/surround-pc-download", "C:\ParsecTemp\Apps\razer-surround-driver.exe")
@@ -255,7 +254,6 @@ New-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlo
 Write-Output "WAITING FOR YOU TO CLICK YES ON Razer Surround Driver - IT COULD BE HIDING BEHIND ANOTHER WINDOW"
 Start-Process C:\ParsecTemp\Apps\razer-surround-driver.exe -Wait -NoNewWindow
 Set-Service -Name audiosrv -StartupType Automatic
-pause
 }
 
 function gpu-update-shortcut {
@@ -283,10 +281,12 @@ $gputype = get-wmiobject -query "select DeviceID from Win32_PNPEntity Where devi
 $deviceuppdate = if($gputype.substring(13,8) -eq "DEV_13F2") {
 #AWS G3.4xLarge M60
 Write-Output "Tesla M60 Detected"
+autologin
 aws-setup
 }
 ElseIF($gputype.Substring(13,8) -eq "DEV_118A")
 {#AWS G2.2xLarge K520
+autologin
 aws-setup
 Write-Output "GRID K520 Detected"
 }
@@ -301,11 +301,13 @@ Write-Output "Quadro P5000 Detected"
 Elseif($gputype.substring(13,8) -eq "DEV_15F8") {
 #Tesla P1000
 Write-Output "Tesla P100 Detected"
+autologin
 aws-setup
 }
 Elseif($gputype.substring(13,8) -eq "DEV_1430") {
 #Quadro M2000
 Write-Output "Quadro M2000 Detected"
+autologin
 aws-setup
 }
 }
