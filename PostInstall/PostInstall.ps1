@@ -277,7 +277,7 @@ Function provider-specific
 {
 Write-Output "Doing provider specific customizations"
 #Device ID Query 
-$gputype = get-wmiobject -query "select DeviceID from Win32_PNPEntity Where deviceid Like '%PCI\\VEN_10DE%' and PNPClass = 'Display'" | Select-Object DeviceID -ExpandProperty DeviceID
+$gputype = get-wmiobject -query "select DeviceID from Win32_PNPEntity Where (deviceid Like '%PCI\\VEN_10DE%') and (PNPClass = 'Display' or Name = '3D Video Controller')" | Select-Object DeviceID -ExpandProperty DeviceID
 
 if($gputype.substring(13,8) -eq "DEV_13F2") {
 #AWS G3.4xLarge M60

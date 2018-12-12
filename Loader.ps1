@@ -33,13 +33,13 @@ Write-Host -foregroundcolor cyan "
 Write-Output "Setting up Environment"
 $path = [Environment]::GetFolderPath("Desktop")
 New-Item -Path $path\ParsecTemp -ItemType directory 
+Unblock-File -Path .\*
 copy-Item .\* -Destination $path\ParsecTemp\ -Recurse
 #lil nap
 Start-Sleep -s 1
 #unblocking any files
 Write-Output "Unblocking files just in case"
-Unblock-File -Path $path\ParsecTemp\PreInstall\* 
-Unblock-File -Path $path\ParsecTemp\PostInstall*
+Unblock-File -Path $path\ParsecTemp\*
 Write-Output "Starting the first script, this Window will close in 60 seconds"
 start-process powershell.exe -verb RunAS -argument "-file $path\parsectemp\PostInstall\PostInstall.ps1"
 Start-Sleep -Seconds 60
