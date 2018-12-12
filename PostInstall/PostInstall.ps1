@@ -168,18 +168,19 @@ $ReadHost = Read-Host "(Y/N)"
     Switch ($ReadHost) 
      { 
        Y {$password = Read-Host "Enter your password in plain text - the one you use to log into RDP"
-          $username = $env:USERNAME
-          $computername = $env:COMPUTERNAME
+
        
        if (($password.length -le 1) -eq $true) {Write-output "Looks like you entered a blank password, is this correct?"
             $retry = Read-Host "Press Y to continue or N to re-enter your password"
             Switch ($retry)
             {
                Y {
+$username = "$env:USERNAME"
+$computername = "$env:COMPUTERNAME"
 Write-Host "Setting Windows to automatically login"
 (New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
 Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader"
-Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -ArgumentList "$username", "$computername", "$password", "/accepteula" -Wait
+Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -ArgumentList $username, $computername, "$password", "/accepteula" -Wait
 Write-Output "Changed Auto Login Password
 If you ever change your login password, you should update the auto login system, you can do so by clicking Change Auto Login Password on your Desktop"
 
@@ -195,12 +196,12 @@ $ShortCut.Save()
                N {autoLogin}
             }}
        Else {
-$username = $env:USERNAME
-$computername = $env:COMPUTERNAME
+$username = "$env:USERNAME"
+$computername = "$env:COMPUTERNAME"
 Write-Host "Setting Windows to automatically login"
 (New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
 Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader"
-Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -ArgumentList "$username", "$computername", "$password", "/accepteula" -Wait
+Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -ArgumentList $username, $computername, "$password", "/accepteula" -Wait
 Write-Output "Changed Auto Login Password"
 $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$path\Change Auto Login Password.lnk")
