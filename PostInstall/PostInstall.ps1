@@ -278,14 +278,13 @@ Write-Output "Doing provider specific customizations"
 #Device ID Query 
 $gputype = get-wmiobject -query "select DeviceID from Win32_PNPEntity Where deviceid Like '%PCI\\VEN_10DE%' and PNPClass = 'Display'" | Select-Object DeviceID -ExpandProperty DeviceID
 
-$deviceuppdate = if($gputype.substring(13,8) -eq "DEV_13F2") {
+if($gputype.substring(13,8) -eq "DEV_13F2") {
 #AWS G3.4xLarge M60
 Write-Output "Tesla M60 Detected"
 autologin
 aws-setup
 }
-ElseIF($gputype.Substring(13,8) -eq "DEV_118A")
-{#AWS G2.2xLarge K520
+ElseIF($gputype.Substring(13,8) -eq "DEV_118A"){#AWS G2.2xLarge K520
 autologin
 aws-setup
 Write-Output "GRID K520 Detected"
