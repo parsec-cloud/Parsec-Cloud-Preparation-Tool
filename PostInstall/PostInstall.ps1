@@ -175,7 +175,7 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlo
 set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value "$($SID.name)" 
 set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultDomainName -Value "$($env:ComputerName)" 
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultPassword -Value "$($Autologin.Password)" | Out-Null
-New-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogin -Value 1 | Out-Null
+New-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogon -Value 1 | Out-Null
 Write-Output "Changed Auto Login Password"
 $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$path\Change Auto Login Password.lnk")
@@ -194,7 +194,7 @@ $ReadHost = Read-Host "(Y/N)"
     Switch ($ReadHost) 
      { 
        Y {$Autologin.Password = Read-host "Enter your password for this machine - it will be stored in the registry in plain text"
-         if (($RequestPassword.Length -lt 1) -eq $true) 
+         if (($Autologin.Password.Length -lt 1) -eq $true) 
          {$NoPassword = Read-Host "The password you entered is blank, it must match what your cloud provider gave you, try again? Y/N"
          Switch ($NoPassword)
          {
