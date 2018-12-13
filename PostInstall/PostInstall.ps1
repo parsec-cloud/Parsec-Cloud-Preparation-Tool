@@ -163,7 +163,7 @@ New-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer -Prope
 function autoLogin { Write-output "This cloud machine needs to be set to automatically login - please use the Setup Auto Login shortcut in the desktop to set this up when the script is finished"
 (New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
 Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader"
-Write-Host "Accept the EULA and enter the following details
+Write-Output "Accept the EULA and enter the following details
 Username: $env:username
 Domain: $env:Computername
 Password: The password you got from Azure/AWS/Google that you use to log into RDP" | Out-File "$path\Auto Login Instructions.txt"
