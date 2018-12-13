@@ -379,7 +379,7 @@ set-wallpaper
 Create-ClearProxy-Shortcut
 disable-server-manager
 Install-Gaming-Apps
-Write-Output "Done installing apps"
+Write-Output "Done installing Parsec"
 Start-Sleep -s 5
 create-shortcut-app
 gpu-update-shortcut
