@@ -291,6 +291,9 @@ Write-Output "Quadro P5000 Detected"
 Elseif($gputype.substring(13,8) -eq "DEV_15F8") {
 #Tesla P1000
 Write-Output "Tesla P100 Detected"
+remove-item -path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe"
+remove-item -path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk"
+set-wallpaper
 autologin
 aws-setup
 }
@@ -404,7 +407,7 @@ Write-Host "1. Open Parsec and sign in" -ForegroundColor RED
 Write-Host "2. Open Setup Auto Logon on the Desktop and follow the instructions (in the text file on the Desktop)" -ForegroundColor RED
 Write-Host "3. Run GPU Updater Tool" -ForegroundColor RED
 Write-Host "4. If your computer doesn't reboot automatically, restart it from the Start Menu after GPU Updater Tool is finished" -ForegroundColor RED
-Write-Host "5. Razer Synapse doesn't need to run at startup, and doesn't need to be logged into, so you can disable it starting automatically" -ForegroundColor RED
+Write-Host "5. Razer Synapse doesn't need to run at startup, and doesn't need to be logged into, so you can disable it starting automatically." -ForegroundColor RED
 Write-Host "   You need to delete the registry key for it here" -ForegroundColor RED
 Write-Host "   HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run" -ForegroundColor RED
 pause
