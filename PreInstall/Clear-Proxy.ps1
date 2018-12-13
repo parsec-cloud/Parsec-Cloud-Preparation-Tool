@@ -1,4 +1,10 @@
-﻿function checkGPUstatus {
+﻿function Remove-Razer-Startup {
+if (((Get-Item -Path HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run).GetValue("Razer Synapse") -ne $null) -eq $true) 
+{Remove-ItemProperty -path "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run" -Name "Razer Synapse"
+"Removed Startup Item from Razer Synapse"}
+Else {"Razer Startup Item not present"}
+}
+function checkGPUstatus {
 $getdisabled = Get-WmiObject win32_videocontroller | Where-Object {$_.name -like '*NVIDIA*' -and $_.status -like 'Error'} | Select-Object -ExpandProperty PNPDeviceID
 if ($getdisabled -ne $null) {"Enabling GPU"
 $var = $getdisabled.Substring(0,21)
@@ -8,8 +14,7 @@ Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList $argueme
 Else {"Device is enabled"
 Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/m /r'}
 }
-Function provider-specific
-{
+Function provider-specific {
 Write-Output "Doing provider specific customizations"
 #Device ID Query 
 New-Item -path C:\ParsecTemp\Drivers -ItemType Directory -Force | Out-Null
@@ -54,6 +59,7 @@ Restart-Computer}
 Else {checkGPUStatus}
 }
 DriverInstallStatus
+Remove-Razer-Startup
 function check-nvidia {
 $nvidiasmiarg = "-i 0 --query-gpu=driver_model.current --format=csv,noheader"
 $nvidiasmidir = "c:\program files\nvidia corporation\nvsmi\nvidia-smi" 
@@ -94,13 +100,12 @@ $deviceupdate = if($gputype.substring(13,8) -eq "DEV_1BB1") {
 #P4000
 clear-proxy-paperspace
 }
-ElseIF($gputype.Substring(13,8) -eq "DEV_1BB0")
-{#P5000
+ElseIF($gputype.Substring(13,8) -eq "DEV_1BB0"){#P5000
 clear-proxy-paperspace}
 Else {clear-proxy}
 $deviceupdate
 Start-Sleep -s 60
-function Test-PendingReboot{
+function Test-PendingReboot{
  if (Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending" -EA Ignore) { return $true }
  if (Get-Item "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired" -EA Ignore) { return $true }
  if (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager" -Name PendingFileRenameOperations -EA Ignore) { return $true }
@@ -114,6 +119,5 @@ function Test-PendingReboot{
  
  return $false
 }
-if (Test-PendingReboot -eq $true)
-{shutdown /r -t 0}
+if (Test-PendingReboot -eq $true){shutdown /r -t 0}
 Else {}
