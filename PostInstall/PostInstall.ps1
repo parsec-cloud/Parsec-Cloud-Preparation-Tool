@@ -160,13 +160,12 @@ New-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer -Prope
 }
 
 #enable auto login - remove user password
-
-function forcelogin 
-{
 Add-Type -AssemblyName System.DirectoryServices.AccountManagement
 $SID = [System.DirectoryServices.AccountManagement.UserPrincipal]::Current
+function forcelogin 
+{
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoLogonSID -Value $($SID.Sid.Value) | Out-Null
-set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value "$($env:ComputerName)\$($SID.name)" | Out-Null
+set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value "$($env:ComputerName)\$($SID.name)" 
 }
 
 function autoLogin { Write-output "Automatically log into Windows when the machine starts? 
