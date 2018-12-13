@@ -1,8 +1,4 @@
-﻿### Written by James Stringer for Parsec Cloud Inc ###
-### http://parsecgaming.com ###
-### Contribute: 
-
-$path = [Environment]::GetFolderPath("Desktop")
+﻿$path = [Environment]::GetFolderPath("Desktop")
 $currentusersid = Get-LocalUser "$env:USERNAME" | Select-Object SID | ft -HideTableHeaders | Out-String | ForEach-Object { $_.Trim() }
 
 #Creating Folders and moving script files into System directories
