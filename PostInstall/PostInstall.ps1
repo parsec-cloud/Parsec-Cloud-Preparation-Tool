@@ -119,14 +119,10 @@ New-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\
 
 #auto close apps
 function force-close-apps {
-Write-Output "Forcing Apps to close on shutdown"
-$test = Test-Path -Path "HKCU:\Control Panel\Desktop\AutoEndTask"
-if ($test -eq $true){
-set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name AutoEndTasks -Value 1 | Out-Null
-}
-Else {
-New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name AutoEndTasks -Value 1 | Out-Null
-}
+if (((Get-Item -Path "HKCU:\Control Panel\Desktop").GetValue("AutoEndTasks") -ne $null) -eq $true) 
+{Set-ItemProperty -path "HKCU:\Control Panel\Desktop" -Name "AutoEndTasks" -Value "1"
+"Removed Startup Item from Razer Synapse"}
+Else {New-ItemProperty -path "HKCU:\Control Panel\Desktop" -Name "AutoEndTasks" -Value "1"}
 }
 
 #show hidden items
