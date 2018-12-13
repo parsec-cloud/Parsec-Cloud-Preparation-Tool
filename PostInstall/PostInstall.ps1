@@ -167,7 +167,7 @@ $output = "
 This application was provided by Mark Rusinovish from System Internals",
 "https://docs.microsoft.com/en-us/sysinternals/downloads/autologon",
 "",
-"What this application does:  Enables your server to automatically login.",
+"What this application does:  Enables your server to automatically login, so you can log into Parsec straight away.",
 "When to use it: The first time you setup your server, or when you change your servers password.",
 "",
 "Instructions",
@@ -242,7 +242,7 @@ start-process msiexec.exe -ArgumentList '/i C:\ParsecTemp\Apps\TightVNC.msi /qui
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value $env:USERNAME | Out-Null
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value "" | Out-Null
 New-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogin -Value 1 | Out-Null
-Write-Output "WAITING FOR YOU TO CLICK YES ON Razer Surround Driver - IT COULD BE HIDING BEHIND ANOTHER WINDOW"
+Write-Host "WAITING FOR YOU TO CLICK YES ON Razer Surround Driver - IT COULD BE HIDING BEHIND ANOTHER WINDOW" -ForegroundColor Red
 Start-Process C:\ParsecTemp\Apps\razer-surround-driver.exe
 Set-Service -Name audiosrv -StartupType Automatic
 }
@@ -367,7 +367,7 @@ disable-iesecurity
 download-resources
 install-windows-features
 set-update-policy 
-remove-shutdown 
+#remove-shutdown 
 force-close-apps 
 disable-network-window
 disable-logout
@@ -388,4 +388,5 @@ clean-up
 clean-up-recent
 provider-specific
 Write-Output "All Done"
+Write-Host "You should now sign into Parsec" -ForegroundColor RED
 pause
