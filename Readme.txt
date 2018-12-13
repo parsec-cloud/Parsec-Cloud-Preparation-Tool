@@ -40,7 +40,8 @@ Google P100       (Tesla P100)
 
 Issues:
 Q. Stuck at downloading resouces for more than 1 minute
-A. Close the Powershell window, delete the "ParsecTemp" folder on the Desktop, then right click Loader.ps1 from the extracted Zip and select "Run with Powershell" 
+A. Close the Powershell window, delete the "ParsecTemp" folder on the Desktop, 
+   then right click Loader.ps1 from the extracted Zip and select "Run with Powershell" 
    You may see errors, but it will still work.
 
 Q. Google P100 is stuck at 1366x768
