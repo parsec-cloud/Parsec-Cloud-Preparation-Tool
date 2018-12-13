@@ -175,7 +175,7 @@ This application was provided by Mark Rusinovish from System Internals",
 "Username: $env:username",
 "Domain: $env:Computername",
 "Password: The password you got from Azure/AWS/Google that you use to log into RDP"
-$output | Out-File "C:\ParsecTemp\Auto Login Instructions.txt"
+$output | Out-File "$path\Auto Login Instructions.txt"
 
 autoLoginShortCut
 }
