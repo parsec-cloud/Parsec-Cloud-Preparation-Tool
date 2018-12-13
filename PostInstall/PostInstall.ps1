@@ -117,7 +117,7 @@ Write-Output "Disabling Shutdown Option in Start Menu"
 New-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer -Name NoClose -Value 1 | Out-Null
 }
 
-#auto close apps
+#Sets all applications to force close on shutdown
 function force-close-apps {
 if (((Get-Item -Path "HKCU:\Control Panel\Desktop").GetValue("AutoEndTasks") -ne $null) -eq $true) 
 {Set-ItemProperty -path "HKCU:\Control Panel\Desktop" -Name "AutoEndTasks" -Value "1"
