@@ -161,7 +161,7 @@ New-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer -Prope
 
 #enable auto login - remove user password
 
-SetAutoLoginPassword {
+function SetAutoLoginPassword {
 #Write-Host "Accept the EULA and enter the following details
 #Username: $env:username
 #Domain: $env:Computername
