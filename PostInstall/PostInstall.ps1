@@ -5,8 +5,8 @@
 $path = [Environment]::GetFolderPath("Desktop")
 $currentusersid = Get-LocalUser "$env:USERNAME" | Select-Object SID | ft -HideTableHeaders | Out-String | ForEach-Object { $_.Trim() }
 
-#moving initial files to correct place
-
+#Creating Folders and moving script files into System directories
+function setupEnvironment {
 New-Item -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup -ItemType directory -ErrorAction SilentlyContinue | Out-Null 
 New-Item -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown -ItemType directory -ErrorAction SilentlyContinue | Out-Null
 New-Item -Path $env:USERPROFILE\AppData\Roaming\ParsecLoader -ItemType directory | Out-Null
@@ -15,7 +15,9 @@ Move-Item -Path $path\ParsecTemp\PreInstall\psscripts.ini -Destination C:\Window
 Move-Item -Path $path\ParsecTemp\PreInstall\NetworkRestore.ps1 -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown 
 Move-Item -Path $path\ParsecTemp\PreInstall\clear-proxy.ps1 -Destination $env:USERPROFILE\AppData\Roaming\ParsecLoader
 Move-Item -Path $path\ParsecTemp\PreInstall\GPU-Update.ico -Destination $env:USERPROFILE\AppData\Roaming\ParsecLoader
+}
 
+#Modifies Local Group Policy to enable Shutdown scrips items
 function add-gpo-modifications {
 $querygpt = Get-content C:\Windows\System32\GroupPolicy\gpt.ini
 $matchgpt = $querygpt -match '{42B5FAAE-6536-11D2-AE5A-0000F87571E3}{40B6664F-4972-11D1-A7CA-0000F87571E3}'
@@ -34,7 +36,8 @@ $n +=2
 else{write-output "Not Required"}
 }
 
-if (Test-Path ("C:\Windows\system32\GroupPolicy" + "\gpt.ini")) 
+#Adds Premade Group Policu Item if existing configuration doesn't exist
+function addRegItems{if (Test-Path ("C:\Windows\system32\GroupPolicy" + "\gpt.ini")) 
 {add-gpo-modifications}
 Else
 {Move-Item -Path $path\ParsecTemp\PreInstall\gpt.ini -Destination C:\Windows\system32\GroupPolicy -Force | Out-Null}
@@ -42,7 +45,9 @@ Else
 regedit /s $path\ParsecTemp\PreInstall\NetworkRestore.reg
 regedit /s $path\ParsecTemp\PreInstall\ForceCloseShutDown.reg
 New-PSDrive -PSProvider Registry -Name HKU -Root HKEY_USERS -ErrorAction SilentlyContinue | Out-Null
-#create-directories
+}
+
+#Create ParsecTemp folder in C Drive
 function create-directories {
 Write-Output "Creating Directories in C:\ Drive"
 New-Item -Path C:\ParsecTemp -ItemType directory | Out-Null
@@ -92,7 +97,6 @@ new-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\A
 }
 
 #set automatic time and timezone
-
 function set-time {
 Write-Output "Setting Time to Automatic"
 Set-ItemProperty -path HKLM:\SYSTEM\CurrentControlSet\Services\W32Time\Parameters -Name Type -Value NTP | Out-Null
@@ -181,6 +185,7 @@ $output | Out-File "$path\Auto Login\Auto Login Instructions.txt"
 autoLoginShortCut
 }
 
+#Creates Shortcut to Autologon.exe
 function autoLoginShortCut {
 Write-Output "Create Auto Login Shortcut"
 $Shell = New-Object -ComObject ("WScript.Shell")
@@ -193,8 +198,7 @@ $ShortCut.Save()
 }
 
 #createshortcut
-function Create-ClearProxy-Shortcut
-{
+function Create-ClearProxy-Shortcut{
 Write-Output "Create ClearProxy shortcut"
 $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\Clear-Proxy.lnk")
@@ -212,19 +216,10 @@ Write-Output "Moving Parsec Electron shortcut to Desktop"
 Copy-Item -Path $path\ParsecTemp\PostInstall\Parsec.lnk -Destination $path
 }
 
+#Disables Server Manager opening on Startup
 function disable-server-manager {
 Write-Output "Disable Auto Opening Server Manager"
 Get-ScheduledTask -TaskName ServerManager | Disable-ScheduledTask | Out-Null
-}
-
-#AWS Read Disk
-function setup-read-disk {
-Copy-Item -path $path\ParsecTemp\PostInstall\readDisk.ps1 -Destination "$env:appdata\ParsecLoader"
-}
-
-#AWS Init
-function aws-init {
-start-process powershell.exe -verb RunAS -argument "-file C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 -Schedule"
 }
 
 #AWS Clean up Desktop Items
@@ -234,7 +229,7 @@ Remove-Item -Path "$path\EC2 Microsoft Windows Guide.website"
 }
 
 #AWS Specific tweaks
-function aws-setup{
+function aws-setup {
 #clean-aws
 Write-Output "Installing VNC, and installing audio driver"
 (New-Object System.Net.WebClient).DownloadFile($(((Invoke-WebRequest -Uri https://www.tightvnc.com/download.php -UseBasicParsing).Links.OuterHTML -like "*Installer for Windows (64-bit)*").split('"')[1].split('"')[0]), "C:\ParsecTemp\Apps\tightvnc.msi")
@@ -248,6 +243,7 @@ Start-Process C:\ParsecTemp\Apps\razer-surround-driver.exe
 Set-Service -Name audiosrv -StartupType Automatic
 }
 
+#Creates shortcut for the GPU Updater tool
 function gpu-update-shortcut {
 (New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPU%20Updater%20Tool.ps1", "$ENV:Appdata\ParsecLoader\GPU Updater Tool.ps1")
 Unblock-File -Path "$ENV:Appdata\ParsecLoader\GPU Updater Tool.ps1"
@@ -264,8 +260,7 @@ $ShortCut.Save()
 }
 
 #Provider specific driver install and setup
-Function provider-specific
-{
+Function provider-specific {
 Write-Output "Doing provider specific customizations"
 #Device ID Query 
 $gputype = get-wmiobject -query "select DeviceID from Win32_PNPEntity Where (deviceid Like '%PCI\\VEN_10DE%') and (PNPClass = 'Display' or Name = '3D Video Controller')" | Select-Object DeviceID -ExpandProperty DeviceID
@@ -377,6 +372,8 @@ Write-Host -foregroundcolor cyan "
                     Google P100       (Tesla P100)
 
 "   
+setupEnvironment
+addRegItems
 create-directories
 disable-iesecurity
 download-resources
