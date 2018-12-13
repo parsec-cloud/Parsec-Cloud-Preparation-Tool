@@ -162,8 +162,7 @@ New-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer -Prope
 #enable auto login - remove user password
 
 function autoLogin { Write-output "Automatically log into Windows when the machine starts? 
-Required if you want to use Parsec without logging into RDP first.
-Doing so will require storing your Windows password in the registry in plain text"
+Required if you want to use Parsec without logging into RDP first."
 $ReadHost = Read-Host "(Y/N)"
     Switch ($ReadHost) 
      { 
