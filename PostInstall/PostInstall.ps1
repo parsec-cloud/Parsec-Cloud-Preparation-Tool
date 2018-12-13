@@ -388,6 +388,8 @@ clean-up
 clean-up-recent
 provider-specific
 Write-Output "All Done"
-Write-Host "You should now sign into Parsec, once you've signed in, you can restart your machine,",
-"and login via Parsec from your client" -ForegroundColor RED
+Write-Host "You should now sign into Parsec,",
+"once you've signed in, you can restart your machine,",
+"then run the GPU Updater Tool on the Desktop.",
+"If your machine doesn't automatically reboot, you should reboot it anyway." -ForegroundColor RED
 pause
