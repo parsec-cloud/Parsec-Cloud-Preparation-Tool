@@ -160,13 +160,25 @@ New-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer -Prope
 }
 
 #enable auto login - remove user password
-function autoLogin { Write-output "This cloud machine needs to be set to automatically login - please use the Auto Login shortcut in the desktop to set this up when the script is finished"
+function autoLogin { Write-output "This cloud machine needs to be set to automatically login - please use the Setup Auto Login shortcut in the desktop to set this up when the script is finished"
 (New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
 Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader"
 Write-Host "Accept the EULA and enter the following details
 Username: $env:username
 Domain: $env:Computername
-Password: The password you got from Azure/AWS/Google that you use to log into RDP" | Out-File "$path\AutoLoginInstructions.txt"
+Password: The password you got from Azure/AWS/Google that you use to log into RDP" | Out-File "$path\Auto Login Instructions.txt"
+autoLoginShortCut
+}
+
+function autoLoginShortCut {
+Write-Output "Create Auto Login Shortcut"
+$Shell = New-Object -ComObject ("WScript.Shell")
+$ShortCut = $Shell.CreateShortcut("$path\Setup Auto Logon.lnk")
+$ShortCut.TargetPath="$env:USERPROFILE\AppData\Roaming\ParsecLoader\Autologon.exe"
+$ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
+$ShortCut.WindowStyle = 0;
+$ShortCut.Description = "Setup AutoLogon Shortcut";
+$ShortCut.Save()
 }
 
 #createshortcut
