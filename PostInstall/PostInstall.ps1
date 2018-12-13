@@ -403,5 +403,8 @@ Write-Host "All Done!",
 "1. Open Parsec and sign in",
 "2. Open Setup Auto Logon on the Desktop and follow the instructions (in the text file on the Desktop)",
 "3. Run GPU Updater Tool",
-"4. If your computer doesn't reboot automatically, restart it from the Start Menu after GPU Updater Tool is finished" -ForegroundColor RED
+"4. If your computer doesn't reboot automatically, restart it from the Start Menu after GPU Updater Tool is finished",
+"5. Razer Synapse doesn't need to run at startup, and doesn't need to be logged into, so you can disable it starting automatically",
+"   You need to delete the registry key for it here",
+"   HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run" -ForegroundColor RED
 pause
