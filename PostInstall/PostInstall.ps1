@@ -53,7 +53,7 @@ New-Item -Path C:\ParsecTemp\Devcon -ItemType Directory | Out-Null
 
 #disable IE security
 function disable-iesecurity {
-Write-Output "Disabling IE Security"
+Write-Output "Enabling Web Browsing on IE (Disabling IE Security)"
 Set-Itemproperty "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}" -name IsInstalled -value 0 -force | Out-Null
 Set-ItemProperty "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A8-37EF-4b3f-8CFC-4F3A74704073}" -Name IsInstalled -Value 0 -Force | Out-Null
 Stop-Process -Name Explorer -Force
@@ -61,7 +61,7 @@ Stop-Process -Name Explorer -Force
 
 #download-files-S3
 function download-resources {
-Write-Output "Downloading Apps"
+Write-Output "Downloading Resources"
 (New-Object System.Net.WebClient).DownloadFile("https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe", "C:\ParsecTemp\Apps\directx_Jun2010_redist.exe") 
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parsec-files-ami-setup/Devcon/devcon.exe", "C:\ParsecTemp\Devcon\devcon.exe")
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parsec-build/package/parsec-windows.exe", "C:\ParsecTemp\Apps\parsec-windows.exe")
@@ -79,12 +79,6 @@ Install-WindowsFeature Direct-Play | Out-Null
 Install-WindowsFeature Net-Framework-Core | Out-Null
 }
 
-#setup Pip
-Function setup-pip {
-Write-Output "Setting up Pip" 
-pip install requests | Out-Null
-}
-
 #set update policy
 function set-update-policy {
 Write-Output "Disabling Windows Update"
@@ -99,7 +93,7 @@ new-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\A
 #set automatic time and timezone
 
 function set-time {
-Write-Output "Setting time to Automatic"
+Write-Output "Setting Time to Automatic"
 Set-ItemProperty -path HKLM:\SYSTEM\CurrentControlSet\Services\W32Time\Parameters -Name Type -Value NTP | Out-Null
 Set-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\tzautoupdate -Name Start -Value 00000003 | Out-Null
 }
@@ -125,7 +119,13 @@ New-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\
 #auto close apps
 function force-close-apps {
 Write-Output "Forcing Apps to close on shutdown"
+$test = Test-Path -Path "HKCU:\Control Panel\Desktop\AutoEndTask"
+if ($test -eq $true){
+set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name AutoEndTasks -Value 1 | Out-Null
+}
+Else {
 New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name AutoEndTasks -Value 1 | Out-Null
+}
 }
 
 #show hidden items
@@ -160,13 +160,23 @@ New-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer -Prope
 }
 
 #enable auto login - remove user password
-function autoLogin { Write-output "This cloud machine needs to be set to automatically login - please use the Setup Auto Login shortcut in the desktop to set this up when the script is finished"
+function autoLogin { Write-Host "This cloud machine needs to be set to automatically login - please use the Setup Auto Login shortcut + Instructions on the desktop to set this up when the script is finished" -ForegroundColor red 
 (New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
 Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader"
-Write-Output "Accept the EULA and enter the following details
-Username: $env:username
-Domain: $env:Computername
-Password: The password you got from Azure/AWS/Google that you use to log into RDP" | Out-File "$path\Auto Login Instructions.txt"
+$output = "
+This application was provided by Mark Rusinovish from System Internals",
+"https://docs.microsoft.com/en-us/sysinternals/downloads/autologon",
+"",
+"What this application does:  Enables your server to automatically login.",
+"When to use it: The first time you setup your server, or when you change your servers password.",
+"",
+"Instructions",
+"Accept the EULA and enter the following details",
+"Username: $env:username",
+"Domain: $env:Computername",
+"Password: The password you got from Azure/AWS/Google that you use to log into RDP"
+$output | Out-File "C:\ParsecTemp\Auto Login Instructions.txt"
+
 autoLoginShortCut
 }
 
@@ -294,7 +304,7 @@ aws-setup
 
 #Apps that require human intervention
 function Install-Gaming-Apps {
-Write-Output "Installing Parsec - YOU WILL NEED TO MANUALLY CLICK THROUGH THIS, AND CLICK YES"
+Write-host "Installing Parsec - YOU WILL NEED TO MANUALLY CLICK THROUGH THIS, AND CLICK YES" -ForegroundColor Red
 Start-Process -FilePath C:\ParsecTemp\Apps\Parsec-Windows.exe -wait
 New-ItemProperty -path HKCU:\Software\Microsoft\Windows\CurrentVersion\Run -Name "Parsec.App.0" -Value "$ENV:AppData\Parsec\electron\parsec.exe" | Out-Null
 Stop-Process -name parsec
