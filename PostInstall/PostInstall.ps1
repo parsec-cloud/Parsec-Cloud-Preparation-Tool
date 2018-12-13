@@ -230,7 +230,7 @@ start-process msiexec.exe -ArgumentList '/i C:\ParsecTemp\Apps\TightVNC.msi /qui
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value $env:USERNAME | Out-Null
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value "" | Out-Null
 New-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogin -Value 1 | Out-Null
-Write-Host "Install Razer Surround - it's the Audio Driver" -ForegroundColor Red
+Write-Host "Install Razer Surround - it's the Audio Driver - you DON'T need to sign into Razer Synapse" -ForegroundColor Red
 Start-Process C:\ParsecTemp\Apps\razer-surround-driver.exe
 Set-Service -Name audiosrv -StartupType Automatic
 }
