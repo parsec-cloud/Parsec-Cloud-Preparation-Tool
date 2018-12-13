@@ -10,6 +10,7 @@ $currentusersid = Get-LocalUser "$env:USERNAME" | Select-Object SID | ft -HideTa
 New-Item -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup -ItemType directory -ErrorAction SilentlyContinue | Out-Null 
 New-Item -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown -ItemType directory -ErrorAction SilentlyContinue | Out-Null
 New-Item -Path $env:USERPROFILE\AppData\Roaming\ParsecLoader -ItemType directory | Out-Null
+New-Item -path "$path\Auto Login" -ItemType Directory | Out-Null
 Move-Item -Path $path\ParsecTemp\PreInstall\psscripts.ini -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\ -Force | Out-Null
 Move-Item -Path $path\ParsecTemp\PreInstall\NetworkRestore.ps1 -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown 
 Move-Item -Path $path\ParsecTemp\PreInstall\clear-proxy.ps1 -Destination $env:USERPROFILE\AppData\Roaming\ParsecLoader
@@ -175,7 +176,7 @@ This application was provided by Mark Rusinovish from System Internals",
 "Username: $env:username",
 "Domain: $env:Computername",
 "Password: The password you got from Azure/AWS/Google that you use to log into RDP"
-$output | Out-File "$path\Auto Login Instructions.txt"
+$output | Out-File "$path\Auto Login\Auto Login Instructions.txt"
 
 autoLoginShortCut
 }
@@ -183,7 +184,7 @@ autoLoginShortCut
 function autoLoginShortCut {
 Write-Output "Create Auto Login Shortcut"
 $Shell = New-Object -ComObject ("WScript.Shell")
-$ShortCut = $Shell.CreateShortcut("$path\Setup Auto Logon.lnk")
+$ShortCut = $Shell.CreateShortcut("$path\Auto Login\Setup Auto Logon.lnk")
 $ShortCut.TargetPath="$env:USERPROFILE\AppData\Roaming\ParsecLoader\Autologon.exe"
 $ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
 $ShortCut.WindowStyle = 0;
