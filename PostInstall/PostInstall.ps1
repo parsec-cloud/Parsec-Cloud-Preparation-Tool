@@ -182,8 +182,7 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlo
 Write-Output "Changed Auto Login Password"
 $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$path\Change Auto Login Password.lnk")
-$ShortCut.TargetPath="$env:USERPROFILE\AppData\Roaming\ParsecLoader\Autologon.exe
-\ParsecLoader\Autologon.exe"
+$ShortCut.TargetPath="$env:USERPROFILE\AppData\Roaming\ParsecLoader\Autologon.exe"
 $ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
 $ShortCut.WindowStyle = 0;
 $ShortCut.Description = "Auto Login";
