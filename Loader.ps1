@@ -1,7 +1,4 @@
-﻿#this script loads all others
-### Written by James Stringer for Parsec Cloud Inc ###
-### http://parsecgaming.com ###
-Write-Host -foregroundcolor cyan "
+﻿Write-Host -foregroundcolor cyan "
                                  #############                                 
                                  #############                                 
                                                                                
@@ -27,9 +24,20 @@ Write-Host -foregroundcolor cyan "
                     Check out the Readme.txt for more
                     information.
 
+                    This tool supports:
 
+                    OS:
+                    Server 2016
                     
-"                                      
+                    CLOUD SKU:
+                    AWS G3.4xLarge    (Tesla M60)
+                    AWS G2.2xLarge    (GRID K520)
+                    Azure NV6         (Tesla M60)
+                    Paperspace P4000  (Quadro P4000)
+                    Paperspace P5000  (Quadro P5000)
+                    Google P100       (Tesla P100)
+
+"                                         
 Write-Output "Setting up Environment"
 $path = [Environment]::GetFolderPath("Desktop")
 New-Item -Path $path\ParsecTemp -ItemType directory 
@@ -37,7 +45,7 @@ Unblock-File -Path .\*
 copy-Item .\* -Destination $path\ParsecTemp\ -Recurse
 #lil nap
 Start-Sleep -s 1
-#unblocking any files
+#Unblocking all script files
 Write-Output "Unblocking files just in case"
 Get-ChildItem -Path $path\ParsecTemp -Recurse | Unblock-File
 Write-Output "Starting the first script, this Window will close in 60 seconds"
