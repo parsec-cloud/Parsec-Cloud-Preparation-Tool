@@ -360,13 +360,17 @@ Write-Host -foregroundcolor cyan "
                     information.
 
                     This tool supports:
+
+                    OS:
+                    Server 2016
                     
-                    AWS G3.4xLarge
-                    AWS G2.2xLarge
-                    Azure NV6
-                    Paperspace P4000
-                    Paperspace P5000
-                    Google P100 (non workstation)
+                    CLOUD SKU:
+                    AWS G3.4xLarge    (Tesla M60)
+                    AWS G2.2xLarge    (GRID K520)
+                    Azure NV6         (Tesla M60)
+                    Paperspace P4000  (Quadro P4000)
+                    Paperspace P5000  (Quadro P5000)
+                    Google P100       (Tesla P100)
 
 "   
 create-directories
