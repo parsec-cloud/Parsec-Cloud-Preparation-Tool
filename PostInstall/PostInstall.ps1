@@ -161,27 +161,21 @@ New-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer -Prope
 
 #enable auto login - remove user password
 
-function forcelogin 
-{
+SetAutoLoginPassword {
+#Write-Host "Accept the EULA and enter the following details
+#Username: $env:username
+#Domain: $env:Computername
+#Password: The password you use to log into RDP"
+#(New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
+#Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader"
+#Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -wait
 Add-Type -AssemblyName System.DirectoryServices.AccountManagement
 $SID = [System.DirectoryServices.AccountManagement.UserPrincipal]::Current
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoLogonSID -Value $($SID.Sid.Value) | Out-Null
-set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value "$($env:ComputerName)\$($SID.name)" 
-}
-
-function autoLogin { Write-output "Automatically log into Windows when the machine starts? 
-Required if you want to use Parsec without logging into RDP first."
-$ReadHost = Read-Host "(Y/N)"
-    Switch ($ReadHost) 
-     { 
-       Y {
-Write-Host "Accept the EULA and enter the following details
-Username: $env:username
-Domain: $env:Computername
-Password: The password you use to log into RDP"
-(New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
-Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader"
-Start-Process -FilePath "$env:APPDATA\ParsecLoader\Autologon.exe" -wait
+set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value "$($SID.name)" 
+set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultDomain -Value "$($env:ComputerName)" 
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultPassword -Value "$($Autologin.Password)" | Out-Null
+New-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogin -Value 1 | Out-Null
 Write-Output "Changed Auto Login Password"
 $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$path\Change Auto Login Password.lnk")
@@ -190,13 +184,29 @@ $ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
 $ShortCut.WindowStyle = 0;
 $ShortCut.Description = "Auto Login";
 $ShortCut.Save()
-forcelogin 
-}
-       N {} 
-     } 
 }
 
+$Autologin = @{}
 
+function autoLogin { Write-output "Automatically log into Windows when the machine starts? 
+Required if you want to use Parsec without logging into RDP first."
+$ReadHost = Read-Host "(Y/N)"
+    Switch ($ReadHost) 
+     { 
+       Y {$Autologin.Password = Read-host "Enter your password for this machine - it will be stored in the registry in plain text"
+         if (($RequestPassword.Length -lt 1) -eq $true) 
+         {$NoPassword = Read-Host "The password you entered is blank, it must match what your cloud provider gave you, try again? Y/N"
+         Switch ($NoPassword)
+         {
+         Y {autologin}
+         N {SetAutoLoginPassword}
+         }
+         }
+         Else {SetAutoLoginPassword}
+         }
+    N{}
+}
+}
 
 #createshortcut
 function Create-ClearProxy-Shortcut
