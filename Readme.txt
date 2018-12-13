@@ -44,8 +44,8 @@ A. Close the Powershell window, then right click Loader.ps1 from the extracted Z
    You may see errors, but it will still work.
 
 Q. Google P100 is stuck at 1366x768
-A. I think this may be a limitation of the free driver we're using, though normally an unlicensed virtual workstation grid driver allows
-   you to max out at 2560x1600 on the M60 at least, I'm not sure about the P100
+A. I think this may be a limitation of the Azure Driver, though normally an unlicensed GRID Virtual Workstation driver allows
+   you to max out at 2560x1600 on the Tesla M60 at least, but I'm not sure about the P100.
 
 Q. What about GPU X or Cloud Server Y - when will they be supported?
 A. That's on you!
