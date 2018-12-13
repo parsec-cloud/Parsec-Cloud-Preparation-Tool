@@ -230,7 +230,7 @@ start-process msiexec.exe -ArgumentList '/i C:\ParsecTemp\Apps\TightVNC.msi /qui
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value $env:USERNAME | Out-Null
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value "" | Out-Null
 New-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogin -Value 1 | Out-Null
-Write-Host "WAITING FOR YOU TO CLICK YES ON Razer Surround Driver - IT COULD BE HIDING BEHIND ANOTHER WINDOW" -ForegroundColor Red
+Write-Host "Install Razer Surround - it's the Audio Driver" -ForegroundColor Red
 Start-Process C:\ParsecTemp\Apps\razer-surround-driver.exe
 Set-Service -Name audiosrv -StartupType Automatic
 }
@@ -390,7 +390,7 @@ disable-devices
 clean-up
 clean-up-recent
 provider-specific
-Write-Host "All Done!" -ForegroundColor RED
+Write-Host "Once you have installed Razer Surround, the script is finished" -ForegroundColor RED
 Write-Host "THINGS YOU NEED TO DO" -ForegroundColor RED
 Write-Host "1. Open Parsec and sign in" -ForegroundColor RED
 Write-Host "2. Open Setup Auto Logon on the Desktop and follow the instructions (in the text file on the Desktop)" -ForegroundColor RED
