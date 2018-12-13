@@ -167,6 +167,7 @@ Add-Type -AssemblyName System.DirectoryServices.AccountManagement
 $SID = [System.DirectoryServices.AccountManagement.UserPrincipal]::Current
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoLogonSID -Value $($SID.Sid.Value) | Out-Null
 new-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value $($SID.name) | Out-Null
+set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value $($SID.name) | Out-Null
 }
 
 function autoLogin { Write-output "Automatically log into Windows when the machine starts? 
