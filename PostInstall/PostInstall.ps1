@@ -64,13 +64,21 @@ Stop-Process -Name Explorer -Force
 #download-files-S3
 function download-resources {
 Write-Output "Downloading Parsec, Google Chrome, DirectX June 2010 Redist, DevCon and GPU Updater Tool."
+Write-Host "Downloading DirectX"
 (New-Object System.Net.WebClient).DownloadFile("https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe", "C:\ParsecTemp\Apps\directx_Jun2010_redist.exe") 
+Write-host "`r - Success!"
+Write-Host "Downloading Devcon"
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parsec-files-ami-setup/Devcon/devcon.exe", "C:\ParsecTemp\Devcon\devcon.exe")
+Write-host "`r - Success!"
+Write-Host "Downloading Parsec"
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parsec-build/package/parsec-windows.exe", "C:\ParsecTemp\Apps\parsec-windows.exe")
+Write-host "`r - Success!"
+Write-Host "Downloading Chrome"
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/parsec+desktop.png", "C:\ParsecTemp\parsec+desktop.png")
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/white_ico_agc_icon.ico", "C:\ParsecTemp\white_ico_agc_icon.ico")
 (New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPU%20Updater%20Tool.ps1", "$env:APPDATA\ParsecLoader\GPU Updater Tool.ps1")
 (New-Object System.Net.WebClient).DownloadFile("https://dl.google.com/tag/s/dl/chrome/install/googlechromestandaloneenterprise64.msi", "C:\ParsecTemp\Apps\googlechromestandaloneenterprise64.msi")
+Write-host "`r - Success!"
 }
 
 #install-base-files-silently
