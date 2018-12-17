@@ -214,7 +214,7 @@ $ShortCut.Save()
 
 #create shortcut for electron app
 function create-shortcut-app {
-Write-Output "Moving Parsec Electron shortcut to Desktop"
+Write-Output "Moving Parsec app shortcut to Desktop"
 Copy-Item -Path $path\ParsecTemp\PostInstall\Parsec.lnk -Destination $path
 }
 
