@@ -243,6 +243,7 @@ New-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlo
 Write-Host "Install Razer Surround - it's the Audio Driver - you DON'T need to sign into Razer Synapse" -ForegroundColor Red
 Start-Process C:\ParsecTemp\Apps\razer-surround-driver.exe
 Set-Service -Name audiosrv -StartupType Automatic
+Write-Output "VNC has been installed on this computer using Port 5900 and Password 4ubg9sde"
 }
 
 #Creates shortcut for the GPU Updater tool
