@@ -3,14 +3,14 @@ $currentusersid = Get-LocalUser "$env:USERNAME" | Select-Object SID | ft -HideTa
 
 #Creating Folders and moving script files into System directories
 function setupEnvironment {
-New-Item -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup -ItemType directory -ErrorAction SilentlyContinue | Out-Null 
-New-Item -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown -ItemType directory -ErrorAction SilentlyContinue | Out-Null
-New-Item -Path $env:USERPROFILE\AppData\Roaming\ParsecLoader -ItemType directory | Out-Null
-New-Item -path "$path\Auto Login" -ItemType Directory | Out-Null
-Move-Item -Path $path\ParsecTemp\PreInstall\psscripts.ini -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\ -Force | Out-Null
-Move-Item -Path $path\ParsecTemp\PreInstall\NetworkRestore.ps1 -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown 
-Move-Item -Path $path\ParsecTemp\PreInstall\clear-proxy.ps1 -Destination $env:USERPROFILE\AppData\Roaming\ParsecLoader
-Move-Item -Path $path\ParsecTemp\PreInstall\GPU-Update.ico -Destination $env:USERPROFILE\AppData\Roaming\ParsecLoader
+if((Test-Path -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup) -eq $true) {} Else {New-Item -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup -ItemType directory | Out-Null}
+if((Test-Path -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown) -eq $true) {} Else {New-Item -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown -ItemType directory | Out-Null}
+if((Test-Path -Path $env:USERPROFILE\AppData\Roaming\ParsecLoader) -eq $true) {} Else {New-Item -Path $env:USERPROFILE\AppData\Roaming\ParsecLoader -ItemType directory | Out-Null}
+if((Test-Path -Path "$path\Auto Login") -eq $true) {} Else {New-Item -path "$path\Auto Login" -ItemType Directory | Out-Null}
+if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\psscripts.ini) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\psscripts.ini -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts}
+if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown\NetworkRestore.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\NetworkRestore.ps1 -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown} 
+if((Test-Path $env:USERPROFILE\AppData\Roaming\ParsecLoader\clear-proxy.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\clear-proxy.ps1 -Destination $env:USERPROFILE\AppData\Roaming\ParsecLoader}
+if((Test-Path $path\ParsecTemp\PreInstall\GPU-Update.ico) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\GPU-Update.ico -Destination $env:USERPROFILE\AppData\Roaming\ParsecLoader}
 }
 
 #Modifies Local Group Policy to enable Shutdown scrips items
@@ -37,7 +37,6 @@ function addRegItems{if (Test-Path ("C:\Windows\system32\GroupPolicy" + "\gpt.in
 {add-gpo-modifications}
 Else
 {Move-Item -Path $path\ParsecTemp\PreInstall\gpt.ini -Destination C:\Windows\system32\GroupPolicy -Force | Out-Null}
-
 regedit /s $path\ParsecTemp\PreInstall\NetworkRestore.reg
 regedit /s $path\ParsecTemp\PreInstall\ForceCloseShutDown.reg
 New-PSDrive -PSProvider Registry -Name HKU -Root HKEY_USERS -ErrorAction SilentlyContinue | Out-Null
@@ -46,11 +45,11 @@ New-PSDrive -PSProvider Registry -Name HKU -Root HKEY_USERS -ErrorAction Silentl
 #Create ParsecTemp folder in C Drive
 function create-directories {
 Write-Output "Creating Directories in C:\ Drive"
-New-Item -Path C:\ParsecTemp -ItemType directory | Out-Null
-New-Item -Path C:\ParsecTemp\Apps -ItemType directory | Out-Null
-New-Item -Path C:\ParsecTemp\DirectX -ItemType directory | Out-Null
-New-Item -Path C:\ParsecTemp\Drivers -ItemType Directory | Out-Null
-New-Item -Path C:\ParsecTemp\Devcon -ItemType Directory | Out-Null
+if((Test-Path -Path C:\ParsecTemp) -eq $true) {} Else {New-Item -Path C:\ParsecTemp -ItemType directory | Out-Null}
+if((Test-Path -Path C:\ParsecTemp\Apps) -eq $true) {} Else {New-Item -Path C:\ParsecTemp\Apps -ItemType directory | Out-Null}
+if((Test-Path -Path C:\ParsecTemp\DirectX) -eq $true) {} Else {New-Item -Path C:\ParsecTemp\DirectX -ItemType directory | Out-Null}
+if((Test-Path -Path C:\ParsecTemp\Drivers) -eq $true) {} Else {New-Item -Path C:\ParsecTemp\Drivers -ItemType Directory | Out-Null}
+if((Test-Path -Path C:\ParsecTemp\Devcon) -eq $true) {} Else {New-Item -Path C:\ParsecTemp\Devcon -ItemType Directory | Out-Null}
 }
 
 #disable IE security
