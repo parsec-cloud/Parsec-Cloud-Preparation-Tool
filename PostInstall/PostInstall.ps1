@@ -112,9 +112,9 @@ Write-Output "Installing Google Chrome, .Net 3.5, Direct Play and DirectX Redist
 start-process -filepath "C:\Windows\System32\msiexec.exe" -ArgumentList '/qn /i "C:\ParsecTemp\Apps\googlechromestandaloneenterprise64.msi"' -Wait
 Start-Process -FilePath "C:\ParsecTemp\Apps\directx_jun2010_redist.exe" -ArgumentList '/T:C:\ParsecTemp\DirectX /Q'-wait
 Start-Process -FilePath "C:\ParsecTemp\DirectX\DXSETUP.EXE" -ArgumentList '/silent' -wait
-Remove-Item -Path C:\ParsecTemp\DirectX -force -Recurse 
 Install-WindowsFeature Direct-Play | Out-Null
 Install-WindowsFeature Net-Framework-Core | Out-Null
+Remove-Item -Path C:\ParsecTemp\DirectX -force -Recurse 
 }
 
 #set update policy
