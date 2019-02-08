@@ -194,7 +194,7 @@ New-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer -Prope
 #enable auto login - remove user password
 function autoLogin { Write-Host "This cloud machine needs to be set to automatically login - please use the Setup Auto Login shortcut + Instructions on the desktop to set this up when the script is finished" -ForegroundColor red 
 (New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
-Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader"
+Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader" -Force
 $output = "
 This application was provided by Mark Rusinovish from System Internals",
 "https://docs.microsoft.com/en-us/sysinternals/downloads/autologon",
