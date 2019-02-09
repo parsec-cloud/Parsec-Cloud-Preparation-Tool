@@ -45,10 +45,10 @@ Server 2016
 CLOUD SKU:
 AWS G3.4xLarge    (Tesla M60)
 AWS G2.2xLarge    (GRID K520)
-zure NV6          (Tesla M60)
+Azure NV6         (Tesla M60)
 Paperspace P4000  (Quadro P4000)
 Paperspace P5000  (Quadro P5000)
-Google P100       (Tesla P100)
+Google P100 VW    (Tesla P100 with Virtual Workstation Driver)
 
 Issues:
 Q. Stuck at downloading resouces for more than 1 minute
@@ -57,11 +57,11 @@ A. Close the Powershell window, delete the "ParsecTemp" folder on the Desktop,
    You may see errors, but it will still work.
 
 Q. Google P100 is stuck at 1366x768
-A. I think this may be a limitation of the driver, though normally an unlicensed GRID Virtual Workstation driver allows
-   you to max out at 2560x1600 on the Tesla M60 at least, but I'm not sure about the P100.
+A. You should delete your machine and use the Virtual Workstation variety of the P100 Instance 
+   which will allow you to go up to 4K
 
 Q. What about GPU X or Cloud Server Y - when will they be supported?
-A. That's on you!
+A. That's on you to test the script and describe the errors you see.
 
 
 
