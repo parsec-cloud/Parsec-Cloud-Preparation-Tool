@@ -183,6 +183,7 @@ if((Test-RegistryValue -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Pol
 function set-wallpaper {
 Write-Output "Setting WallPaper"
 Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value C:\ParsecTemp\parsec+desktop.png | Out-Null
+if((Test-RegistryValue -path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System -value WallpaperStyle) -eq $true) {Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System -Name WallpaperStyle -value 4} Else {New-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System -Name WallpaperStyle -value 4}
 Stop-Process -ProcessName explorer
 }
 
