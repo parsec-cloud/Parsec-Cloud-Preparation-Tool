@@ -20,7 +20,7 @@ It's provided with no warranty, so use it at your own risk.
 
 Instructions:                    
 1. Set up your GPU accelerated cloud machine on Microsoft Azure, Amazon AWS, Google Cloud or Paperspace 
-2. Log in via RDP and make note of the password - you'll need it later.
+2. Azure, AWS, Google: Log in via RDP and make note of the password - you'll need it later - Paperspace: Connect via Paperspace web app.
 3. Open Powershell on the cloud machine.
 4. Copy the below code and follow the instructions in the script.
 
