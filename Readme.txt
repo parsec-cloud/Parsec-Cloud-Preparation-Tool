@@ -22,7 +22,7 @@ Instructions:
 1. Set up your GPU accelerated cloud machine on Microsoft Azure, Amazon AWS, Google Cloud or Paperspace 
 2. Azure, AWS, Google: Log in via RDP and make note of the password - you'll need it later - Paperspace: Connect via Paperspace web app.
 3. Open Powershell on the cloud machine.
-4. Copy the below code and follow the instructions in the script.
+4. Copy the below code and follow the instructions in the script - you'll see them in RED
 
 [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
 (New-Object System.Net.WebClient).DownloadFile("https://github.com/jamesstringerparsec/Parsec-Cloud-Preparation-Tool/archive/master.zip","$ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool.zip") 
