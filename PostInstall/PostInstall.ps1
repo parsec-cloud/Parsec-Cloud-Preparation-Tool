@@ -315,8 +315,24 @@ Elseif($gputype.Substring(13,8) -eq "DEV_1BB0") {
 Write-Output "Quadro P5000 Detected"
 }
 Elseif($gputype.substring(13,8) -eq "DEV_15F8") {
-#Tesla P1000
+#Tesla P100
 Write-Output "Tesla P100 Detected"
+if((Test-Path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe") -eq $true) {remove-item -path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe"} Else {}
+if((Test-Path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk") -eq $true) {Remove-Item -path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk"} Else {}
+autologin
+aws-setup
+}
+Elseif($gputype.substring(13,8) -eq "DEV_1BB3") {
+#Tesla P4
+Write-Output "Tesla P4 Detected"
+if((Test-Path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe") -eq $true) {remove-item -path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe"} Else {}
+if((Test-Path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk") -eq $true) {Remove-Item -path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk"} Else {}
+autologin
+aws-setup
+}
+Elseif($gputype.substring(13,8) -eq "DEV_1EB8") {
+#Tesla T4
+Write-Output "Tesla T4 Detected"
 if((Test-Path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe") -eq $true) {remove-item -path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe"} Else {}
 if((Test-Path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk") -eq $true) {Remove-Item -path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk"} Else {}
 autologin
