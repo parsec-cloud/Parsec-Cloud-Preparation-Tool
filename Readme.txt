@@ -40,6 +40,7 @@ This tool supports:
 
 OS:
 Server 2016
+Server 2019
                     
 CLOUD SKU:
 AWS G3.4xLarge    (Tesla M60)
