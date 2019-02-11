@@ -1,4 +1,11 @@
-﻿function checkGPUstatus {
+﻿function Remove-Razer-Startup {
+if (((Get-Item -Path HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run).GetValue("Razer Synapse") -ne $null) -eq $true) 
+{Remove-ItemProperty -path "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run" -Name "Razer Synapse"
+"Removed Startup Item from Razer Synapse"}
+Else {"Razer Startup Item not present"}
+}
+Remove-Razer-Startup
+function checkGPUstatus {
 $getdisabled = Get-WmiObject win32_videocontroller | Where-Object {$_.name -like '*NVIDIA*' -and $_.status -like 'Error'} | Select-Object -ExpandProperty PNPDeviceID
 if ($getdisabled -ne $null) {"Enabling GPU"
 $var = $getdisabled.Substring(0,21)
