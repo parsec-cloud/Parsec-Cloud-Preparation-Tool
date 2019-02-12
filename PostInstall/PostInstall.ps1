@@ -359,7 +359,6 @@ Function ExtractInstallFiles {
 Write-Host "Moving files to the correct location"
 cmd.exe /c '"C:\Program Files\7-Zip\7z.exe" x C:\ParsecTemp\Apps\parsec-windows.exe -oC:\ParsecTemp\Apps\Parsec-Windows -y' | Out-Null
 if((Test-Path -Path 'C:\Program Files\Parsec')-eq $true) {} Else {New-Item -Path 'C:\Program Files\Parsec' -ItemType Directory | Out-Null}
-if((Test-Path -Path "$env:APPDATA\Parsec") -eq $true) {} Else {New-Item -Path $env:APPDATA\Parsec -ItemType Directory | Out-Null} 
 if((Test-Path -Path "C:\Program Files\Parsec\skel") -eq $true) {} Else {Move-Item -Path C:\ParsecTemp\Apps\Parsec-Windows\skel -Destination 'C:\Program Files\Parsec' | Out-Null} 
 if((Test-Path -Path "C:\Program Files\Parsec\vigem") -eq $true) {} Else  {Move-Item -Path C:\ParsecTemp\Apps\Parsec-Windows\vigem -Destination 'C:\Program Files\Parsec' | Out-Null} 
 if((Test-Path -Path "C:\Program Files\Parsec\wscripts") -eq $true) {} Else  {Move-Item -Path C:\ParsecTemp\Apps\Parsec-Windows\wscripts -Destination 'C:\Program Files\Parsec' | Out-Null} 
@@ -416,9 +415,8 @@ Write-host "Successfully installed Parsec"
 function Install-Gaming-Apps {
 InstallParsec
 New-ItemProperty -path HKCU:\Software\Microsoft\Windows\CurrentVersion\Run -Name "Parsec.App.0" -Value "$ENV:AppData\Parsec\electron\parsec.exe" | Out-Null
-Stop-Process -name parsec
 Write-Output "app_host=1" | Out-File -FilePath $ENV:AppData\Parsec\config.txt -Encoding ascii
-Start-Process -name parsec
+Start-Process -FilePath "$ENV:AppData\Parsec\electron\parsec.exe"
 }
 
 #Disable Devices
