@@ -345,6 +345,9 @@ Write-Output "Quadro M2000 Detected"
 autologin
 aws-setup
 }
+Else{Write-Output "No Compatible GPU Detected, skipping provider specific tasks"
+}
+
 }
 
 function Install7Zip {
