@@ -347,13 +347,78 @@ aws-setup
 }
 }
 
+function Install7Zip {
+#7Zip is required to extract the Parsec-Windows.exe File
+Write-Host "Downloading and Installing 7Zip"
+$url = Invoke-WebRequest -Uri https://www.7-zip.org/download.html
+(New-Object System.Net.WebClient).DownloadFile("https://www.7-zip.org/$($($($url.Links | Where-Object outertext -Like "Download")[1]).OuterHTML.split('"')[1])" ,"C:\ParsecTemp\Apps\7zip.exe")
+Start-Process C:\ParsecTemp\Apps\7zip.exe -ArgumentList '/S /D="C:\Program Files\7-Zip"' -Wait}
+
+Function ExtractInstallFiles {
+#Move Parsec Files into correct location
+Write-Host "Moving files to the correct location"
+cmd.exe /c '"C:\Program Files\7-Zip\7z.exe" x C:\ParsecTemp\Apps\parsec-windows.exe -oC:\ParsecTemp\Apps\Parsec-Windows -y' | Out-Null
+if((Test-Path -Path 'C:\Program Files\Parsec')-eq $true) {} Else {New-Item -Path 'C:\Program Files\Parsec' -ItemType Directory | Out-Null}
+if((Test-Path -Path "$env:APPDATA\Parsec") -eq $true) {} Else {New-Item -Path $env:APPDATA\Parsec -ItemType Directory | Out-Null} 
+if((Test-Path -Path "C:\Program Files\Parsec\skel") -eq $true) {} Else {Move-Item -Path C:\ParsecTemp\Apps\Parsec-Windows\skel -Destination 'C:\Program Files\Parsec' | Out-Null} 
+if((Test-Path -Path "C:\Program Files\Parsec\vigem") -eq $true) {} Else  {Move-Item -Path C:\ParsecTemp\Apps\Parsec-Windows\vigem -Destination 'C:\Program Files\Parsec' | Out-Null} 
+if((Test-Path -Path "C:\Program Files\Parsec\wscripts") -eq $true) {} Else  {Move-Item -Path C:\ParsecTemp\Apps\Parsec-Windows\wscripts -Destination 'C:\Program Files\Parsec' | Out-Null} 
+if((Test-Path -Path "C:\Program Files\Parsec\parsecd.exe") -eq $true) {} Else {Move-Item -Path C:\ParsecTemp\Apps\Parsec-Windows\parsecd.exe -Destination 'C:\Program Files\Parsec' | Out-Null} 
+if((Test-Path -Path "C:\Program Files\Parsec\pservice.exe") -eq $true) {} Else {Move-Item -Path C:\ParsecTemp\Apps\Parsec-Windows\pservice.exe -Destination 'C:\Program Files\Parsec' | Out-Null} 
+if((Test-Path -Path "$ENV:APPDATA\Parsec\Electron") -eq $true) {} Else {Move-Item -Path 'C:\ParsecTemp\Apps\Parsec-Windows\$APPDATA\Parsec' -Destination $ENV:APPDATA | Out-Null} 
+Start-Sleep 1
+}
+
+Function InstallViGEmBus {
+#Required for Controller Support.
+Write-Host "Installing ViGEmBus - https://github.com/ViGEm/ViGEmBus"
+$Vigem = @{}
+$Vigem.DriverFile = "C:\Program Files\Parsec\Vigem\ViGEmBus.cat";
+$Vigem.CertName = 'C:\Program Files\Parsec\Vigem\Wohlfeil_IT_e_U_.cer';
+$Vigem.ExportType = [System.Security.Cryptography.X509Certificates.X509ContentType]::Cert;
+$Vigem.Cert = (Get-AuthenticodeSignature -filepath $vigem.DriverFile).SignerCertificate; 
+$Vigem.CertInstalled = if ((Get-ChildItem -Path Cert:\CurrentUser\TrustedPublisher | Where-Object Subject -Like "*CN=Wohlfeil.IT e.U., O=Wohlfeil.IT e.U.*" ) -ne $null) {$True}
+Else {$false}
+if ($vigem.CertInstalled -eq $true) {
+cmd.exe /c '"C:\Program Files\Parsec\vigem\devcon.exe" install "C:\Program Files\Parsec\vigem\ViGEmBus.inf" Root\ViGEmBus' | Out-Null
+} 
+Else {[System.IO.File]::WriteAllBytes($Vigem.CertName, $Vigem.Cert.Export($Vigem.ExportType));
+Import-Certificate -CertStoreLocation Cert:\LocalMachine\TrustedPublisher -FilePath 'C:\Program Files\Parsec\Vigem\Wohlfeil_IT_e_U_.cer' | Out-Null
+Start-Sleep 5
+cmd.exe /c '"C:\Program Files\Parsec\vigem\devcon.exe" install "C:\Program Files\Parsec\vigem\ViGEmBus.inf" Root\ViGEmBus' | Out-Null
+}
+}
+
+Function CreateFireWallRule {
+#Creates Parsec Firewall Rule in Windows Firewall
+Write-host "Creating Parsec Firewall Rule"
+New-NetFirewallRule -DisplayName "Parsec" -Direction Inbound -Program "C:\Program Files\Parsec\Parsecd.exe" -Profile Private,Public -Action Allow -Enabled True | Out-Null
+}
+
+Function CreateParsecService {
+#Creates Parsec Service
+Write-host "Creating Parsec Service"
+sc.exe Create 'Parsec' binPath= 'C:\Program Files\Parsec\pservice.exe' start= 'auto' | Out-Null
+sc.exe Start 'Parsec' | Out-Null
+}
+
+Function InstallParsec {
+Write-Host "Installing Parsec"
+Install7Zip
+ExtractInstallFiles
+InstallViGEmBus
+CreateFireWallRule
+CreateParsecService
+Write-host "Successfully installed Parsec"
+}
+
 #Apps that require human intervention
 function Install-Gaming-Apps {
-Write-host "Installing Parsec - YOU WILL NEED TO MANUALLY CLICK THROUGH THIS, AND CLICK YES" -ForegroundColor Red
-Start-Process -FilePath C:\ParsecTemp\Apps\Parsec-Windows.exe -wait
+InstallParsec
 New-ItemProperty -path HKCU:\Software\Microsoft\Windows\CurrentVersion\Run -Name "Parsec.App.0" -Value "$ENV:AppData\Parsec\electron\parsec.exe" | Out-Null
 Stop-Process -name parsec
 Write-Output "app_host=1" | Out-File -FilePath $ENV:AppData\Parsec\config.txt -Encoding ascii
+Start-Process -name parsec
 }
 
 #Disable Devices
