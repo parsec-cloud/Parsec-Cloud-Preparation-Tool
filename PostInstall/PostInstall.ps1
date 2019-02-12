@@ -295,7 +295,9 @@ Function provider-specific {
 Write-Output "Doing provider specific customizations"
 #Device ID Query 
 $gputype = get-wmiobject -query "select DeviceID from Win32_PNPEntity Where (deviceid Like '%PCI\\VEN_10DE%') and (PNPClass = 'Display' or Name = '3D Video Controller')" | Select-Object DeviceID -ExpandProperty DeviceID
-
+if ($gputype -eq $null) 
+{Write-Output "No GPU Detected, skipping provider specific tasks"}
+Else{
 if($gputype.substring(13,8) -eq "DEV_13F2") {
 #AWS G3.4xLarge M60
 Write-Output "Tesla M60 Detected"
@@ -345,10 +347,11 @@ Write-Output "Quadro M2000 Detected"
 autologin
 aws-setup
 }
-Else{Write-Output "No Compatible GPU Detected, skipping provider specific tasks"
+Else{write-host "The installed GPU is not currently supported, skipping provider specific tasks"}
+}
 }
 
-}
+
 
 function Install7Zip {
 #7Zip is required to extract the Parsec-Windows.exe File
