@@ -1,4 +1,4 @@
-﻿
+﻿Write-Output "$env:username" | Out-File -FilePath C:\ParsecTemp\User.txt
 function checkGPUstatus {
 $getdisabled = Get-WmiObject win32_videocontroller | Where-Object {$_.name -like '*NVIDIA*' -and $_.status -like 'Error'} | Select-Object -ExpandProperty PNPDeviceID
 if ($getdisabled -ne $null) {"Enabling GPU"
