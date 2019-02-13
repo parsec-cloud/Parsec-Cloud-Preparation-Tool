@@ -1,77 +1,5 @@
-﻿Write-Output "$env:username" | Out-File -FilePath C:\ParsecTemp\User.txt
-function checkGPUstatus {
-$getdisabled = Get-WmiObject win32_videocontroller | Where-Object {$_.name -like '*NVIDIA*' -and $_.status -like 'Error'} | Select-Object -ExpandProperty PNPDeviceID
-if ($getdisabled -ne $null) {"Enabling GPU"
-$var = $getdisabled.Substring(0,21)
-$arguement = "/r enable"+ ' ' + "*"+ "$var"+ "*"
-Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList $arguement
-}
-Else {"Device is enabled"
-Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/m /r'}
-}
-Function provider-specific {
-Write-Output "Doing provider specific customizations"
-#Device ID Query 
-New-Item -path C:\ParsecTemp\Drivers -ItemType Directory -Force | Out-Null
-$gputype = get-wmiobject -query "select DeviceID from Win32_PNPEntity Where deviceid Like '%PCI\\VEN_10DE%' and PNPClass = 'Display'" | Select-Object DeviceID -ExpandProperty DeviceID
+﻿#clear windows proxy
 
-$deviceuppdate = if($gputype.substring(13,8) -eq "DEV_13F2") {
-#AWS G3.4xLarge M60
-Write-Output "AWS G3.4xLarge Detected"
-Start-BitsTransfer -Source https://s3.amazonaws.com/parsec-files-ami-setup/NvidiaDriver/M60.exe -Destination C:\ParsecTemp\Drivers
-Start-Process -FilePath C:\ParsecTemp\Drivers\M60.exe -ArgumentList "/s /n" -Wait
-}
-ElseIF($gputype.Substring(13,8) -eq "DEV_118A")
-{#AWS G2.2xLarge K520
-Write-Output "AWS G2.2xLarge Detected"
-Start-BitsTransfer -Source https://s3.amazonaws.com/parsec-files-ami-setup/NvidiaDriver/K520.exe -Destination C:\ParsecTemp\Drivers
-Start-Process -FilePath C:\ParsecTemp\Drivers\K520.exe -ArgumentList "/s /n" -Wait
-}
-ElseIF($gputype.Substring(13,8) -eq "DEV_1BB1") {
-#Paperspace P4000
-Write-Output "Paperspace P4000 Detected"
-Start-BitsTransfer -Source https://s3.amazonaws.com/parsec-files-ami-setup/NvidiaDriver/PX000.exe -Destination C:\ParsecTemp\Drivers
-Start-Process -FilePath C:\ParsecTemp\Drivers\PX000.exe -ArgumentList "/s /n" -Wait
-} 
-Elseif($gputype.Substring(13,8) -eq "DEV_1BB0") {
-#Paperspace P5000
-Write-Output "Paperspace P5000 Detected"
-Start-BitsTransfer -Source https://s3.amazonaws.com/parsec-files-ami-setup/NvidiaDriver/PX000.exe -Destination C:\ParsecTemp\Drivers
-Start-Process -FilePath C:\ParsecTemp\Drivers\PX000.exe -ArgumentList "/s /n" -Wait
-}
-Elseif($gputype.Substring(13,8) -eq "DEV_1430") {
-#Paperspace M2000 -Test
-Write-Output "Test Machine Detected"
-Start-BitsTransfer -Source https://s3.amazonaws.com/parsec-files-ami-setup/NvidiaDriver/PX000.exe -Destination C:\ParsecTemp\Drivers
-Start-Process -FilePath C:\ParsecTemp\Drivers\PX000.exe -ArgumentList "/s /n" -Wait
-}
-}
-function DriverInstallStatus {
-$checkdevicedriver = Get-WmiObject win32_videocontroller | Where-Object {$_.PNPDeviceID -like '*VEN_10DE*'}
-if ($checkdevicedriver.name -eq "Microsoft Basic Display Adapter") {Write-output "Driver not installed"
-provider-specific
-Restart-Computer}
-Else {checkGPUStatus}
-}
-DriverInstallStatus
-Remove-Razer-Startup
-function check-nvidia {
-$nvidiasmiarg = "-i 0 --query-gpu=driver_model.current --format=csv,noheader"
-$nvidiasmidir = "c:\program files\nvidia corporation\nvsmi\nvidia-smi" 
-$nvidiasmiresult = Invoke-Expression "& `"$nvidiasmidir`" $nvidiasmiarg"
-$nvidiadriverstatus = if($nvidiasmiresult -eq "WDDM") 
-{"GPU Driver status is good"
-}
-ElseIf($nvidiasmiresult -eq "TCC")
-{Write-Output "The GPU has incorrect mode TCC set - setting WDDM"
-$nvidiasmiwddm = "-g 0 -dm 0"
-$nvidiasmidir = "c:\program files\nvidia corporation\nvsmi\nvidia-smi" 
-Invoke-Expression "& `"$nvidiasmidir`" $nvidiasmiwddm"
-shutdown /r -t 0}
-Else{}
-$nvidiadriverstatus}
-check-nvidia
-New-PSDrive -PSProvider Registry -Name HKU -Root HKEY_USERS -ErrorAction SilentlyContinue | Out-Null
 function clear-proxy {
 $value = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' -name ProxyEnable
 if ($value.ProxyEnable -eq 1) {
@@ -81,38 +9,229 @@ Start-Process "C:\Program Files\Internet Explorer\iexplore.exe"
 Start-Sleep -s 5
 Get-Process iexplore | Foreach-Object { $_.CloseMainWindow() | Out-Null } | stop-process –force}
 Else {}}
-function clear-proxy-paperspace {
-$value = Get-ItemProperty 'HKU:\S-1-5-21-2402485384-1523249476-2267272849-1000\Software\Microsoft\Windows\CurrentVersion\Internet Settings' -name ProxyEnable
-if ($value.ProxyEnable -eq 1) {
-set-itemproperty 'HKU:\S-1-5-21-2402485384-1523249476-2267272849-1000\Software\Microsoft\Windows\CurrentVersion\Internet Settings' -name ProxyEnable -value 0 | Out-Null
-write-host "Disable proxy if required"
-Start-Process "C:\Program Files\Internet Explorer\iexplore.exe"
-Start-Sleep -s 5
-Get-Process iexplore | Foreach-Object { $_.CloseMainWindow() | Out-Null } | stop-process –force}
-Else {}}
-$gputype = get-wmiobject -query "select DeviceID from Win32_PNPEntity Where deviceid Like '%PCI\\VEN_10DE%' and PNPClass = 'Display'" | Select-Object DeviceID -ExpandProperty DeviceID
-$deviceupdate = if($gputype.substring(13,8) -eq "DEV_1BB1") {
-#P4000
-clear-proxy-paperspace
+
+#fix gpu
+
+function installedGPUID {
+#queries WMI to get DeviceID of the installed NVIDIA GPU
+Try {(get-wmiobject -query "select DeviceID from Win32_PNPEntity Where (deviceid Like '%PCI\\VEN_10DE%') and (PNPClass = 'Display' or Name = '3D Video Controller')"  | Select-Object DeviceID -ExpandProperty DeviceID).substring(13,8)}
+Catch {return $null}
 }
-ElseIF($gputype.Substring(13,8) -eq "DEV_1BB0"){#P5000
-clear-proxy-paperspace}
-Else {clear-proxy}
-$deviceupdate
-Start-Sleep -s 60
-function Test-PendingReboot{
- if (Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending" -EA Ignore) { return $true }
- if (Get-Item "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired" -EA Ignore) { return $true }
- if (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager" -Name PendingFileRenameOperations -EA Ignore) { return $true }
- try { 
-   $util = [wmiclass]"\\.\root\ccm\clientsdk:CCM_ClientUtilities"
-   $status = $util.DetermineIfRebootPending()
-   if(($status -ne $null) -and $status.RebootPending){
-     return $true
-   }
- }catch{}
- 
- return $false
+
+function driverVersion {
+#Queries WMI to request the driver version, and formats it to match that of a NVIDIA Driver version number (NNN.NN) 
+Try {(Get-WmiObject Win32_PnPSignedDriver | where {$_.DeviceName -like "*nvidia*" -and $_.DeviceClass -like "Display"} | Select-Object -ExpandProperty DriverVersion).substring(7,6).replace('.','').Insert(3,'.')}
+Catch {return $null}
 }
-if (Test-PendingReboot -eq $true){shutdown /r -t 0}
+
+function osVersion {
+#Requests Windows OS Friendly Name
+(Get-WmiObject -class Win32_OperatingSystem).Caption
+}
+
+function requiresReboot{
+#Queries if system needs a reboot after driver installs
+if (Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending" -EA Ignore) { return $true }
+if (Get-Item "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired" -EA Ignore) { return $true }
+if (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager" -Name PendingFileRenameOperations -EA Ignore) { return $true }
+ try { 
+   $util = [wmiclass]"\\.\root\ccm\clientsdk:CCM_ClientUtilities"
+   $status = $util.DetermineIfRebootPending()
+   if(($status -ne $null) -and $status.RebootPending){
+     return $true
+   }
+ }catch{}
+ 
+ return $false
+}
+
+function validDriver {
+#checks an important nvidia driver folder to see if it exits
+test-path -Path "C:\Program Files\NVIDIA Corporation\NVSMI"
+}
+
+Function webDriver { 
+#checks the latest available graphics driver from nvidia.com
+if (($gpu.supported -eq "No") -eq $true) {"Sorry, this GPU (" + $gpu.name + ") is not yet supported by this tool."
+Exit
+}
+Elseif (($gpu.Supported -eq "UnOfficial") -eq $true) {
+if ($url.GoogleGRID -eq $null) {$URL.GoogleGRID = Invoke-WebRequest -uri https://cloud.google.com/compute/docs/gpus/add-gpus#installing_grid_drivers_for_virtual_workstations -UseBasicParsing} Else {}
+$($($URL.GoogleGRID).Links | Where-Object href -like *server2016_64bit_international.exe*).outerHTML.Split('/')[6].split('_')[0]
+}
+Else { 
+$gpu.URL = "https://www.nvidia.com/Download/processFind.aspx?psid=" + $gpu.psid + "&pfid=" + $gpu.pfid + "&osid=" + $gpu.osid + "&lid=1&whql=1&lang=en-us&ctk=0"
+$link = Invoke-WebRequest -Uri $gpu.URL -Method GET -UseBasicParsing
+$link -match '<td class="gridItem">([^<]+?)</td>' | Out-Null
+if (($matches[1] -like "*(*") -eq $true) {$matches[1].split('(')[1].split(')')[0]}
+Else {$matches[1]}
+}
+}
+
+function GPUCurrentMode {
+#returns if the GPU is running in TCC or WDDM mode
+$nvidiaarg = "-i 0 --query-gpu=driver_model.current --format=csv,noheader"
+$nvidiasmi = "c:\program files\nvidia corporation\nvsmi\nvidia-smi" 
+try {Invoke-Expression "& `"$nvidiasmi`" $nvidiaarg"}
+catch {$null}
+}
+
+function queryOS {
+#sets OS support
+if (($system.OS_Version -like "*Windows 10*") -eq $true) {$gpu.OSID = '57' ; $system.OS_Supported = $false}
+elseif (($system.OS_Version -like "*Windows 8.1*") -eq $true) {$gpu.OSID = "41"; $system.OS_Supported = $false}
+elseif (($system.OS_Version -like "*Server 2016*") -eq $true) {$gpu.OSID = "74"; $system.OS_Supported = $true}
+elseif (($system.OS_Version -like "*Server 2019*") -eq $true) {$gpu.OSID = "74"; $system.OS_Supported = $true}
+Else {$system.OS_Supported = $false}
+}
+
+function webName {
+#Gets the unknown GPU name from a csv based on a deviceID found in the installedgpuid function
+(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/Additional%20Files/GPUID.csv", $($system.Path + "\GPUID.CSV")) 
+Import-Csv "$($system.path)\GPUID.csv" -Delimiter ',' | Where-Object DeviceID -like *$($gpu.Device_ID)* | Select-Object -ExpandProperty GPUName
+}
+
+function queryGPU {
+#sets details about current gpu
+if($gpu.Device_ID -eq "DEV_13F2") {$gpu.Name = 'NVIDIA Tesla M60'; $gpu.PSID = '75'; $gpu.PFID = '783'; $gpu.NV_GRID = $true; $gpu.Driver_Version = driverversion; $gpu.Web_Driver = webdriver; $gpu.Update_Available = ($gpu.Web_Driver -gt $gpu.Driver_Version); $gpu.Current_Mode = GPUCurrentMode; $gpu.Supported = "Yes"} 
+ElseIF($gpu.Device_ID -eq "DEV_118A") {$gpu.Name = 'NVIDIA GRID K520'; $gpu.PSID = '94'; $gpu.PFID = '704'; $gpu.NV_GRID = $true; $gpu.Driver_Version = driverversion; $gpu.Web_Driver = webdriver; $gpu.Update_Available = ($gpu.Web_Driver -gt $gpu.Driver_Version); $gpu.Current_Mode = GPUCurrentMode; $gpu.Supported = "Yes"} 
+ElseIF($gpu.Device_ID -eq "DEV_1BB1") {$gpu.Name = 'NVIDIA Quadro P4000'; $gpu.PSID = '73'; $gpu.PFID = '840'; $gpu.NV_GRID = $false; $gpu.Driver_Version = driverversion; $gpu.Web_Driver = webdriver; $gpu.Update_Available = ($gpu.Web_Driver -gt $gpu.Driver_Version); $gpu.Current_Mode = GPUCurrentMode; $gpu.Supported = "Yes"} 
+Elseif($gpu.Device_ID -eq "DEV_1BB0") {$gpu.Name = 'NVIDIA Quadro P5000'; $gpu.PSID = '73'; $gpu.PFID = '823'; $gpu.NV_GRID = $false; $gpu.Driver_Version = driverversion; $gpu.Web_Driver = webdriver; $gpu.Update_Available = ($gpu.Web_Driver -gt $gpu.Driver_Version); $gpu.Current_Mode = GPUCurrentMode; $gpu.Supported = "Yes"}
+Elseif($gpu.Device_ID -eq "DEV_15F8") {$gpu.Name = 'NVIDIA Tesla P100'; $gpu.PSID = '103'; $gpu.PFID = '822'; $gpu.NV_GRID = $true; $gpu.Driver_Version = driverversion; $gpu.Web_Driver = webdriver; $gpu.Update_Available = ($gpu.Web_Driver -gt $gpu.Driver_Version); $gpu.Current_Mode = GPUCurrentMode; $gpu.Supported = "UnOfficial"}
+Elseif($gpu.Device_ID -eq "DEV_1BB3") {$gpu.Name = 'NVIDIA Tesla P4'; $gpu.PSID = '103'; $gpu.PFID = '831'; $gpu.NV_GRID = $true; $gpu.Driver_Version = driverversion; $gpu.Web_Driver = webdriver; $gpu.Update_Available = ($gpu.Web_Driver -gt $gpu.Driver_Version); $gpu.Current_Mode = GPUCurrentMode; $gpu.Supported = "UnOfficial"}
+Elseif($gpu.Device_ID -eq "DEV_1EB8") {$gpu.Name = 'NVIDIA Tesla T4'; $gpu.PSID = '110'; $gpu.PFID = '883'; $gpu.NV_GRID = $true; $gpu.Driver_Version = driverversion; $gpu.Web_Driver = webdriver; $gpu.Update_Available = ($gpu.Web_Driver -gt $gpu.Driver_Version); $gpu.Current_Mode = GPUCurrentMode; $gpu.Supported = "UnOfficial"}
+Elseif($gpu.Device_ID -eq $null) {$gpu.Supported = "No"; $gpu.Name = "No Device Found"}
+else{$gpu.Supported = "No"; $gpu.Name = webName}
+}
+
+function checkGPUSupport{
+#quits if GPU isn't supported
+If ($gpu.Supported -eq "No") {
+$app.FailGPU
+Exit
+}
+ElseIf ($gpu.Supported -eq "UnOfficial") {
+$app.UnOfficialGPU
+}
+Else{}
+}
+
+function checkDriverInstalled {
+#Tells user if no GPU driver is installed
+if ($system.Valid_NVIDIA_Driver -eq $False) {
+$app.NoDriver
+}
+Else{}
+}
+
+function prepareEnvironment {
+#prepares working directory
+$test = Test-Path -Path $system.path 
+if ($test -eq $true) {
+Remove-Item -path $system.Path -Recurse -Force | Out-Null
+New-Item -ItemType Directory -Force -Path $system.path | Out-Null}
+Else {
+New-Item -ItemType Directory -Force -Path $system.path | Out-Null
+}
+}
+
+function startUpdate { 
+#Gives user an option to start the update, and sends messages to the user
+       prepareEnvironment
+       downloaddriver
+       InstallDriver
+       rebootlogic
+}
+
+function setnvsmi {
+#downloads script to set GPU to WDDM if required
+(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/Additional%20Files/NVSMI.ps1", $($system.Path) + "\NVSMI.ps1") 
+Unblock-File -Path "$($system.Path)\NVSMI.ps1"
+}
+
+function setnvsmi-shortcut{
+#creates startup shortcut that will start the script downloaded in setnvsmi
+Write-Output "Create NVSMI shortcut"
+$Shell = New-Object -ComObject ("WScript.Shell")
+$ShortCut = $Shell.CreateShortcut("$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\NVSMI.lnk")
+$ShortCut.TargetPath="powershell.exe"
+$ShortCut.Arguments='-WindowStyle hidden -ExecutionPolicy Bypass -File "C:\ParsecTemp\Drivers\NVSMI.ps1"'
+$ShortCut.WorkingDirectory = "C:\ParsecTemp\Drivers";
+$ShortCut.WindowStyle = 0;
+$ShortCut.Description = "Create NVSMI shortcut";
+$ShortCut.Save()
+}
+
+function DownloadDriver {
+if (($gpu.supported -eq "UnOfficial") -eq $true) {
+(New-Object System.Net.WebClient).DownloadFile($($($URL.GoogleGRID).links | Where-Object href -like *server2016_64bit_international.exe*).href, "C:\ParsecTemp\Drivers\GoogleGRID.exe")
+}
+Else {
+#downloads driver from nvidia.com
+$Download.Link = Invoke-WebRequest -Uri $gpu.url -Method Get -UseBasicParsing | select @{N='Latest';E={$($_.links.href -match"www.nvidia.com/download/driverResults.aspx*")[0].substring(2)}}
+$download.Direct = Invoke-WebRequest -Uri $download.link.latest -Method Get -UseBasicParsing | select @{N= 'Download'; E={"http://us.download.nvidia.com" + $($_.links.href -match "/content/driverdownload*").split('=')[1].split('&')[0]}}
+(New-Object System.Net.WebClient).DownloadFile($($download.direct.download), $($system.Path) + "\NVIDIA_" + $($gpu.web_driver) + ".exe")
+}
+}
+
+function installDriver {
+#installs driver silently with /s /n arguments provided by NVIDIA
+$DLpath = Get-ChildItem -Path $system.path -Include *exe* -Recurse | Select-Object -ExpandProperty Name
+Start-Process -FilePath "$($system.Path)\$dlpath" -ArgumentList "/s /n" -Wait }
+
+#setting up arrays below
+$url = @{}
+$download = @{}
+$app = @{}
+$gpu = @{Device_ID = installedGPUID}
+$system = @{Valid_NVIDIA_Driver = ValidDriver; OS_Version = osVersion; OS_Reboot_Required = RequiresReboot; Date = get-date; Path = "C:\ParsecTemp\Drivers"}
+
+function rebootLogic {
+#checks if machine needs to be rebooted, and sets a startup item to set GPU mode to WDDM if required
+if ($system.OS_Reboot_Required -eq $true) {
+    if ($GPU.NV_GRID -eq $false)
+    {
+    start-sleep -s 10
+    Restart-Computer -Force} 
+    ElseIf ($GPU.NV_GRID -eq $true) {
+    setnvsmi
+    setnvsmi-shortcut
+    start-sleep -s 10
+    Restart-Computer -Force}
+    Else{}
+}
+Else {
+    if ($gpu.NV_GRID -eq $true) {
+    setnvsmi
+    setnvsmi-shortcut
+    start-sleep -s 10
+    Restart-Computer -Force}
+    ElseIf ($gpu.NV_GRID -eq $false) {
+    }
+    Else{}
+}
+}
+
+#remove Windows Proxy
+clear-proxy
+
+#fix gpu
+prepareEnvironment
+queryOS
+querygpu
+querygpu
+checkGPUSupport
+querygpu
+
+if ($gpu.driver_version -eq $null) {
+write-host "No Driver"
+startUpdate
+}
+Else{"Continue"}
+if ($gpu.current_mode -eq "TCC") {
+write-host "Change Driver Mode"
+setnvsmi
+setnvsmi-shortcut
+shutdown /r -t 0}
 Else {}
+
