@@ -9,7 +9,7 @@ if((Test-Path -Path $env:USERPROFILE\AppData\Roaming\ParsecLoader) -eq $true) {}
 if((Test-Path -Path "$path\Auto Login") -eq $true) {} Else {New-Item -path "$path\Auto Login" -ItemType Directory | Out-Null}
 if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\psscripts.ini) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\psscripts.ini -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts}
 if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown\NetworkRestore.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\NetworkRestore.ps1 -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown} 
-if((Test-Path $env:USERPROFILE\AppData\Roaming\ParsecLoader\clear-proxy.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\clear-proxy.ps1 -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup}
+if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup\clear-proxy.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\clear-proxy.ps1 -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup}
 if((Test-Path $path\ParsecTemp\PreInstall\GPU-Update.ico) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\GPU-Update.ico -Destination $env:USERPROFILE\AppData\Roaming\ParsecLoader}
 }
 
