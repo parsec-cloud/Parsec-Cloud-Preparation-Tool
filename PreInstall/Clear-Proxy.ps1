@@ -23,6 +23,8 @@ Else {"Device is enabled"
 Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/m /r'}
 }
 
+
+
 function installedGPUID {
 #queries WMI to get DeviceID of the installed NVIDIA GPU
 Try {(get-wmiobject -query "select DeviceID from Win32_PNPEntity Where (deviceid Like '%PCI\\VEN_10DE%') and (PNPClass = 'Display' or Name = '3D Video Controller')"  | Select-Object DeviceID -ExpandProperty DeviceID).substring(13,8)}
@@ -235,10 +237,11 @@ querygpu
 checkGPUSupport
 querygpu
 
-if($gpu.supported -eq $true -or $gpu.supported -eq $unofficial) {}
+if(($gpu.supported -eq "Yes") -or ($gpu.supported -eq "UnOfficial")) {}
 Else {
 Write-host "There is no GPU or it is unsupported"
-Exit}
+Exit
+}
 
 if ($gpu.driver_version -eq $null) {
 write-host "No Driver"
