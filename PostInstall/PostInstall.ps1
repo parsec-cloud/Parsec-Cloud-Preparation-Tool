@@ -10,6 +10,7 @@ if((Test-Path -Path "$path\Auto Login") -eq $true) {} Else {New-Item -path "$pat
 if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\psscripts.ini) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\psscripts.ini -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts}
 if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown\NetworkRestore.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\NetworkRestore.ps1 -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown} 
 if((Test-Path $ENV:APPDATA\ParsecLoader\clear-proxy.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\clear-proxy.ps1 -Destination $ENV:APPDATA\ParsecLoader}
+if((Test-Path $ENV:APPDATA\ParsecLoader\CreateClearProxyScheduledTask.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\CreateClearProxyScheduledTask.ps1 -Destination $ENV:APPDATA\ParsecLoader}
 if((Test-Path $ENV:APPDATA\ParsecLoader\GPU-Update.ico) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\GPU-Update.ico -Destination $ENV:APPDATA\ParsecLoader}
 }
 
@@ -233,9 +234,9 @@ $ShortCut.Save()
 function Create-ClearProxy-Shortcut{
 Write-Output "Create ClearProxy shortcut"
 $Shell = New-Object -ComObject ("WScript.Shell")
-$ShortCut = $Shell.CreateShortcut("$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\Clear-Proxy.lnk")
+$ShortCut = $Shell.CreateShortcut("$env:USERPROFILE\Desktop\Auto Recover GPU.lnk")
 $ShortCut.TargetPath="powershell.exe"
-$ShortCut.Arguments='-windowstyle hidden -ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\Clear-Proxy.ps1"'
+$ShortCut.Arguments='-windowstyle hidden -ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\CreateClearProxyScheduledTask.ps1"'
 $ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
 $ShortCut.WindowStyle = 0;
 $ShortCut.Description = "ClearProxy shortcut";
@@ -503,7 +504,7 @@ show-file-extensions
 enhance-pointer-precision
 set-time
 set-wallpaper
-#Create-ClearProxy-Shortcut
+Create-ClearProxy-Shortcut
 disable-server-manager
 Install-Gaming-Apps
 Start-Sleep -s 5
