@@ -12,6 +12,17 @@ Else {}}
 
 #fix gpu
 
+function EnableDisabledGPU {
+$getdisabled = Get-WmiObject win32_pnpentity | Where-Object {$_.name -like '*NVIDIA*' -or $_.name -like '3D Video Controller' -and $_.status -like 'Error'} | Select-Object -ExpandProperty PNPDeviceID
+if ($getdisabled -ne $null) {"Enabling GPU"
+$var = $getdisabled.Substring(0,21)
+$arguement = "/r enable"+ ' ' + "*"+ "$var"+ "*"
+Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList $arguement
+}
+Else {"Device is enabled"
+Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/m /r'}
+}
+
 function installedGPUID {
 #queries WMI to get DeviceID of the installed NVIDIA GPU
 Try {(get-wmiobject -query "select DeviceID from Win32_PNPEntity Where (deviceid Like '%PCI\\VEN_10DE%') and (PNPClass = 'Display' or Name = '3D Video Controller')"  | Select-Object DeviceID -ExpandProperty DeviceID).substring(13,8)}
@@ -216,6 +227,7 @@ Else {
 clear-proxy
 
 #fix gpu
+EnableDisabledGPU
 prepareEnvironment
 queryOS
 querygpu
