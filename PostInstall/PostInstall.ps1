@@ -9,8 +9,8 @@ if((Test-Path -Path $env:USERPROFILE\AppData\Roaming\ParsecLoader) -eq $true) {}
 if((Test-Path -Path "$path\Auto Login") -eq $true) {} Else {New-Item -path "$path\Auto Login" -ItemType Directory | Out-Null}
 if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\psscripts.ini) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\psscripts.ini -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts}
 if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown\NetworkRestore.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\NetworkRestore.ps1 -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown} 
-#if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup\clear-proxy.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\clear-proxy.ps1 -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup}
-if((Test-Path $path\ParsecTemp\PreInstall\GPU-Update.ico) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\GPU-Update.ico -Destination $env:USERPROFILE\AppData\Roaming\ParsecLoader}
+if((Test-Path $ENV:APPDATA\ParsecLoader\clear-proxy.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\clear-proxy.ps1 -Destination $ENV:APPDATA\ParsecLoader}
+if((Test-Path $ENV:APPDATA\ParsecLoader\GPU-Update.ico) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\GPU-Update.ico -Destination $env:USERPROFILE\AppData\Roaming\ParsecLoader}
 }
 
 
@@ -24,12 +24,12 @@ write-output "Adding modifications to GPT.ini"
 $gptstring = get-content C:\Windows\System32\GroupPolicy\gpt.ini
 $gpoversion = $gptstring -match "Version"
 $GPO = $gptstring -match "gPCMachineExtensionNames"
-$add = '[{42B5FAAE-6536-11D2-AE5A-0000F87571E3}{40B6664F-4972-11D1-A7CA-0000F87571E3}][{42B5FAAE-6536-11D2-AE5A-0000F87571E3}{40B6664F-4972-11D1-A7CA-0000F87571E3}]'
+$add = '[{42B5FAAE-6536-11D2-AE5A-0000F87571E3}{40B6664F-4972-11D1-A7CA-0000F87571E3}]'
 $replace = "$GPO" + "$add"
 (Get-Content "C:\Windows\System32\GroupPolicy\gpt.ini").Replace("$GPO","$replace") | Set-Content "C:\Windows\System32\GroupPolicy\gpt.ini"
 [int]$i = $gpoversion.trim("Version=") 
 [int]$n = $gpoversion.trim("Version=")
-$n +=4
+$n +=2
 (Get-Content C:\Windows\System32\GroupPolicy\gpt.ini) -replace "Version=$i", "Version=$n" | Set-Content C:\Windows\System32\GroupPolicy\gpt.ini}
 else{write-output "Not Required"}
 }
