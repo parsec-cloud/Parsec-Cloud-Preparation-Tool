@@ -235,6 +235,11 @@ querygpu
 checkGPUSupport
 querygpu
 
+if($gpu.supported -eq $true -or $gpu.supported -eq $unofficial) {}
+Else {
+Write-host "There is no GPU or it is unsupported"
+Exit}
+
 if ($gpu.driver_version -eq $null) {
 write-host "No Driver"
 startUpdate
