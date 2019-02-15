@@ -35,6 +35,11 @@ $ReadHost = Read-Host "Install the scheduled task? (Y/N)"
 
 Function CreateScheduledTask {
 
+try {Get-ScheduledTask -TaskName "Recover GPU Driver and Remove Proxy" -ErrorAction Stop | Out-Null
+Unregister-ScheduledTask -TaskName "Recover GPU Driver and Remove Proxy" -Confirm:$false
+}
+catch {}
+
 $action = New-ScheduledTaskAction -Execute 'C:\WINDOWS\system32\WindowsPowerShell\v1.0\powershell.exe' -Argument '-file %appdata%\ParsecLoader\clear-proxy.ps1'
 
 $trigger =  New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME 
@@ -42,4 +47,4 @@ $trigger =  New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
 Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "Recover GPU Driver and Remove Proxy" -Description "This task reinstalls or re-enables the GPU and clears any Windows Proxies" -RunLevel Highest
 }
 
-Setup
+setup
