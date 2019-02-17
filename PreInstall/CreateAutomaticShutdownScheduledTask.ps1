@@ -25,8 +25,6 @@ $rootFolder = $service.GetFolder("")
 
 $taskdef = $service.NewTask(0)
 
-# Creating task settings with some default properties plus
-# the task’s idle settings; requiring 15 minutes idle time
 $sets = $taskdef.Settings
 $sets.AllowDemandStart = $true
 $sets.Compatibility = 2
@@ -36,8 +34,10 @@ $sets.IdleSettings.IdleDuration = "PT$($span.Hours)H$($span.Minutes)M"
 $sets.IdleSettings.WaitTimeout = "PT0M"
 $sets.IdleSettings.StopOnIdleEnd = $true
 
+$taskdef.Principal.RunLevel = 1
+
 # Creating an reoccurring daily trigger, limited to execute
-# once per 40-minutes.
+# once per $span.
 $trg = $taskdef.Triggers.Create(2)
 $trg.StartBoundary = ([datetime]::Now).ToString("yyyy-MM-dd'T'HH:mm:ss")
 $trg.Enabled = $true
