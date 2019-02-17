@@ -25,7 +25,7 @@
 
 	$timer1_Tick = {
         if ($countdown -lt [timespan]'00:00:02') {$timer1.Stop()
-        #shutdown /s -t 0
+        shutdown /s -t 0
         }
         Else{}
 		$script:countdown -= [timespan]'00:00:01'

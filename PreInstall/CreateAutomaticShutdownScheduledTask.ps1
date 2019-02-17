@@ -49,7 +49,7 @@ $trg.Repetition.StopAtDurationEnd = $true
 # The command and command arguments to execute
 $act = $taskdef.Actions.Create(0)
 $act.Path = "C:\WINDOWS\system32\WindowsPowerShell\v1.0\powershell.exe"
-$act.Arguments = "-file %appdata%\ParsecLoader\Automatic-Shutdown.ps1"
+$act.Arguments = "-windowstyle hidden -file %appdata%\ParsecLoader\Automatic-Shutdown.ps1"
 
 # Register the task under the current Windows user
 $user = [environment]::UserDomainName + "\" + [environment]::UserName
