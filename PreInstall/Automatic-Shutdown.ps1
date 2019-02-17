@@ -9,10 +9,10 @@
     $button = New-Object System.Windows.Forms.Button
 	$InitialFormWindowState = New-Object System.Windows.Forms.FormWindowState
 
-$time = Get-Content $env:appdata\ParsecLoader\ShutdownTimer.txt -First 1
+
 
 	$form1_Load = {
-		$script:countdown = [timespan]$time # 10 minutes
+		$script:countdown = [timespan]'00:10:00' # 10 minutes
 		$label000000.Text = "$countdown"
 		$timer1.Start()
 
