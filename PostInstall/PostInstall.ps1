@@ -494,6 +494,7 @@ Write-Host -foregroundcolor cyan "
 
                     OS:
                     Server 2016
+                    Server 2019
                     
                     CLOUD SKU:
                     AWS G3.4xLarge    (Tesla M60)
@@ -501,7 +502,9 @@ Write-Host -foregroundcolor cyan "
                     Azure NV6         (Tesla M60)
                     Paperspace P4000  (Quadro P4000)
                     Paperspace P5000  (Quadro P5000)
-                    Google P100       (Tesla P100)
+                    Google P100 VW    (Tesla P100 Virtual Workstation)
+                    Google P40  VW    (Tesla P40 Virtual Workstation)
+                    Google T40  VW    (Tesla T40 Virtual Workstation)
 
 "   
 setupEnvironment
