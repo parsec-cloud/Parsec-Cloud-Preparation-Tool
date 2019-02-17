@@ -11,6 +11,8 @@ if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\psscripts.ini) -eq
 if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown\NetworkRestore.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\NetworkRestore.ps1 -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown} 
 if((Test-Path $ENV:APPDATA\ParsecLoader\clear-proxy.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\clear-proxy.ps1 -Destination $ENV:APPDATA\ParsecLoader}
 if((Test-Path $ENV:APPDATA\ParsecLoader\CreateClearProxyScheduledTask.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\CreateClearProxyScheduledTask.ps1 -Destination $ENV:APPDATA\ParsecLoader}
+if((Test-Path $ENV:APPDATA\ParsecLoader\Automatic-Shutdown.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\Automatic-Shutdown.ps1 -Destination $ENV:APPDATA\ParsecLoader}
+if((Test-Path $ENV:APPDATA\ParsecLoader\CreateAutomaticShutdownScheduledTask.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\CreateAutomaticShutdownScheduledTask.ps1 -Destination $ENV:APPDATA\ParsecLoader}
 if((Test-Path $ENV:APPDATA\ParsecLoader\GPU-Update.ico) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\GPU-Update.ico -Destination $ENV:APPDATA\ParsecLoader}
 }
 
@@ -237,6 +239,19 @@ $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$env:USERPROFILE\Desktop\Auto Recover GPU.lnk")
 $ShortCut.TargetPath="powershell.exe"
 $ShortCut.Arguments='-ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\CreateClearProxyScheduledTask.ps1"'
+$ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
+$ShortCut.WindowStyle = 0;
+$ShortCut.Description = "ClearProxy shortcut";
+$ShortCut.Save()
+}
+
+#createshortcut
+function Create-AutoShutdown-Shortcut{
+Write-Output "Create Auto Shutdown Shortcut"
+$Shell = New-Object -ComObject ("WScript.Shell")
+$ShortCut = $Shell.CreateShortcut("$env:USERPROFILE\Desktop\Setup Auto Shutdown.lnk")
+$ShortCut.TargetPath="powershell.exe"
+$ShortCut.Arguments='-ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\CreateAutomaticShutdownScheduledTask.ps1"'
 $ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
 $ShortCut.WindowStyle = 0;
 $ShortCut.Description = "ClearProxy shortcut";
@@ -505,6 +520,7 @@ enhance-pointer-precision
 set-time
 set-wallpaper
 Create-ClearProxy-Shortcut
+Create-AutoShutdown-Shortcut
 disable-server-manager
 Install-Gaming-Apps
 Start-Sleep -s 5
