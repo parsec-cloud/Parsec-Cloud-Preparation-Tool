@@ -11,10 +11,15 @@ Write-Host "This sets your machine to shutdown if Windows detects it as idle for
 This is intended to save you money if you ever forget to shut your machine down.
 You will get a warning message pop up 10 minutes before shutdown"
 
-[int]$read = read-host "How much time should the system idle for before shutting down? Time in Minutes - Minimum 20"
+Do {[int]$read = read-host "How much time should the system idle for before shutting down? Time in Minutes - Minimum 20"}
+while ($read -lt "20")
 $time = $read - 10
-
 $span = new-timespan -minutes $time
+
+try {Get-ScheduledTask -TaskName "Automatic Shutdown On Idle" -ErrorAction Stop | Out-Null
+Unregister-ScheduledTask -TaskName "Automatic Shutdown On Idle" -Confirm:$false
+}
+catch {}
 
 #https://www.ctrl.blog/entry/idle-task-scheduler-powershell
 $TaskName = "Automatic Shutdown On Idle"
