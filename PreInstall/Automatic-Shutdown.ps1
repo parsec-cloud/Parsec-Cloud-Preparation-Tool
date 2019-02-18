@@ -1,57 +1,46 @@
-﻿try {Get-ScheduledTask -TaskName "Automatic Shutdown On Idle" -ErrorAction Stop | Out-Null
-Unregister-ScheduledTask -TaskName "Automatic Shutdown On Idle" -Confirm:$false
+﻿Add-Type @'
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+
+namespace PInvoke.Win32 {
+
+    public static class UserInput {
+
+        [DllImport("user32.dll", SetLastError=false)]
+        private static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct LASTINPUTINFO {
+            public uint cbSize;
+            public int dwTime;
+        }
+
+        public static DateTime LastInput {
+            get {
+                DateTime bootTime = DateTime.UtcNow.AddMilliseconds(-Environment.TickCount);
+                DateTime lastInput = bootTime.AddMilliseconds(LastInputTicks);
+                return lastInput;
+            }
+        }
+
+        public static TimeSpan IdleTime {
+            get {
+                return DateTime.UtcNow.Subtract(LastInput);
+            }
+        }
+
+        public static int LastInputTicks {
+            get {
+                LASTINPUTINFO lii = new LASTINPUTINFO();
+                lii.cbSize = (uint)Marshal.SizeOf(typeof(LASTINPUTINFO));
+                GetLastInputInfo(ref lii);
+                return lii.dwTime;
+            }
+        }
+    }
 }
-catch {}
-
-function createnewtask {
-$readfile = Get-Content -Path $env:APPDATA\ParsecLoader\Autoshutdown.txt
-$time = $readfile - 10
-$span = new-timespan -minutes $time
-
-
-
-#https://www.ctrl.blog/entry/idle-task-scheduler-powershell
-$TaskName = "Automatic Shutdown On Idle"
-
-$service = New-Object -ComObject("Schedule.Service")
-$service.Connect()
-$rootFolder = $service.GetFolder("")
-
-$taskdef = $service.NewTask(0)
-
-$sets = $taskdef.Settings
-$sets.AllowDemandStart = $true
-$sets.Compatibility = 2
-$sets.Enabled = $true
-$sets.RunOnlyIfIdle = $true
-$sets.IdleSettings.IdleDuration = "PT$($span.Hours)H$($span.Minutes)M"
-$sets.IdleSettings.WaitTimeout = "PT0M"
-$sets.IdleSettings.StopOnIdleEnd = $true
-
-$taskdef.Principal.RunLevel = 1
-
-# Creating an reoccurring daily trigger, limited to execute
-# once per $span.
-$trg = $taskdef.Triggers.Create(2)
-$trg.StartBoundary = ([datetime]::Now).ToString("yyyy-MM-dd'T'HH:mm:ss")
-$trg.Enabled = $true
-$trg.DaysInterval = 1
-$trg.Repetition.Duration = "P1D"
-$trg.Repetition.Interval = "PT$($span.Hours)H$($span.Minutes)M"
-$trg.Repetition.StopAtDurationEnd = $true
-
-# The command and command arguments to execute
-$act = $taskdef.Actions.Create(0)
-$act.Path = "C:\WINDOWS\system32\WindowsPowerShell\v1.0\powershell.exe"
-$act.Arguments = "-windowstyle hidden -file %appdata%\ParsecLoader\Automatic-Shutdown.ps1"
-
-# Register the task under the current Windows user
-$user = [environment]::UserDomainName + "\" + [environment]::UserName
-$rootFolder.RegisterTaskDefinition($TaskName, $taskdef, 6, $user, $null, 3) | Out-Null
-"Scheduled Task successfully Created"
-}
-
-
+'@
 function AutomaticShutdown {
 	
 	Add-Type -AssemblyName System.Windows.Forms
@@ -73,8 +62,7 @@ function AutomaticShutdown {
 	}
 	
     $button_logic = {
-    Stop-ScheduledTask -TaskName 'Automatic Shutdown On Idle'
-    createnewtask
+    Start-Process powershell.exe -ArgumentList "-ExecutionPolicy Bypass -windowstyle hidden -file $ENV:APPDATA\ParsecLoader\Automatic-Shutdown.ps1"
     $form1.Close()
     }
 
@@ -133,4 +121,14 @@ function AutomaticShutdown {
     $Form1.Controls.Add($Button)
 	return $form1.ShowDialog()
 }
+
+function idle {
+$readfile = (Get-Content -Path $env:APPDATA\ParsecLoader\Autoshutdown.txt) - 10
+$formattime = '00:' + $readfile + ':00'
+do {$time = [PInvoke.Win32.UserInput]::IdleTime
+}
+Until($time -gt $formattime)
 AutomaticShutdown
+}
+
+idle
