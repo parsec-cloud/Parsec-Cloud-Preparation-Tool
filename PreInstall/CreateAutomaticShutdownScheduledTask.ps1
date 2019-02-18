@@ -23,10 +23,12 @@ Unregister-ScheduledTask -TaskName "Automatic Shutdown On Idle" -Confirm:$false
 }
 catch {}
 
-$action = New-ScheduledTaskAction -Execute 'C:\WINDOWS\system32\WindowsPowerShell\v1.0\powershell.exe' -Argument '-file %appdata%\ParsecLoader\auto-shutdown.ps1'
+$action = New-ScheduledTaskAction -Execute 'C:\WINDOWS\system32\WindowsPowerShell\v1.0\powershell.exe' -Argument '-file %appdata%\ParsecLoader\automatic-shutdown.ps1'
 
 $trigger =  New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME 
 
 Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "Automatically Shutdown on Idle" -Description "This script runs at startup and monitors for idle" -RunLevel Highest
+
+Write-Output "Successfully Created"
 
 pause
