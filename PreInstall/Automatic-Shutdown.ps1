@@ -1,4 +1,56 @@
-﻿function AutomaticShutdown {
+﻿function createnewstask {
+$readfile = Get-Content -Path $env:APPDATA\ParsecLoader\Autoshutdown.txt
+$time = $readfile - 10
+$span = new-timespan -minutes $time
+
+try {Get-ScheduledTask -TaskName "Automatic Shutdown On Idle" -ErrorAction Stop | Out-Null
+Unregister-ScheduledTask -TaskName "Automatic Shutdown On Idle" -Confirm:$false
+}
+catch {}
+
+#https://www.ctrl.blog/entry/idle-task-scheduler-powershell
+$TaskName = "Automatic Shutdown On Idle"
+
+$service = New-Object -ComObject("Schedule.Service")
+$service.Connect()
+$rootFolder = $service.GetFolder("")
+
+$taskdef = $service.NewTask(0)
+
+$sets = $taskdef.Settings
+$sets.AllowDemandStart = $true
+$sets.Compatibility = 2
+$sets.Enabled = $true
+$sets.RunOnlyIfIdle = $true
+$sets.IdleSettings.IdleDuration = "PT$($span.Hours)H$($span.Minutes)M"
+$sets.IdleSettings.WaitTimeout = "PT0M"
+$sets.IdleSettings.StopOnIdleEnd = $true
+
+$taskdef.Principal.RunLevel = 1
+
+# Creating an reoccurring daily trigger, limited to execute
+# once per $span.
+$trg = $taskdef.Triggers.Create(2)
+$trg.StartBoundary = ([datetime]::Now).ToString("yyyy-MM-dd'T'HH:mm:ss")
+$trg.Enabled = $true
+$trg.DaysInterval = 1
+$trg.Repetition.Duration = "P1D"
+$trg.Repetition.Interval = "PT$($span.Hours)H$($span.Minutes)M"
+$trg.Repetition.StopAtDurationEnd = $true
+
+# The command and command arguments to execute
+$act = $taskdef.Actions.Create(0)
+$act.Path = "C:\WINDOWS\system32\WindowsPowerShell\v1.0\powershell.exe"
+$act.Arguments = "-windowstyle hidden -file %appdata%\ParsecLoader\Automatic-Shutdown.ps1"
+
+# Register the task under the current Windows user
+$user = [environment]::UserDomainName + "\" + [environment]::UserName
+$rootFolder.RegisterTaskDefinition($TaskName, $taskdef, 6, $user, $null, 3) | Out-Null
+"Scheduled Task successfully Created"
+}
+
+
+function AutomaticShutdown {
 	
 	Add-Type -AssemblyName System.Windows.Forms
 
@@ -20,6 +72,7 @@
 	
     $button_logic = {
     Stop-ScheduledTask -TaskName 'Automatic Shutdown On Idle'
+    createnewstask
     $form1.Close()
     }
 

@@ -13,7 +13,9 @@ You will get a warning message pop up 10 minutes before shutdown"
 
 Do {[int]$read = read-host "How much time should the system idle for before shutting down? Time in Minutes - Minimum 20"}
 while ($read -lt "20")
-$time = $read - 10
+$read | Out-File $env:APPDATA\ParsecLoader\Autoshutdown.txt
+$readfile = Get-Content -Path $env:APPDATA\ParsecLoader\Autoshutdown.txt
+$time = $readfile - 10
 $span = new-timespan -minutes $time
 
 try {Get-ScheduledTask -TaskName "Automatic Shutdown On Idle" -ErrorAction Stop | Out-Null
