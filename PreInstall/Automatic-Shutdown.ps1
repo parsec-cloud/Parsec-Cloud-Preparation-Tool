@@ -1,12 +1,14 @@
-﻿function createnewstask {
+﻿try {Get-ScheduledTask -TaskName "Automatic Shutdown On Idle" -ErrorAction Stop | Out-Null
+Unregister-ScheduledTask -TaskName "Automatic Shutdown On Idle" -Confirm:$false
+}
+catch {}
+
+function createnewtask {
 $readfile = Get-Content -Path $env:APPDATA\ParsecLoader\Autoshutdown.txt
 $time = $readfile - 10
 $span = new-timespan -minutes $time
 
-try {Get-ScheduledTask -TaskName "Automatic Shutdown On Idle" -ErrorAction Stop | Out-Null
-Unregister-ScheduledTask -TaskName "Automatic Shutdown On Idle" -Confirm:$false
-}
-catch {}
+
 
 #https://www.ctrl.blog/entry/idle-task-scheduler-powershell
 $TaskName = "Automatic Shutdown On Idle"
@@ -72,7 +74,7 @@ function AutomaticShutdown {
 	
     $button_logic = {
     Stop-ScheduledTask -TaskName 'Automatic Shutdown On Idle'
-    createnewstask
+    createnewtask
     $form1.Close()
     }
 
