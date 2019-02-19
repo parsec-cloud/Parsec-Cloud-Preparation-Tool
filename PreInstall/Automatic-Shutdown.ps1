@@ -124,10 +124,12 @@ function AutomaticShutdown {
 
 function idle {
 $readfile = (Get-Content -Path $env:APPDATA\ParsecLoader\Autoshutdown.txt) - 10
-$formattime = '00:' + $readfile + ':00'
-do {$time = [PInvoke.Win32.UserInput]::IdleTime
+do {
+[PInvoke.Win32.UserInput]::LastInput | Out-Null
+[PInvoke.Win32.UserInput]::IdleTime | Out-Null
+Start-Sleep -Seconds 1
 }
-Until($time -gt $formattime)
+Until([PInvoke.Win32.UserInput]::Idletime.TotalMinutes -gt $readfile)
 AutomaticShutdown
 }
 
