@@ -27,7 +27,7 @@ $Form.BackColor = "#25253f"
 $form.AutoScale = 1
 $Form.TopMost = $true
 $Form.Width = $Screen.Bounds.Width
-$Form.Height = 175
+$Form.Height = 200
 $Form.FormBorderStyle = '0'
 $Form.StartPosition = 'Manual'
 $Form.Top = 0
@@ -47,7 +47,7 @@ $form.controls.add($pictureBox)
 $Text = New-Object system.windows.Forms.Label
 $Text.Text = '00:00:00'
 $Text.TextAlign = 'MiddleLeft'
-$Text.Height = 25
+$Text.Height = 50
 $Text.Width = $Screen.Bounds.Width / 4.25
 $TextX = (($Form.Width - $Text.Width) / 10) * 5.25
 $Text.Location = New-Object System.Drawing.Point($TextX,25)
@@ -57,7 +57,7 @@ $Form.controls.Add($Text)
 $TextMessage = New-Object system.windows.Forms.Label
 $TextMessage.Text = $SubMessage
 $TextMessage.TextAlign = 'MiddleLeft'
-$TextMessage.Height = 50
+$TextMessage.Height = 80
 $TextMessage.Width = $Screen.Bounds.Width / 4.25
 $TextXMessage = (($Form.Width - $Text.Width) / 10) * 6
 $TextMessage.Location = New-Object System.Drawing.Point($TextX,50)
