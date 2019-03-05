@@ -1,8 +1,6 @@
 ﻿Function ShowDialog {
-param(
-[string]$SubMessage 
-)
-Import-Module $env:appdata\ParsecLoader\Modules\OneHour.psm1
+
+
 Add-Type -AssemblyName System.Windows.Forms
 $Screen = [System.Windows.Forms.Screen]::PrimaryScreen
 	$form1_Load = {
@@ -22,7 +20,7 @@ $Screen = [System.Windows.Forms.Screen]::PrimaryScreen
 		$Text.Text = "YOUR CLOUD COMPUTER HAS BEEN ON FOR " ,$countdown.Minutes, " MINUTES " ,$countdown.Seconds, " SECONDS."
 	}
 
-
+$SubMessage = "Stop your computer now if you don't want to pay another hour of game time."
 $timer1 = New-Object System.Windows.Forms.Timer
 $Form = New-Object system.Windows.Forms.Form
 $Form.BackColor = "#25253f"
@@ -102,8 +100,12 @@ $Form.controls.Add($TextMessage)
     $cancelBtn.Location = New-Object System.Drawing.Point($cancelBtnX,$cancelBtnY)
     $cancelBtn.Add_Click({
     $script:countdown.TotalSeconds | Out-File $env:Appdata\ParsecLoader\Time.txt
-    start-job -Name OneHour -ScriptBlock{OneHour}
-        $Form.Close()
+
+
+Start-Process powershell.exe -ArgumentList "-windowstyle hidden -executionpolicy bypass -file $env:appdata\ParsecLoader\OneHour.ps1" 
+
+$form.Close()
+
     })
     $Form.Controls.Add($cancelBtn)
 
@@ -112,3 +114,4 @@ $Form.controls.Add($TextMessage)
 $Form.Dispose()
 
 }
+ShowDialog
