@@ -39,28 +39,28 @@ It's provided with no warranty, so use it at your own risk.
 This tool supports:
 
 ### OS:
-Server 2016
-Server 2019
+Server 2016  
+Server 2019  
                     
 ### CLOUD SKU:
-AWS G3.4xLarge    (Tesla M60)
-AWS G2.2xLarge    (GRID K520)
-Azure NV6         (Tesla M60)
-Paperspace P4000  (Quadro P4000)
-Paperspace P5000  (Quadro P5000)
-Google P100 VW    (Tesla P100 with Virtual Workstation Driver)
-Google P4 VW      (Tesla P4 with Virtual Workstation Driver)
-Google T4 VW      (Tesla T4 with Virtual Workstation Driver)
+AWS G3.4xLarge    (Tesla M60)  
+AWS G2.2xLarge    (GRID K520)  
+Azure NV6         (Tesla M60)  
+Paperspace P4000  (Quadro P4000)  
+Paperspace P5000  (Quadro P5000)  
+Google P100 VW    (Tesla P100 with Virtual Workstation Driver)  
+Google P4 VW      (Tesla P4 with Virtual Workstation Driver)  
+Google T4 VW      (Tesla T4 with Virtual Workstation Driver)  
 
 ### Issues:
-Q. Stuck at downloading resouces for more than 1 minute
+Q. Stuck at downloading resouces for more than 1 minute  
 A. Close the Powershell Window, remove both Parsec-Cloud-Preparation-Tool.zip and folder from downloads, re-run script by copying code.
 
-Q. Google P100 is stuck at 1366x768
+Q. Google P100 is stuck at 1366x768  
 A. You should delete your machine and use the Virtual Workstation variety of the P100 Instance 
    which will allow you to go up to 4K
 
-Q. What about GPU X or Cloud Server Y - when will they be supported?
+Q. What about GPU X or Cloud Server Y - when will they be supported?  
 A. That's on you to test the script and describe the errors you see.
 
 
