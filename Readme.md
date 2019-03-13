@@ -18,18 +18,18 @@ to make your life easier.
                     
 It's provided with no warranty, so use it at your own risk.
 
-Instructions:                    
+### Instructions:                    
 1. Set up your GPU accelerated cloud machine on Microsoft Azure, Amazon AWS, Google Cloud or Paperspace. 
 2. Azure, AWS, Google: Log in via RDP and make note of the password - you'll need it later - Paperspace: Connect via Paperspace web app.
 3. Open Powershell on the cloud machine.
 4. Copy the below code and follow the instructions in the script - you'll see them in RED
 
-[Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
-(New-Object System.Net.WebClient).DownloadFile("https://github.com/jamesstringerparsec/Parsec-Cloud-Preparation-Tool/archive/master.zip","$ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool.zip") 
-New-Item -Path $ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool -ItemType Directory
-Expand-Archive $ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool.Zip -DestinationPath $ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool
-CD $ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool\Parsec-Cloud-Preparation-Tool-master\
-Powershell.exe -File $ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool\Parsec-Cloud-Preparation-Tool-master\Loader.ps1
+`[Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"`
+`New-Object System.Net.WebClient).DownloadFile("https://github.com/jamesstringerparsec/Parsec-Cloud-Preparation-Tool/archive/master.zip","$ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool.zip")` 
+`New-Item -Path $ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool -ItemType Directory`
+`Expand-Archive $ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool.Zip -DestinationPath $ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool`
+`CD $ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool\Parsec-Cloud-Preparation-Tool-master\`
+`Powershell.exe -File $ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool\Parsec-Cloud-Preparation-Tool-master\Loader.ps1`
 
 
 
@@ -38,11 +38,11 @@ Powershell.exe -File $ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool\Pa
 
 This tool supports:
 
-OS:
+### OS:
 Server 2016
 Server 2019
                     
-CLOUD SKU:
+### CLOUD SKU:
 AWS G3.4xLarge    (Tesla M60)
 AWS G2.2xLarge    (GRID K520)
 Azure NV6         (Tesla M60)
@@ -52,7 +52,7 @@ Google P100 VW    (Tesla P100 with Virtual Workstation Driver)
 Google P4 VW      (Tesla P4 with Virtual Workstation Driver)
 Google T4 VW      (Tesla T4 with Virtual Workstation Driver)
 
-Issues:
+### Issues:
 Q. Stuck at downloading resouces for more than 1 minute
 A. Close the Powershell Window, remove both Parsec-Cloud-Preparation-Tool.zip and folder from downloads, re-run script by copying code.
 
