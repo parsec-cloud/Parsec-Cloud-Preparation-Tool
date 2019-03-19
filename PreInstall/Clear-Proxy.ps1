@@ -1,5 +1,19 @@
 ﻿#clear windows proxy
 
+$size = (Get-PartitionSupportedSize -DiskNumber 0 -PartitionNumber 1)
+[System.Uint64]$currentsize = (Get-Partition -DiskNumber 0 -PartitionNumber 1).Size
+[System.Uint64]$maxpartitionsize = ($size.SizeMax).ToString()
+
+if ($($currentsize) -ge $($maxpartitionsize)) {
+"Hard Drive already expanded"
+}
+Else
+{
+Resize-Partition -DiskNumber 0 -PartitionNumber 1 -Size $size.SizeMax
+"Successfully Increased Partition Size"
+}
+
+
 function clear-proxy {
 $value = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' -name ProxyEnable
 if ($value.ProxyEnable -eq 1) {
