@@ -18,6 +18,8 @@ to make your life easier.
                     
 It's provided with no warranty, so use it at your own risk.
 
+For Microsoft Azure users you can deploy a server quicker by using the json template in the templates folder. To use login into Azure, search for “template” and select “Template Deployment” from the search results dropdown menu then choose to “Build your own template in the editor”. This will open up a code editing window. Erase the code in that window and replace it with the code from the templates folder and copy paste the code from Azure.json into the code editing window on Azure. Save the Page. Then fill in the details on the next page.
+
 ### Instructions:                    
 1. Set up your GPU accelerated cloud machine on Microsoft Azure, Amazon AWS, Google Cloud or Paperspace. 
 2. Azure, AWS, Google: Log in via RDP and make note of the password - you'll need it later - Paperspace: Connect via Paperspace web app.
