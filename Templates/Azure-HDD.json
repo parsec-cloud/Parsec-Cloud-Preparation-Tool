@@ -3,15 +3,12 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "vmName": {
-            "defaultValue": "parsec-azure",
             "type": "string"
         },
         "userName": {
-            "defaultValue": "parsec",
             "type": "string"
         },
         "userPassword": {
-            "defaultValue": "parsecServer123",
             "type": "string"
         }
     },
