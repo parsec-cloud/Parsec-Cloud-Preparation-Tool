@@ -19,6 +19,7 @@ to make your life easier.
 It's provided with no warranty, so use it at your own risk.
 
 For Microsoft Azure users you can deploy a server quicker by using the following template:
+
 [![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
 Then fill in the details on the next page.
 
