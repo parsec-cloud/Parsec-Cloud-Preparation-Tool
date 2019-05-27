@@ -45,7 +45,7 @@ This tool supports:
 
 ### OS:
 Server 2016  
-Server 2019  
+Server 2019  - I do not actually recommend Server 2019, seems to break stuff...investigating. 
                     
 ### CLOUD SKU:
 AWS G3.4xLarge    (Tesla M60)  
