@@ -446,7 +446,7 @@ New-NetFirewallRule -DisplayName "Parsec" -Direction Inbound -Program "C:\Progra
 Function CreateParsecService {
 #Creates Parsec Service
 Write-host "Creating Parsec Service"
-sc.exe Create 'Parsec' binPath= 'C:\Program Files\Parsec\pservice.exe' start= 'auto' | Out-Null
+cmd.exe /c 'sc.exe Create "Parsec" binPath= "\"C:\Program Files\Parsec\pservice.exe\"" start= "auto"' | Out-Null
 sc.exe Start 'Parsec' | Out-Null
 }
 
