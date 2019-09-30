@@ -472,8 +472,9 @@ Start-Process -FilePath "$ENV:AppData\Parsec\electron\parsec.exe"
 function disable-devices {
 write-output "Disabling devices not required"
 Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/r disable "HDAUDIO\FUNC_01&VEN_10DE&DEV_0083&SUBSYS_10DE11A3*"'
-Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/r disable "PCI\VEN_1234&DEV_1111&SUBSYS_00015853*"'
-Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/r disable "PCI\VEN_1013&DEV_00B8&SUBSYS_00015853*"'
+$MSBasicDisplay = (get-wmiobject -query "select DeviceID from Win32_PNPEntity Where (PNPClass = 'Display' or Name = 'Microsoft Basic Display Adapter')" | Select-Object DeviceID -ExpandProperty DeviceID).substring(0,21)
+Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList "/r disable $MSBasicDisplay[0]"
+Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/r disable "PCI\VEN_1013&DEV_00B8*"'
 }
 
 #Cleanup
