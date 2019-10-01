@@ -66,6 +66,9 @@ Google P100 VW    (Tesla P100 with Virtual Workstation Driver)
 Google P4 VW      (Tesla P4 with Virtual Workstation Driver)  
 Google T4 VW      (Tesla T4 with Virtual Workstation Driver)  
 
+### VNC:
+AWS, Azure and Google machines will automatically installed with VNC for troubleshooting purposes. VNC runs with elevated privileges and is able to function in certain situations where Parsec cannot. VNC uses port TCP 5900 (which is not automatically allowed in your instance security group), and has a default password of 4ubg9sde. Make sure to only allow connections to port 5900 from your IP, and change the default password immediately on login — please do these two things. It’s a major security risk if you don’t.
+
 ### Issues:
 Q. Stuck at 24%  
 A. Keep waiting, this installation takes a while.
