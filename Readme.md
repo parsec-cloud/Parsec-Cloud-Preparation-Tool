@@ -67,7 +67,7 @@ Google P4 VW      (Tesla P4 with Virtual Workstation Driver)
 Google T4 VW      (Tesla T4 with Virtual Workstation Driver)  
 
 ### Issues:
-Q. Stuck at 24%
+Q. Stuck at 24%  
 A. Keep waiting, this installation takes a while.
 
 Q. Google P100 is stuck at 1366x768  
