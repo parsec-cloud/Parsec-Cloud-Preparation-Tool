@@ -67,8 +67,8 @@ Google P4 VW      (Tesla P4 with Virtual Workstation Driver)
 Google T4 VW      (Tesla T4 with Virtual Workstation Driver)  
 
 ### Issues:
-Q. Stuck at downloading resouces for more than 1 minute  
-A. Close the Powershell Window, remove both Parsec-Cloud-Preparation-Tool.zip and folder from downloads, re-run script by copying code.
+Q. Stuck at 24%
+A. Keep waiting, this installation takes a while.
 
 Q. Google P100 is stuck at 1366x768  
 A. You should delete your machine and use the Virtual Workstation variety of the P100 Instance 
