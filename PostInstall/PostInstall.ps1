@@ -539,6 +539,7 @@ Write-Host -foregroundcolor red "
                     CLOUD SKU:
                     AWS G3.4xLarge    (Tesla M60)
                     AWS G2.2xLarge    (GRID K520)
+                    AWS G4dn.xLarge   (Tesla T4 with vGaming driver)
                     Azure NV6         (Tesla M60)
                     Paperspace P4000  (Quadro P4000)
                     Paperspace P5000  (Quadro P5000)
