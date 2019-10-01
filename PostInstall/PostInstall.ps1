@@ -151,10 +151,16 @@ Write-Output "Disabling New Network Window"
 if((Test-RegistryValue -path HKLM:\SYSTEM\CurrentControlSet\Control\Network -Value NewNetworkWindowOff)-eq $true) {} Else {new-itemproperty -path HKLM:\SYSTEM\CurrentControlSet\Control\Network -name "NewNetworkWindowOff" | Out-Null}
 }
 
-#Enable Pointer Precision
+#Enable Pointer Precision 
 function enhance-pointer-precision {
 Write-Output "Enabling Enhanced Pointer Precision"
 Set-Itemproperty -Path 'HKCU:\Control Panel\Mouse' -Name MouseSpeed -Value 1 | Out-Null
+}
+
+#enable Mouse Keys
+function enable-mousekeys {
+Write-Output "Enabling Mouse Keys"
+set-Itemproperty -Path 'HKCU:\Control Panel\Accessibility\MouseKeys' -Name Flags -Value 63 | Out-Null
 }
 
 #disable shutdown start menu
@@ -555,6 +561,7 @@ disable-lock
 show-hidden-items
 show-file-extensions
 enhance-pointer-precision
+enable-mousekeys
 set-time
 set-wallpaper
 Create-ClearProxy-Shortcut
