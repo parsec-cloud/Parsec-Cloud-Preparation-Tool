@@ -307,6 +307,20 @@ remove-item -path "$path\EC2 Feedback.Website"
 Remove-Item -Path "$path\EC2 Microsoft Windows Guide.website"
 }
 
+
+Function ExtractRazerAudio {
+#Move extracts Razer Surround Files into correct location
+Write-Host "Moving Razer Surround files to the correct location"
+cmd.exe /c '"C:\Program Files\7-Zip\7z.exe" x C:\ParsecTemp\Apps\razer-surround-driver.exe -oC:\ParsecTemp\Apps\razer-surround-driver -y' | Out-Null
+}
+
+Function ModidifyManifest {
+#modifys the installer manifest to run without interraction
+$InstallerManifest = 'C:\ParsecTemp\Apps\razer-surround-driver\$TEMP\RazerSurroundInstaller\InstallerManifest.xml'
+$regex = '(?<=<SilentMode>)[^<]*'
+(Get-Content $file) -replace $regex, 'true' | Set-Content $InstallerManifest -Encoding UTF8
+}
+
 #AWS Specific tweaks
 function aws-setup {
 #clean-aws
@@ -317,8 +331,10 @@ start-process msiexec.exe -ArgumentList '/i C:\ParsecTemp\Apps\TightVNC.msi /qui
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value $env:USERNAME | Out-Null
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value "" | Out-Null
 if((Test-RegistryValue -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Value AutoAdminLogin)-eq $true){Set-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogin -Value 1 | Out-Null} Else {New-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogin -Value 1 | Out-Null}
-Write-Host "Install Razer Surround - it's the Audio Driver - you DON'T need to sign into Razer Synapse" -ForegroundColor Red
-Start-Process C:\ParsecTemp\Apps\razer-surround-driver.exe
+Write-Host "Installing Razer Surround - it's the Audio Driver - you DON'T need to sign into Razer Synapse" -ForegroundColor Red
+ExtractRazerAudio
+ModidifyManifest
+Start-Process 'C:\ParsecTemp\Apps\razer-surround-driver\$TEMP\RazerSurroundInstaller\RzUpdateManager.exe' -Wait
 Set-Service -Name audiosrv -StartupType Automatic
 Write-Output "VNC has been installed on this computer using Port 5900 and Password 4ubg9sde"
 }
@@ -422,6 +438,8 @@ if((Test-Path -Path "C:\Program Files\Parsec\pservice.exe") -eq $true) {} Else {
 if((Test-Path -Path "$ENV:APPDATA\Parsec\Electron") -eq $true) {} Else {Move-Item -Path 'C:\ParsecTemp\Apps\Parsec-Windows\$APPDATA\Parsec' -Destination $ENV:APPDATA | Out-Null} 
 Start-Sleep 1
 }
+
+
 
 Function InstallViGEmBus {
 #Required for Controller Support.
