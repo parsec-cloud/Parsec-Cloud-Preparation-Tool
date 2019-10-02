@@ -318,7 +318,7 @@ Function ModidifyManifest {
 #modifys the installer manifest to run without interraction
 $InstallerManifest = 'C:\ParsecTemp\Apps\razer-surround-driver\$TEMP\RazerSurroundInstaller\InstallerManifest.xml'
 $regex = '(?<=<SilentMode>)[^<]*'
-(Get-Content $file) -replace $regex, 'true' | Set-Content $InstallerManifest -Encoding UTF8
+(Get-Content $InstallerManifest) -replace $regex, 'true' | Set-Content $InstallerManifest -Encoding UTF8
 }
 
 #AWS Specific tweaks
@@ -334,7 +334,10 @@ if((Test-RegistryValue -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion
 Write-Host "Installing Razer Surround - it's the Audio Driver - you DON'T need to sign into Razer Synapse" -ForegroundColor Red
 ExtractRazerAudio
 ModidifyManifest
-Start-Process 'C:\ParsecTemp\Apps\razer-surround-driver\$TEMP\RazerSurroundInstaller\RzUpdateManager.exe' -Wait
+$OriginalLocation = Get-Location
+Set-Location -Path 'C:\ParsecTemp\Apps\razer-surround-driver\$TEMP\RazerSurroundInstaller\'
+Start-Process RzUpdateManager.exe -Wait
+Set-Location $OriginalLocation
 Set-Service -Name audiosrv -StartupType Automatic
 Write-Output "VNC has been installed on this computer using Port 5900 and Password 4ubg9sde"
 }
