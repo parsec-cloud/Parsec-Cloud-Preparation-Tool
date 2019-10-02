@@ -58,6 +58,7 @@ Server 2019  - I do not actually recommend Server 2019, seems to break stuff...i
 ### CLOUD SKU:
 AWS G3.4xLarge    (Tesla M60)  
 AWS G2.2xLarge    (GRID K520)  
+AWS G4dn.xLarge   (Tesla T4 with vGaming driver)  
 Azure NV6         (Tesla M60)  
 Paperspace P4000  (Quadro P4000)  
 Paperspace P5000  (Quadro P5000)  
@@ -65,9 +66,12 @@ Google P100 VW    (Tesla P100 with Virtual Workstation Driver)
 Google P4 VW      (Tesla P4 with Virtual Workstation Driver)  
 Google T4 VW      (Tesla T4 with Virtual Workstation Driver)  
 
+### VNC:
+AWS, Azure and Google machines will be automatically installed with VNC for troubleshooting purposes. VNC runs with elevated privileges and is able to function in certain situations where Parsec cannot. VNC uses port TCP 5900 (which you will need to manually enable in your instance security group settings), and has a default password of 4ubg9sde. If you open port 5900, make sure to only allow connections to port 5900 from your IP, and change the default password immediately on login — please do these two things. It’s a major security risk if you don’t.
+
 ### Issues:
-Q. Stuck at downloading resouces for more than 1 minute  
-A. Close the Powershell Window, remove both Parsec-Cloud-Preparation-Tool.zip and folder from downloads, re-run script by copying code.
+Q. Stuck at 24%  
+A. Keep waiting, this installation takes a while.
 
 Q. Google P100 is stuck at 1366x768  
 A. You should delete your machine and use the Virtual Workstation variety of the P100 Instance 
