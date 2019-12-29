@@ -76,6 +76,9 @@ A. Keep waiting, this installation takes a while.
 Q. Google P100 is stuck at 1366x768  
 A. You should delete your machine and use the Virtual Workstation variety of the P100 Instance 
    which will allow you to go up to 4K
+   
+Q. Keep getting error 14003
+A. Make sure you terminated the RDP session correctly with Menu start -> Power -> Disconnect. Closing RDP client or using it's disconnect button can cause the screen to be locked and not ending the session. This prevents Parsec deamon from starting screen capture, as RDP is still owning the screen. To make sure RDP session is terminated, if you have enabled auto-login and set Parsec to start at computer start, just reboot your cloud machine and try connecting with Parsec, without starting RDP session.
 
 Q. What about GPU X or Cloud Server Y - when will they be supported?  
 A. That's on you to test the script and describe the errors you see.
