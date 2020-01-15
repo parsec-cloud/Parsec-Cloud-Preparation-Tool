@@ -478,7 +478,7 @@ sc.exe Start 'Parsec' | Out-Null
 }
 
 Function DownloadParsecAuth {
-(New-Object System.Net.WebClient).DownloadFile("https://github.com/jamesstringerparsec/Parsec-Authenticator-for-RDP/blob/master/ParsecAuth.exe", "$ENV:UserProfile\Desktop\ParsecAuth.exe") 
+(New-Object System.Net.WebClient).DownloadFile("https://github.com/jamesstringerparsec/Parsec-Authenticator-for-RDP/blob/master/ParsecAuth.exe", "$ENV:UserProfile\Desktop\ParsecAuth.exe") | Unblock-File
 }
 
 Function InstallParsec {
