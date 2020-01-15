@@ -600,8 +600,10 @@ clean-up
 clean-up-recent
 provider-specific
 Write-Host "Once you have installed Razer Surround, the script is finished" -ForegroundColor RED
+Write-Host "PARSEC WILL NOT BE VISIBLE IF YOU'RE CONNECTED VIA RDP" -ForegroundColor RED
+Write-Hos  "USE PARSEC AUTHENTICATOR (ON DESKTOP) IN ORDER TO SIGN IN" -ForegroundColor RED
 Write-Host "THINGS YOU NEED TO DO" -ForegroundColor RED
-Write-Host "1. Open Parsec and sign in" -ForegroundColor RED
+Write-Host "1. Open Parsec and sign in (use Parsec authenticator if connected via RDP)" -ForegroundColor RED
 Write-Host "2. Open Setup Auto Logon on the Desktop and follow the instructions (in the text file on the Desktop)" -ForegroundColor RED
 Write-Host "3. Run GPU Updater Tool" -ForegroundColor RED
 Write-Host "4. If your computer doesn't reboot automatically, restart it from the Start Menu after GPU Updater Tool is finished" -ForegroundColor RED
