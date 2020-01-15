@@ -68,9 +68,11 @@ AWS, Azure and Google machines will be automatically installed with VNC for trou
 Q. Stuck at 24%  
 A. Keep waiting, this installation takes a while.
 
-Q. Google P100 is stuck at 1366x768  
-A. You should delete your machine and use the Virtual Workstation variety of the P100 Instance 
-   which will allow you to go up to 4K
+Q. Parsec won't open  
+A. You're connected via RDP, Parsec and RDP are not compatible.  Use ParsecAuth.exe to sign into Parsec, and config.txt to edit host settings.  
+
+Q. My cloud machijne is stuck at 1366x768  
+A. You should delete your machine and use the GRID Virtual Workstation variety provided by your cloud provider (it's a check box on GCP)
 
 Q. What about GPU X or Cloud Server Y - when will they be supported?  
 A. That's on you to test the script and describe the errors you see.
