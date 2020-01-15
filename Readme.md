@@ -74,7 +74,7 @@ A. Keep waiting, this installation takes a while.
 Q. Parsec won't open  
 A. You're connected via RDP, Parsec and RDP are not compatible.  Use ParsecAuth.exe to sign into Parsec, and config.txt to edit host settings.  
 
-Q. My cloud machijne is stuck at 1366x768  
+Q. My cloud machine is stuck at 1366x768  
 A. You should delete your machine and use the GRID Virtual Workstation variety provided by your cloud provider (it's a check box on GCP)
 
 Q. What about GPU X or Cloud Server Y - when will they be supported?  
