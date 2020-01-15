@@ -477,6 +477,10 @@ cmd.exe /c 'sc.exe Create "Parsec" binPath= "\"C:\Program Files\Parsec\pservice.
 sc.exe Start 'Parsec' | Out-Null
 }
 
+Function DownloadParsecAuth {
+(New-Object System.Net.WebClient).DownloadFile("https://github.com/jamesstringerparsec/Parsec-Authenticator-for-RDP/blob/master/ParsecAuth.exe", "$ENV:UserProfile\Desktop\ParsecAuth.exe") 
+}
+
 Function InstallParsec {
 Write-Host "Installing Parsec"
 Install7Zip
@@ -484,6 +488,7 @@ ExtractInstallFiles
 InstallViGEmBus
 CreateFireWallRule
 CreateParsecService
+DownloadParsecAuth
 Write-host "Successfully installed Parsec"
 }
 
