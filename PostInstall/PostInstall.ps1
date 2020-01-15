@@ -439,7 +439,6 @@ if((Test-Path -Path "C:\Program Files\Parsec\vigem") -eq $true) {} Else  {Move-I
 if((Test-Path -Path "C:\Program Files\Parsec\wscripts") -eq $true) {} Else  {Move-Item -Path C:\ParsecTemp\Apps\Parsec-Windows\wscripts -Destination 'C:\Program Files\Parsec' | Out-Null} 
 if((Test-Path -Path "C:\Program Files\Parsec\parsecd.exe") -eq $true) {} Else {Move-Item -Path C:\ParsecTemp\Apps\Parsec-Windows\parsecd.exe -Destination 'C:\Program Files\Parsec' | Out-Null} 
 if((Test-Path -Path "C:\Program Files\Parsec\pservice.exe") -eq $true) {} Else {Move-Item -Path C:\ParsecTemp\Apps\Parsec-Windows\pservice.exe -Destination 'C:\Program Files\Parsec' | Out-Null} 
-if((Test-Path -Path "$ENV:APPDATA\Parsec\Electron") -eq $true) {} Else {Move-Item -Path 'C:\ParsecTemp\Apps\Parsec-Windows\$APPDATA\Parsec' -Destination $ENV:APPDATA | Out-Null} 
 Start-Sleep 1
 }
 
@@ -491,9 +490,10 @@ Write-host "Successfully installed Parsec"
 #Apps that require human intervention
 function Install-Gaming-Apps {
 InstallParsec
-New-ItemProperty -path HKCU:\Software\Microsoft\Windows\CurrentVersion\Run -Name "Parsec.App.0" -Value "$ENV:AppData\Parsec\electron\parsec.exe" | Out-Null
+New-ItemProperty -path HKCU:\Software\Microsoft\Windows\CurrentVersion\Run -Name "Parsec.App.0" -Value "C:\Program Files\Parsec\parsecd.exe" | Out-Null
+Start-Process -FilePath "C:\Program Files\Parsec\parsecd.exe"
+Start-Sleep -s 1
 Write-Output "app_host=1" | Out-File -FilePath $ENV:AppData\Parsec\config.txt -Encoding ascii
-Start-Process -FilePath "$ENV:AppData\Parsec\electron\parsec.exe"
 }
 
 #Disable Devices
