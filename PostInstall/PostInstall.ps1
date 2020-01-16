@@ -606,7 +606,7 @@ clean-up-recent
 provider-specific
 Write-Host "Once you have installed Razer Surround, the script is finished" -ForegroundColor RED
 Write-Host "PARSEC WILL NOT BE VISIBLE IF YOU'RE CONNECTED VIA RDP" -ForegroundColor RED
-Write-Hos  "USE ParsecAuth.exe (ON DESKTOP) IN ORDER TO SIGN IN" -ForegroundColor RED
+Write-Host  "USE ParsecAuth.exe (ON DESKTOP) IN ORDER TO SIGN IN" -ForegroundColor RED
 Write-Host "THINGS YOU NEED TO DO" -ForegroundColor RED
 Write-Host "1. Open Parsec and sign in (use ParsecAuth.exe if connected via RDP)" -ForegroundColor RED
 Write-Host "2. Open Setup Auto Logon on the Desktop and follow the instructions (in the text file on the Desktop)" -ForegroundColor RED
