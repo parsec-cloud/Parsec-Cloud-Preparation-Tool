@@ -77,7 +77,7 @@ A. You're connected via RDP, Parsec and RDP are not compatible.  Use ParsecAuth.
 Q. My cloud machine is stuck at 1366x768  
 A. You should delete your machine and use the GRID Virtual Workstation variety provided by your cloud provider (it's a check box on GCP)
 
-Q. I made a mistake when adding my AWS access key or I want to remove it on my G4DN Instance
+Q. I made a mistake when adding my AWS access key or I want to remove it on my G4DN Instance  
 A. Open Powershell and type `Remove-AWSCredentialProfile -ProfileName GPUUpdateG4Dn` - This will remove the profile from the machine.
 
 Q. What about GPU X or Cloud Server Y - when will they be supported?  
