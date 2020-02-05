@@ -48,7 +48,7 @@ This tool supports:
 
 ### OS:
 Server 2016  
-Server 2019  - I do not actually recommend Server 2019 because plugging a controller to the client will crash Parsec
+Server 2019
                     
 ### CLOUD SKU:
 AWS G3.4xLarge    (Tesla M60)  
