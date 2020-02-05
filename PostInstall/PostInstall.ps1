@@ -448,7 +448,7 @@ if ((gwmi win32_operatingsystem | % caption) -like '*Windows Server 2019*') {
     "Detected Windows Server 2019, downloading Xbox Accessories 1.2 to enable controller support"
     (New-Object System.Net.WebClient).DownloadFile("http://download.microsoft.com/download/6/9/4/69446ACF-E625-4CCF-8F56-58B589934CD3/Xbox360_64Eng.exe", "C:\ParsecTemp\Drivers\Xbox360_64Eng.exe")
     Write-Host "In order to use a controller, you need to install Microsoft Xbox Accessories " -ForegroundColor Red
-    Start-Process C:\ParsecTemp\Drivers\Xbox360_64Eng.exe
+    Start-Process C:\ParsecTemp\Drivers\Xbox360_64Eng.exe -Wait
     }
 }
 
