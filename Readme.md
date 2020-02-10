@@ -72,7 +72,7 @@ Q. Stuck at 24%
 A. Keep waiting, this installation takes a while.
 
 Q. Parsec won't open  
-A. You're connected via RDP, Parsec and RDP are not compatible.  Use Parsec Service Manager to open and sign into Parsec.
+A. Use Parsec Service Manager on the desktop to open and sign into Parsec.
 
 Q. My cloud machine is stuck at 1366x768  
 A. You should delete your machine and use the GRID Virtual Workstation variety provided by your cloud provider (it's a check box on GCP)
