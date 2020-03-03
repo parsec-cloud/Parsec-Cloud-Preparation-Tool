@@ -18,8 +18,8 @@ $readfile = Get-Content -Path $env:APPDATA\ParsecLoader\Autoshutdown.txt
 $time = $readfile - 10
 $span = new-timespan -minutes $time
 
-try {Get-ScheduledTask -TaskName "Automatic Shutdown On Idle" -ErrorAction Stop | Out-Null
-Unregister-ScheduledTask -TaskName "Automatic Shutdown On Idle" -Confirm:$false
+try {Get-ScheduledTask -TaskName "Automatically Shutdown on Idle" -ErrorAction Stop | Out-Null
+Unregister-ScheduledTask -TaskName "Automatically Shutdown on Idle" -Confirm:$false
 }
 catch {}
 
