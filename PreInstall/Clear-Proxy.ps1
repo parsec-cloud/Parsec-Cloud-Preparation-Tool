@@ -84,7 +84,7 @@ Exit
 }
 Elseif (($gpu.Supported -eq "UnOfficial") -eq $true) {
 if ($url.GoogleGRID -eq $null) {$URL.GoogleGRID = Invoke-WebRequest -uri https://cloud.google.com/compute/docs/gpus/install-grid-drivers -UseBasicParsing} Else {}
-$($($URL.GoogleGRID).Links | Where-Object href -like *server2016_64bit_international.exe*).outerHTML.Split('/')[6].split('_')[0]
+$($($URL.GoogleGRID).Links | Where-Object href -like *server2016_server2019_64bit_international.exe*).outerHTML.Split('/')[6].split('_')[0]
 }
 Else { 
 $gpu.URL = "https://www.nvidia.com/Download/processFind.aspx?psid=" + $gpu.psid + "&pfid=" + $gpu.pfid + "&osid=" + $gpu.osid + "&lid=1&whql=1&lang=en-us&ctk=0"
