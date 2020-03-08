@@ -83,7 +83,7 @@ if (($gpu.supported -eq "No") -eq $true) {"Sorry, this GPU (" + $gpu.name + ") i
 Exit
 }
 Elseif (($gpu.Supported -eq "UnOfficial") -eq $true) {
-if ($url.GoogleGRID -eq $null) {$URL.GoogleGRID = Invoke-WebRequest -uri https://cloud.google.com/compute/docs/gpus/add-gpus#installing_grid_drivers_for_virtual_workstations -UseBasicParsing} Else {}
+if ($url.GoogleGRID -eq $null) {$URL.GoogleGRID = Invoke-WebRequest -uri https://cloud.google.com/compute/docs/gpus/install-grid-drivers -UseBasicParsing} Else {}
 $($($URL.GoogleGRID).Links | Where-Object href -like *server2016_64bit_international.exe*).outerHTML.Split('/')[6].split('_')[0]
 }
 Else { 
