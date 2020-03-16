@@ -487,7 +487,7 @@ sc.exe Start 'Parsec' | Out-Null
 
 Function DownloadParsecServiceManager {
 [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
-(New-Object System.Net.WebClient).DownloadFile("https://github.com/jamesstringerparsec/Parsec-Service-Manager/raw/master/ParsecServiceManager.exe", "$ENV:UserProfile\Desktop\ParsecServiceManager.exe") | Unblock-File
+(New-Object System.Net.WebClient).DownloadFile("https://github.com/jamesstringerparsec/Parsec-Service-Manager/blob/master/Launcher.exe?raw=true", "$ENV:UserProfile\Desktop\ParsecServiceManager.exe") | Unblock-File
 }
 
 Function InstallParsec {
