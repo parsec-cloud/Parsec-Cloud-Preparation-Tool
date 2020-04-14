@@ -493,7 +493,6 @@ ExtractInstallFiles
 InstallViGEmBus
 CreateFireWallRule
 CreateParsecService
-DownloadParsecServiceManager
 Write-host "Successfully installed Parsec"
 }
 
