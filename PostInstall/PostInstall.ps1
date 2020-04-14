@@ -485,10 +485,6 @@ cmd.exe /c 'sc.exe Create "Parsec" binPath= "\"C:\Program Files\Parsec\pservice.
 sc.exe Start 'Parsec' | Out-Null
 }
 
-Function DownloadParsecServiceManager {
-[Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
-(New-Object System.Net.WebClient).DownloadFile("https://github.com/jamesstringerparsec/Parsec-Service-Manager/blob/master/Launcher.exe?raw=true", "$ENV:UserProfile\Desktop\ParsecServiceManager.exe") | Unblock-File
-}
 
 Function InstallParsec {
 Write-Host "Installing Parsec"
@@ -615,10 +611,8 @@ clean-up
 clean-up-recent
 provider-specific
 Write-Host "Once you have installed Razer Surround, the script is finished" -ForegroundColor RED
-Write-Host "PARSEC WILL NOT BE VISIBLE IF YOU'RE CONNECTED VIA RDP" -ForegroundColor RED
-Write-Host  "USE ParsecServiceManager.exe (ON DESKTOP) IN ORDER TO SIGN IN" -ForegroundColor RED
 Write-Host "THINGS YOU NEED TO DO" -ForegroundColor RED
-Write-Host "1. Open Parsec and sign in (use ParsecServiceManager.exe if connected via RDP)" -ForegroundColor RED
+Write-Host "1. Open Parsec and sign in" -ForegroundColor RED
 Write-Host "2. Open Setup Auto Logon on the Desktop and follow the instructions (in the text file on the Desktop)" -ForegroundColor RED
 Write-Host "3. Run GPU Updater Tool" -ForegroundColor RED
 Write-Host "4. If your computer doesn't reboot automatically, restart it from the Start Menu after GPU Updater Tool is finished" -ForegroundColor RED
