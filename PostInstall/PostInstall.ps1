@@ -10,7 +10,6 @@ function setupEnvironment {
 if((Test-Path -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup) -eq $true) {} Else {New-Item -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup -ItemType directory | Out-Null}
 if((Test-Path -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown) -eq $true) {} Else {New-Item -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown -ItemType directory | Out-Null}
 if((Test-Path -Path $env:USERPROFILE\AppData\Roaming\ParsecLoader) -eq $true) {} Else {New-Item -Path $env:USERPROFILE\AppData\Roaming\ParsecLoader -ItemType directory | Out-Null}
-if((Test-Path -Path "$path\Auto Login") -eq $true) {} Else {New-Item -path "$path\Auto Login" -ItemType Directory | Out-Null}
 if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\psscripts.ini) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\psscripts.ini -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts}
 if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown\NetworkRestore.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\NetworkRestore.ps1 -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown} 
 if((Test-Path $ENV:APPDATA\ParsecLoader\clear-proxy.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\clear-proxy.ps1 -Destination $ENV:APPDATA\ParsecLoader}
