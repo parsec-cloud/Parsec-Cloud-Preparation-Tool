@@ -62,7 +62,7 @@ Google P4 VW      (Tesla P4 with Virtual Workstation Driver)
 Google T4 VW      (Tesla T4 with Virtual Workstation Driver)  
 
 ### RDP:  
-Only use RDP to intially setup the instance. Parsec and RDP are not compatible (especially if you use RDP to log in). 
+Only use RDP to intially setup the instance. Parsec and RDP are not friendly with each other.  
 
 ### VNC:
 AWS, Azure and Google machines will be automatically installed with VNC for troubleshooting purposes. VNC runs with elevated privileges and is able to function in certain situations where Parsec cannot. VNC uses port TCP 5900 (which you will need to manually enable in your instance security group settings), and has a default password of 4ubg9sde. If you open port 5900, make sure to only allow connections to port 5900 from your IP, and change the default password immediately on login — please do these two things. It’s a major security risk if you don’t.
