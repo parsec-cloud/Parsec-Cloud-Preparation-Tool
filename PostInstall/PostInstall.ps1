@@ -913,6 +913,6 @@ clean-up-recent
 provider-specific
 StartGPUUpdate -PromptPasswordUpdateGPU PromptPasswordUpdateGPU
 Write-Host "1. Open Parsec and sign in" -ForegroundColor black -BackgroundColor Green 
-Write-Host "2. If your computer doesn't reboot automatically, restart it from the Start Menu after GPU Updater Tool is finished" -ForegroundColor black -BackgroundColor Green 
+Write-Host "2. Use GPU Updater to update your GPU Drivers!" -ForegroundColor black -BackgroundColor Green 
 Write-host "DONE!" -ForegroundColor black -BackgroundColor Green 
 pause
