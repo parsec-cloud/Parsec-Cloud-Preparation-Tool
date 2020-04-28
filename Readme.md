@@ -74,6 +74,9 @@ A. Keep waiting, this installation takes a while.
 Q. My cloud machine is stuck at 1366x768  
 A. Make sure you use GPU Update Tool to install the driver, and on Google Cloud you need to select the Virtual Workstation option when selecting an NVIDIA GPU when setting up an instance.
 
+Q. My Xbox 360 Controller isn't detected in Windows Server 2019
+A. You will need to visit Device Manager, and choose to Automatically Update "Virtual Xbox 360 Controller" listed under the Unknown Devices catagory in Device Manager.
+
 Q. I made a mistake when adding my AWS access key or I want to remove it on my G4DN Instance  
 A. Open Powershell and type `Remove-AWSCredentialProfile -ProfileName GPUUpdateG4Dn` - This will remove the profile from the machine.
 
