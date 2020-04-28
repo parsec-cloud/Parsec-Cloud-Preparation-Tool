@@ -1,4 +1,8 @@
-﻿$path = [Environment]::GetFolderPath("Desktop")
+param (
+[switch]$PromptPasswordUpdateGPU = $true
+)
+
+$path = [Environment]::GetFolderPath("Desktop")
 $currentusersid = Get-LocalUser "$env:USERNAME" | Select-Object SID | ft -HideTableHeaders | Out-String | ForEach-Object { $_.Trim() }
 
 #Creating Folders and moving script files into System directories
@@ -20,6 +24,351 @@ if((Test-Path $ENV:APPDATA\ParsecLoader\Parsec.png) -eq $true) {} Else {Move-Ite
 if((Test-Path $ENV:APPDATA\ParsecLoader\ShowDialog.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\ShowDialog.ps1 -Destination $ENV:APPDATA\ParsecLoader}
 if((Test-Path $ENV:APPDATA\ParsecLoader\OneHour.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\OneHour.ps1 -Destination $ENV:APPDATA\ParsecLoader}
 }
+
+function cloudprovider { 
+    #finds the cloud provider that this VM is hosted by
+    $gcp = $(
+                try {
+                    (Invoke-WebRequest -uri http://metadata.google.internal/computeMetadata/v1/ -Method GET -header @{'metadata-flavor'='Google'} -TimeoutSec 5)
+                    }
+                catch {
+                    }
+             )
+
+    $aws = $(
+                Try {
+                    (Invoke-WebRequest -uri http://169.254.169.254/latest/meta-data/ -TimeoutSec 5)
+                    }
+                catch {
+                    }
+             )
+
+    $paperspace = $(
+                        Try {
+                            (Invoke-WebRequest -uri http://metadata.paperspace.com/meta-data/machine -TimeoutSec 5)
+                            }
+                        catch {
+                            }
+                    )
+
+    $azure = $(
+                  Try {(Invoke-WebRequest -Uri "http://169.254.169.254/metadata/instance?api-version=2018-10-01" -Headers @{Metadata="true"} -TimeoutSec 5)}
+                  catch {}              
+               )
+
+
+    if ($GCP.StatusCode -eq 200) {
+        "Google"
+        } 
+    Elseif ($AWS.StatusCode -eq 200) {
+        "AWS"
+        } 
+    Elseif ($paperspace.StatusCode -eq 200) {
+        "Paperspace"
+        }
+    Elseif ($azure.StatusCode -eq 200) {
+        "Azure"
+        }
+    Else {
+        "Generic"
+        }
+}
+
+
+add-type  @"
+        using System;
+        using System.Collections.Generic;
+        using System.Text;
+        using System.Runtime.InteropServices;
+ 
+        namespace ComputerSystem
+        {
+            public class LSAutil
+            {
+                [StructLayout(LayoutKind.Sequential)]
+                private struct LSA_UNICODE_STRING
+                {
+                    public UInt16 Length;
+                    public UInt16 MaximumLength;
+                    public IntPtr Buffer;
+                }
+ 
+                [StructLayout(LayoutKind.Sequential)]
+                private struct LSA_OBJECT_ATTRIBUTES
+                {
+                    public int Length;
+                    public IntPtr RootDirectory;
+                    public LSA_UNICODE_STRING ObjectName;
+                    public uint Attributes;
+                    public IntPtr SecurityDescriptor;
+                    public IntPtr SecurityQualityOfService;
+                }
+ 
+                private enum LSA_AccessPolicy : long
+                {
+                    POLICY_VIEW_LOCAL_INFORMATION = 0x00000001L,
+                    POLICY_VIEW_AUDIT_INFORMATION = 0x00000002L,
+                    POLICY_GET_PRIVATE_INFORMATION = 0x00000004L,
+                    POLICY_TRUST_ADMIN = 0x00000008L,
+                    POLICY_CREATE_ACCOUNT = 0x00000010L,
+                    POLICY_CREATE_SECRET = 0x00000020L,
+                    POLICY_CREATE_PRIVILEGE = 0x00000040L,
+                    POLICY_SET_DEFAULT_QUOTA_LIMITS = 0x00000080L,
+                    POLICY_SET_AUDIT_REQUIREMENTS = 0x00000100L,
+                    POLICY_AUDIT_LOG_ADMIN = 0x00000200L,
+                    POLICY_SERVER_ADMIN = 0x00000400L,
+                    POLICY_LOOKUP_NAMES = 0x00000800L,
+                    POLICY_NOTIFICATION = 0x00001000L
+                }
+ 
+                [DllImport("advapi32.dll", SetLastError = true, PreserveSig = true)]
+                private static extern uint LsaRetrievePrivateData(
+                            IntPtr PolicyHandle,
+                            ref LSA_UNICODE_STRING KeyName,
+                            out IntPtr PrivateData
+                );
+ 
+                [DllImport("advapi32.dll", SetLastError = true, PreserveSig = true)]
+                private static extern uint LsaStorePrivateData(
+                        IntPtr policyHandle,
+                        ref LSA_UNICODE_STRING KeyName,
+                        ref LSA_UNICODE_STRING PrivateData
+                );
+ 
+                [DllImport("advapi32.dll", SetLastError = true, PreserveSig = true)]
+                private static extern uint LsaOpenPolicy(
+                    ref LSA_UNICODE_STRING SystemName,
+                    ref LSA_OBJECT_ATTRIBUTES ObjectAttributes,
+                    uint DesiredAccess,
+                    out IntPtr PolicyHandle
+                );
+ 
+                [DllImport("advapi32.dll", SetLastError = true, PreserveSig = true)]
+                private static extern uint LsaNtStatusToWinError(
+                    uint status
+                );
+ 
+                [DllImport("advapi32.dll", SetLastError = true, PreserveSig = true)]
+                private static extern uint LsaClose(
+                    IntPtr policyHandle
+                );
+ 
+                [DllImport("advapi32.dll", SetLastError = true, PreserveSig = true)]
+                private static extern uint LsaFreeMemory(
+                    IntPtr buffer
+                );
+ 
+                private LSA_OBJECT_ATTRIBUTES objectAttributes;
+                private LSA_UNICODE_STRING localsystem;
+                private LSA_UNICODE_STRING secretName;
+ 
+                public LSAutil(string key)
+                {
+                    if (key.Length == 0)
+                    {
+                        throw new Exception("Key lenght zero");
+                    }
+ 
+                    objectAttributes = new LSA_OBJECT_ATTRIBUTES();
+                    objectAttributes.Length = 0;
+                    objectAttributes.RootDirectory = IntPtr.Zero;
+                    objectAttributes.Attributes = 0;
+                    objectAttributes.SecurityDescriptor = IntPtr.Zero;
+                    objectAttributes.SecurityQualityOfService = IntPtr.Zero;
+ 
+                    localsystem = new LSA_UNICODE_STRING();
+                    localsystem.Buffer = IntPtr.Zero;
+                    localsystem.Length = 0;
+                    localsystem.MaximumLength = 0;
+ 
+                    secretName = new LSA_UNICODE_STRING();
+                    secretName.Buffer = Marshal.StringToHGlobalUni(key);
+                    secretName.Length = (UInt16)(key.Length * UnicodeEncoding.CharSize);
+                    secretName.MaximumLength = (UInt16)((key.Length + 1) * UnicodeEncoding.CharSize);
+                }
+ 
+                private IntPtr GetLsaPolicy(LSA_AccessPolicy access)
+                {
+                    IntPtr LsaPolicyHandle;
+ 
+                    uint ntsResult = LsaOpenPolicy(ref this.localsystem, ref this.objectAttributes, (uint)access, out LsaPolicyHandle);
+ 
+                    uint winErrorCode = LsaNtStatusToWinError(ntsResult);
+                    if (winErrorCode != 0)
+                    {
+                        throw new Exception("LsaOpenPolicy failed: " + winErrorCode);
+                    }
+ 
+                    return LsaPolicyHandle;
+                }
+ 
+                private static void ReleaseLsaPolicy(IntPtr LsaPolicyHandle)
+                {
+                    uint ntsResult = LsaClose(LsaPolicyHandle);
+                    uint winErrorCode = LsaNtStatusToWinError(ntsResult);
+                    if (winErrorCode != 0)
+                    {
+                        throw new Exception("LsaClose failed: " + winErrorCode);
+                    }
+                }
+ 
+                public void SetSecret(string value)
+                {
+                    LSA_UNICODE_STRING lusSecretData = new LSA_UNICODE_STRING();
+ 
+                    if (value.Length > 0)
+                    {
+                        //Create data and key
+                        lusSecretData.Buffer = Marshal.StringToHGlobalUni(value);
+                        lusSecretData.Length = (UInt16)(value.Length * UnicodeEncoding.CharSize);
+                        lusSecretData.MaximumLength = (UInt16)((value.Length + 1) * UnicodeEncoding.CharSize);
+                    }
+                    else
+                    {
+                        //Delete data and key
+                        lusSecretData.Buffer = IntPtr.Zero;
+                        lusSecretData.Length = 0;
+                        lusSecretData.MaximumLength = 0;
+                    }
+ 
+                    IntPtr LsaPolicyHandle = GetLsaPolicy(LSA_AccessPolicy.POLICY_CREATE_SECRET);
+                    uint result = LsaStorePrivateData(LsaPolicyHandle, ref secretName, ref lusSecretData);
+                    ReleaseLsaPolicy(LsaPolicyHandle);
+ 
+                    uint winErrorCode = LsaNtStatusToWinError(result);
+                    if (winErrorCode != 0)
+                    {
+                        throw new Exception("StorePrivateData failed: " + winErrorCode);
+                    }
+                }
+            }
+        }
+"@
+
+Function TestCredential {
+    param
+    (
+        [PSCredential]$Credential
+    )
+    try {
+        Start-Process -FilePath cmd.exe /c -Credential ($Credential)
+        }
+    Catch {
+        If ($Error[0].Exception.Message) {
+        $Error[0].Exception.Message
+        Throw
+        }
+        }
+    }
+
+function Set-AutoLogon {
+    [CmdletBinding(SupportsShouldProcess)]
+    param
+    (
+        [PSCredential]$Credential
+    )
+    Try {
+        if ($Credential.GetNetworkCredential().Domain) {
+            $DefaultDomainName = $Credential.GetNetworkCredential().Domain
+            }
+        elseif ((Get-WMIObject Win32_ComputerSystem).PartOfDomain) {
+            $DefaultDomainName = "."
+        }
+        else {
+            $DefaultDomainName = ""
+        }
+
+        if ($PSCmdlet.ShouldProcess(('User "{0}\{1}"' -f $DefaultDomainName, $Credential.GetNetworkCredential().Username), "Set Auto logon")) {
+            Write-Verbose ('DomainName: {0} / UserName: {1}' -f $DefaultDomainName, $Credential.GetNetworkCredential().Username)
+            Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name "AutoAdminLogon" -Value 1
+            Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name "DefaultDomainName" -Value ""
+            Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name "DefaultUserName" -Value $Credential.UserName
+            Remove-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name "AutoLogonCount" -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name "DefaultPassword" -ErrorAction SilentlyContinue
+            $private:LsaUtil = New-Object ComputerSystem.LSAutil -ArgumentList "DefaultPassword"
+            $LsaUtil.SetSecret($Credential.GetNetworkCredential().Password)
+            "Auto Logon Configured"
+            Remove-Variable Credential
+            }
+    }
+    Catch {
+        $Error[0].Exception.Message
+        Throw
+        }
+}
+
+
+Function GetInstanceCredential {
+
+    Try {
+        $Credential = Get-Credential -Credential $null
+        Try {
+            TestCredential -Credential $Credential
+            }
+        Catch {
+            "Credentials Incorrect"
+            }
+            Try {
+                Set-AutoLogon -Credential $Credential
+                }
+            Catch {
+                $Error[0].Exception
+                "Retry?"
+                $ReadHost = Read-Host "(Y/N)"
+                Switch ($ReadHost) 
+                   {
+                   Y {
+                      GetInstanceCredential 
+                       }
+                   N {
+                       }
+                    }
+                }
+
+        }
+    Catch {
+        "You pressed cancel, retry?"
+        $ReadHost = Read-Host "(Y/N)"
+        Switch ($ReadHost) 
+            {
+            Y {
+                GetInstanceCredential
+                }
+            N {
+                }
+            }
+        }
+    }
+    
+Function PromptUserAutoLogon {
+param (
+[switch]$PromptPasswordUpdateGPU
+)
+$CloudProvider = CloudProvider
+    If ($PromptPasswordUpdateGPU -eq $false) {
+        }
+    ElseIf ($CloudProvider -eq "Paperspace") {
+    }
+    Else {
+        "Detected $CloudProvider"
+        Write-Host @"
+Do you want this computer to log on to Windows automatically? 
+(Y): This is good when you want the cloud computer to boot straight to Parsec but is less secure as the computer will not be protected by a password at start up
+(N): If you plan to log into Windows with RDP then connect via Parsec, or have been told you don't need to set this up
+"@ -ForegroundColor Black -BackgroundColor Red
+        $ReadHost = Read-Host "(Y/N)" 
+        Switch ($ReadHost) 
+            {
+            Y {
+                GetInstanceCredential
+                }
+            N {
+                }
+            }
+        }
+    }
+
+
 
 
 
@@ -217,39 +566,6 @@ New-Item -path HKLM:\SOFTWARE\Policies\Microsoft\Windows -name Explorer
 New-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer -PropertyType DWORD -Name HideRecentlyAddedApps -Value 1
 }
 
-#enable auto login - remove user password
-function autoLogin { Write-Host "This cloud machine needs to be set to automatically login - please use the Setup Auto Login shortcut + Instructions on the desktop to set this up when the script is finished" -ForegroundColor red 
-(New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
-Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader" -Force
-$output = "
-This application was provided by Mark Rusinovish from System Internals",
-"https://docs.microsoft.com/en-us/sysinternals/downloads/autologon",
-"",
-"What this application does:  Enables your server to automatically login, so you can log into Parsec straight away.",
-"When to use it: The first time you setup your server, or when you change your servers password.",
-"",
-"Instructions",
-"Accept the EULA and enter the following details",
-"Username: $env:username",
-"Domain: $env:Computername",
-"Password: The password you got from Azure/AWS/Google that you use to log into RDP"
-$output | Out-File "$path\Auto Login\Auto Login Instructions.txt"
-
-autoLoginShortCut
-}
-
-#Creates Shortcut to Autologon.exe
-function autoLoginShortCut {
-Write-Output "Create Auto Login Shortcut"
-$Shell = New-Object -ComObject ("WScript.Shell")
-$ShortCut = $Shell.CreateShortcut("$path\Auto Login\Setup Auto Logon.lnk")
-$ShortCut.TargetPath="$env:USERPROFILE\AppData\Roaming\ParsecLoader\Autologon.exe"
-$ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
-$ShortCut.WindowStyle = 0;
-$ShortCut.Description = "Setup AutoLogon Shortcut";
-$ShortCut.Save()
-}
-
 #createshortcut
 function Create-AutoShutdown-Shortcut{
 Write-Output "Create Auto Shutdown Shortcut"
@@ -308,16 +624,12 @@ $regex = '(?<=<SilentMode>)[^<]*'
 (Get-Content $InstallerManifest) -replace $regex, 'true' | Set-Content $InstallerManifest -Encoding UTF8
 }
 
-#AWS Specific tweaks
-function aws-setup {
-#clean-aws
-Write-Output "Installing VNC, and installing audio driver"
-(New-Object System.Net.WebClient).DownloadFile($(((Invoke-WebRequest -Uri https://www.tightvnc.com/download.php -UseBasicParsing).Links.OuterHTML -like "*Installer for Windows (64-bit)*").split('"')[1].split('"')[0]), "C:\ParsecTemp\Apps\tightvnc.msi")
+ #Audio Driver Install
+function AudioInstall {
+Write-Output "Installing audio driver"
+#(New-Object System.Net.WebClient).DownloadFile($(((Invoke-WebRequest -Uri https://www.tightvnc.com/download.php -UseBasicParsing).Links.OuterHTML -like "*Installer for Windows (64-bit)*").split('"')[1].split('"')[0]), "C:\ParsecTemp\Apps\tightvnc.msi")
 (New-Object System.Net.WebClient).DownloadFile("http://rzr.to/surround-pc-download", "C:\ParsecTemp\Apps\razer-surround-driver.exe")
-start-process msiexec.exe -ArgumentList '/i C:\ParsecTemp\Apps\TightVNC.msi /quiet /norestart ADDLOCAL=Server SET_USECONTROLAUTHENTICATION=1 VALUE_OF_USECONTROLAUTHENTICATION=1 SET_CONTROLPASSWORD=1 VALUE_OF_CONTROLPASSWORD=4ubg9sde SET_USEVNCAUTHENTICATION=1 VALUE_OF_USEVNCAUTHENTICATION=1 SET_PASSWORD=1 VALUE_OF_PASSWORD=4ubg9sde' -Wait
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value $env:USERNAME | Out-Null
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value "" | Out-Null
-if((Test-RegistryValue -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Value AutoAdminLogin)-eq $true){Set-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogin -Value 1 | Out-Null} Else {New-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogin -Value 1 | Out-Null}
+#start-process msiexec.exe -ArgumentList '/i C:\ParsecTemp\Apps\TightVNC.msi /quiet /norestart ADDLOCAL=Server SET_USECONTROLAUTHENTICATION=1 VALUE_OF_USECONTROLAUTHENTICATION=1 SET_CONTROLPASSWORD=1 VALUE_OF_CONTROLPASSWORD=4ubg9sde SET_USEVNCAUTHENTICATION=1 VALUE_OF_USEVNCAUTHENTICATION=1 SET_PASSWORD=1 VALUE_OF_PASSWORD=4ubg9sde' -Wait
 Write-Host "Installing Razer Surround - it's the Audio Driver - you DON'T need to sign into Razer Synapse" -ForegroundColor Red
 ExtractRazerAudio
 ModidifyManifest
@@ -327,18 +639,18 @@ Write-Output "The Audio Driver, Razer Surround is now installing"
 Start-Process RzUpdateManager.exe
 Set-Location $OriginalLocation
 Set-Service -Name audiosrv -StartupType Automatic
-Write-Output "VNC has been installed on this computer using Port 5900 and Password 4ubg9sde"
+#Write-Output "VNC has been installed on this computer using Port 5900 and Password 4ubg9sde"
 }
 
 #Creates shortcut for the GPU Updater tool
 function gpu-update-shortcut {
-(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPU%20Updater%20Tool.ps1", "$ENV:Appdata\ParsecLoader\GPU Updater Tool.ps1")
-Unblock-File -Path "$ENV:Appdata\ParsecLoader\GPU Updater Tool.ps1"
+(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPU%20Updater%20Tool.ps1", "$ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1")
+Unblock-File -Path "$ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1"
 Write-Output "GPU-Update-Shortcut"
 $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$path\GPU Updater.lnk")
 $ShortCut.TargetPath="powershell.exe"
-$ShortCut.Arguments='-ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\GPU Updater Tool.ps1"'
+$ShortCut.Arguments='-ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\GPUUpdaterTool.ps1"'
 $ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
 $ShortCut.IconLocation = "$env:USERPROFILE\AppData\Roaming\ParsecLoader\GPU-Update.ico, 0";
 $ShortCut.WindowStyle = 0;
@@ -357,12 +669,10 @@ Else{
 if($gputype.substring(13,8) -eq "DEV_13F2") {
 #AWS G3.4xLarge M60
 Write-Output "Tesla M60 Detected"
-autologin
-aws-setup
+AudioInstall
 }
 ElseIF($gputype.Substring(13,8) -eq "DEV_118A"){#AWS G2.2xLarge K520
-autologin
-aws-setup
+AudioInstall
 Write-Output "GRID K520 Detected"
 }
 ElseIF($gputype.Substring(13,8) -eq "DEV_1BB1") {
@@ -378,8 +688,7 @@ Elseif($gputype.substring(13,8) -eq "DEV_15F8") {
 Write-Output "Tesla P100 Detected"
 if((Test-Path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe") -eq $true) {remove-item -path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe"} Else {}
 if((Test-Path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk") -eq $true) {Remove-Item -path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk"} Else {}
-autologin
-aws-setup
+AudioInstall
 }
 Elseif($gputype.substring(13,8) -eq "DEV_1BB3") {
 #Tesla P4
@@ -387,27 +696,23 @@ Write-Output "Tesla P4 Detected"
 if((Test-Path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe") -eq $true) {remove-item -path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe"} Else {}
 if((Test-Path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk") -eq $true) {Remove-Item -path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk"} Else {}
 autologin
-aws-setup
+AudioInstall
 }
 Elseif($gputype.substring(13,8) -eq "DEV_1EB8") {
 #Tesla T4
 Write-Output "Tesla T4 Detected"
 if((Test-Path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe") -eq $true) {remove-item -path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe"} Else {}
 if((Test-Path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk") -eq $true) {Remove-Item -path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk"} Else {}
-autologin
-aws-setup
+AudioInstall
 }
 Elseif($gputype.substring(13,8) -eq "DEV_1430") {
 #Quadro M2000
 Write-Output "Quadro M2000 Detected"
-autologin
-aws-setup
+AudioInstall
 }
 Else{write-host "The installed GPU is not currently supported, skipping provider specific tasks"}
 }
 }
-
-
 
 function Install7Zip {
 #7Zip is required to extract the Parsec-Windows.exe File
@@ -514,6 +819,17 @@ Write-Output "Removing recent files"
 remove-item "$env:APPDATA\Microsoft\Windows\Recent\*" -Recurse -Force | Out-Null
 }
 
+#Start GPU Update Tool
+Function StartGPUUpdate {
+    param(
+    [switch]$PromptPasswordUpdateGPU
+    )
+    if ($PromptPasswordUpdateGPU) {
+        start-process powershell.exe -verb RunAS -argument "-file $ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1"
+        }
+    Else {
+        }
+    }
 Write-Host -foregroundcolor red "
                                ((//////                                
                              #######//////                             
@@ -566,6 +882,7 @@ Write-Host -foregroundcolor red "
                     Google T4  VW    (Tesla T4 Virtual Workstation)
 
 "   
+PromptUserAutoLogon -PromptPasswordUpdateGPU PromptPasswordUpdateGPU
 setupEnvironment
 addRegItems
 create-directories
@@ -583,7 +900,6 @@ enhance-pointer-precision
 enable-mousekeys
 set-time
 set-wallpaper
-Create-ClearProxy-Shortcut
 Create-AutoShutdown-Shortcut
 Create-One-Hour-Warning-Shortcut
 disable-server-manager
@@ -596,10 +912,8 @@ disable-devices
 clean-up
 clean-up-recent
 provider-specific
-Write-Host "Once you have installed Razer Surround, the script is finished" -ForegroundColor RED
-Write-Host "THINGS YOU NEED TO DO" -ForegroundColor RED
-Write-Host "1. Open Parsec and sign in" -ForegroundColor RED
-Write-Host "2. Open Setup Auto Logon on the Desktop and follow the instructions (in the text file on the Desktop)" -ForegroundColor RED
-Write-Host "3. Run GPU Updater Tool" -ForegroundColor RED
-Write-Host "4. If your computer doesn't reboot automatically, restart it from the Start Menu after GPU Updater Tool is finished" -ForegroundColor RED
+StartGPUUpdate -PromptPasswordUpdateGPU PromptPasswordUpdateGPU
+Write-Host "1. Open Parsec and sign in" -ForegroundColor black -BackgroundColor Green 
+Write-Host "2. If your computer doesn't reboot automatically, restart it from the Start Menu after GPU Updater Tool is finished" -ForegroundColor black -BackgroundColor Green 
+Write-host "DONE!" -ForegroundColor black -BackgroundColor Green 
 pause
