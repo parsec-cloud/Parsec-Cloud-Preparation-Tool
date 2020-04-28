@@ -251,19 +251,6 @@ $ShortCut.Save()
 }
 
 #createshortcut
-function Create-ClearProxy-Shortcut{
-Write-Output "Create ClearProxy shortcut"
-$Shell = New-Object -ComObject ("WScript.Shell")
-$ShortCut = $Shell.CreateShortcut("$env:USERPROFILE\Desktop\Auto Recover GPU.lnk")
-$ShortCut.TargetPath="powershell.exe"
-$ShortCut.Arguments='-ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\CreateClearProxyScheduledTask.ps1"'
-$ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
-$ShortCut.WindowStyle = 0;
-$ShortCut.Description = "ClearProxy shortcut";
-$ShortCut.Save()
-}
-
-#createshortcut
 function Create-AutoShutdown-Shortcut{
 Write-Output "Create Auto Shutdown Shortcut"
 $Shell = New-Object -ComObject ("WScript.Shell")
