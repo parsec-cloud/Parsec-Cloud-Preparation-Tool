@@ -1,4 +1,5 @@
-﻿Write-Host -foregroundcolor red "
+﻿cls
+ Write-Host -foregroundcolor red "
                                ((//////                                
                              #######//////                             
                              ##########(/////.                         
