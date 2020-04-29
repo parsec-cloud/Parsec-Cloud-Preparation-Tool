@@ -881,7 +881,7 @@ Write-Host -foregroundcolor red "
                     Google T4  VW    (Tesla T4 Virtual Workstation)
 
 "   
-PromptUserAutoLogon -PromptPasswordUpdateGPU PromptPasswordUpdateGPU
+PromptUserAutoLogon -PromptPasswordUpdateGPU $PromptPasswordUpdateGPU
 setupEnvironment
 addRegItems
 create-directories
@@ -911,7 +911,7 @@ disable-devices
 clean-up
 clean-up-recent
 provider-specific
-StartGPUUpdate -PromptPasswordUpdateGPU PromptPasswordUpdateGPU
+StartGPUUpdate -PromptPasswordUpdateGPU $PromptPasswordUpdateGPU
 Write-Host "1. Open Parsec and sign in" -ForegroundColor black -BackgroundColor Green 
 Write-Host "2. Use GPU Updater to update your GPU Drivers!" -ForegroundColor black -BackgroundColor Green 
 Write-host "DONE!" -ForegroundColor black -BackgroundColor Green 
