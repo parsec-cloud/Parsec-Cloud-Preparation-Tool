@@ -1,5 +1,5 @@
 param (
-[switch]$PromptPasswordUpdateGPU = $true
+[switch]$DontPromptPasswordUpdateGPU
 )
 
 Function ProgressWriter {
@@ -350,10 +350,10 @@ Function GetInstanceCredential {
     
 Function PromptUserAutoLogon {
 param (
-[switch]$PromptPasswordUpdateGPU
+[switch]$DontPromptPasswordUpdateGPU
 )
 $CloudProvider = CloudProvider
-    If ($PromptPasswordUpdateGPU -eq $false) {
+    If ($DontPromptPasswordUpdateGPU) {
         }
     ElseIf ($CloudProvider -eq "Paperspace") {
     }
@@ -815,12 +815,12 @@ remove-item "$env:APPDATA\Microsoft\Windows\Recent\*" -Recurse -Force | Out-Null
 #Start GPU Update Tool
 Function StartGPUUpdate {
     param(
-    [switch]$PromptPasswordUpdateGPU
+    [switch]$DontPromptPasswordUpdateGPU
     )
-    if ($PromptPasswordUpdateGPU) {
-        start-process powershell.exe -verb RunAS -argument "-file $ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1"
+    if ($DontPromptPasswordUpdateGPU) {
         }
     Else {
+      start-process powershell.exe -verb RunAS -argument "-file $ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1"
         }
     }
 Write-Host -foregroundcolor red "
@@ -875,7 +875,7 @@ Write-Host -foregroundcolor red "
                     Google T4  VW    (Tesla T4 Virtual Workstation)
 
 "   
-PromptUserAutoLogon -PromptPasswordUpdateGPU $PromptPasswordUpdateGPU
+PromptUserAutoLogon -DontPromptPasswordUpdateGPU:$DontPromptPasswordUpdateGPU
 $ScripttaskList = @(
 "setupEnvironment";
 "addRegItems";
@@ -911,7 +911,7 @@ $PercentComplete =$($ScriptTaskList.IndexOf($func) / $ScripttaskList.Count * 100
 & $func $PercentComplete
 }
 
-StartGPUUpdate -PromptPasswordUpdateGPU $PromptPasswordUpdateGPU
+StartGPUUpdate -DontPromptPasswordUpdateGPU:$DontPromptPasswordUpdateGPU
 ProgressWriter -status "Done" -percentcomplete 100
 Write-Host "1. Open Parsec and sign in" -ForegroundColor black -BackgroundColor Green 
 Write-Host "2. Use GPU Updater to update your GPU Drivers!" -ForegroundColor black -BackgroundColor Green 
