@@ -2,11 +2,20 @@ param (
 [switch]$PromptPasswordUpdateGPU = $true
 )
 
+Function ProgressWriter {
+param (
+[int]$percentcomplete,
+[string]$status
+)
+Write-Progress -Activity "Setting Up Your Machine" -Status $status -PercentComplete $PercentComplete
+}
+
 $path = [Environment]::GetFolderPath("Desktop")
 $currentusersid = Get-LocalUser "$env:USERNAME" | Select-Object SID | ft -HideTableHeaders | Out-String | ForEach-Object { $_.Trim() }
 
 #Creating Folders and moving script files into System directories
 function setupEnvironment {
+ProgressWriter -Status "Moving files and folders into place" -PercentComplete $PercentComplete
 if((Test-Path -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup) -eq $true) {} Else {New-Item -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup -ItemType directory | Out-Null}
 if((Test-Path -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown) -eq $true) {} Else {New-Item -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown -ItemType directory | Out-Null}
 if((Test-Path -Path $env:USERPROFILE\AppData\Roaming\ParsecLoader) -eq $true) {} Else {New-Item -Path $env:USERPROFILE\AppData\Roaming\ParsecLoader -ItemType directory | Out-Null}
@@ -376,7 +385,6 @@ function add-gpo-modifications {
 $querygpt = Get-content C:\Windows\System32\GroupPolicy\gpt.ini
 $matchgpt = $querygpt -match '{42B5FAAE-6536-11D2-AE5A-0000F87571E3}{40B6664F-4972-11D1-A7CA-0000F87571E3}'
 if ($matchgpt -contains "*0000F87571E3*" -eq $false) {
-write-output "Adding modifications to GPT.ini"
 $gptstring = get-content C:\Windows\System32\GroupPolicy\gpt.ini
 $gpoversion = $gptstring -match "Version"
 $GPO = $gptstring -match "gPCMachineExtensionNames"
@@ -391,7 +399,9 @@ else{write-output "Not Required"}
 }
 
 #Adds Premade Group Policu Item if existing configuration doesn't exist
-function addRegItems{if (Test-Path ("C:\Windows\system32\GroupPolicy" + "\gpt.ini")) 
+function addRegItems{
+ProgressWriter -Status "Adding Registry Items and Group Policy" -PercentComplete $PercentComplete
+if (Test-Path ("C:\Windows\system32\GroupPolicy" + "\gpt.ini")) 
 {add-gpo-modifications}
 Else
 {Move-Item -Path $path\ParsecTemp\PreInstall\gpt.ini -Destination C:\Windows\system32\GroupPolicy -Force | Out-Null}
@@ -428,7 +438,7 @@ return $false
 
 #Create ParsecTemp folder in C Drive
 function create-directories {
-Write-Output "Creating Directories in C:\ Drive"
+ProgressWriter -Status "Creating Directories (C:\ParsecTemp)" -PercentComplete $PercentComplete
 if((Test-Path -Path C:\ParsecTemp) -eq $true) {} Else {New-Item -Path C:\ParsecTemp -ItemType directory | Out-Null}
 if((Test-Path -Path C:\ParsecTemp\Apps) -eq $true) {} Else {New-Item -Path C:\ParsecTemp\Apps -ItemType directory | Out-Null}
 if((Test-Path -Path C:\ParsecTemp\DirectX) -eq $true) {} Else {New-Item -Path C:\ParsecTemp\DirectX -ItemType directory | Out-Null}
@@ -438,7 +448,7 @@ if((Test-Path -Path C:\ParsecTemp\Devcon) -eq $true) {} Else {New-Item -Path C:\
 
 #disable IE security
 function disable-iesecurity {
-Write-Output "Enabling Web Browsing on IE (Disabling IE Security)"
+ProgressWriter -Status "Disabling Internet Explorer security to enable web browsing" -PercentComplete $PercentComplete
 Set-Itemproperty "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}" -name IsInstalled -value 0 -force | Out-Null
 Set-ItemProperty "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A8-37EF-4b3f-8CFC-4F3A74704073}" -Name IsInstalled -Value 0 -Force | Out-Null
 Stop-Process -Name Explorer -Force
@@ -446,38 +456,39 @@ Stop-Process -Name Explorer -Force
 
 #download-files-S3
 function download-resources {
-Write-Output "Downloading Parsec, Google Chrome, DirectX June 2010 Redist, DevCon and GPU Updater Tool."
-Write-Host "Downloading DirectX" -NoNewline
+ProgressWriter -Status "Downloading DirectX June 2010 Redist" -PercentComplete $PercentComplete
 (New-Object System.Net.WebClient).DownloadFile("https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe", "C:\ParsecTemp\Apps\directx_Jun2010_redist.exe") 
-Write-host "`r - Success!"
-Write-Host "Downloading Devcon" -NoNewline
+ProgressWriter -Status "Downloading Devcon" -PercentComplete $PercentComplete
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parsec-files-ami-setup/Devcon/devcon.exe", "C:\ParsecTemp\Devcon\devcon.exe")
-Write-host "`r - Success!"
-Write-Host "Downloading Parsec" -NoNewline
+ProgressWriter -Status "Downloading Parsec" -PercentComplete $PercentComplete
 (New-Object System.Net.WebClient).DownloadFile("https://builds.parsecgaming.com/package/parsec-windows.exe", "C:\ParsecTemp\Apps\parsec-windows.exe")
-Write-host "`r - Success!"
-Write-Host "Downloading Chrome" -NoNewline
+ProgressWriter -Status "Downloading GPU Updater" -PercentComplete $PercentComplete
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/parsec+desktop.png", "C:\ParsecTemp\parsec+desktop.png")
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/white_ico_agc_icon.ico", "C:\ParsecTemp\white_ico_agc_icon.ico")
 (New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPU%20Updater%20Tool.ps1", "$env:APPDATA\ParsecLoader\GPU Updater Tool.ps1")
+ProgressWriter -Status "Downloading Google Chrome" -PercentComplete $PercentComplete
 (New-Object System.Net.WebClient).DownloadFile("https://dl.google.com/tag/s/dl/chrome/install/googlechromestandaloneenterprise64.msi", "C:\ParsecTemp\Apps\googlechromestandaloneenterprise64.msi")
-Write-host "`r - Success!"
+
 }
 
 #install-base-files-silently
 function install-windows-features {
-Write-Output "Installing Google Chrome, .Net 3.5, Direct Play and DirectX Redist 2010"
+ProgressWriter -Status "Installing Chrome" -PercentComplete $PercentComplete
 start-process -filepath "C:\Windows\System32\msiexec.exe" -ArgumentList '/qn /i "C:\ParsecTemp\Apps\googlechromestandaloneenterprise64.msi"' -Wait
+ProgressWriter -Status "Installing DirectX June 2010 Redist" -PercentComplete $PercentComplete
 Start-Process -FilePath "C:\ParsecTemp\Apps\directx_jun2010_redist.exe" -ArgumentList '/T:C:\ParsecTemp\DirectX /Q'-wait
 Start-Process -FilePath "C:\ParsecTemp\DirectX\DXSETUP.EXE" -ArgumentList '/silent' -wait
+ProgressWriter -Status "Installing Direct Play" -PercentComplete $PercentComplete
 Install-WindowsFeature Direct-Play | Out-Null
+ProgressWriter -Status "Installing .net 3.5" -PercentComplete $PercentComplete
 Install-WindowsFeature Net-Framework-Core | Out-Null
+ProgressWriter -Status "Cleaning up" -PercentComplete $PercentComplete
 Remove-Item -Path C:\ParsecTemp\DirectX -force -Recurse 
 }
 
 #set update policy
 function set-update-policy {
-Write-Output "Disabling Windows Update"
+ProgressWriter -Status "Disabling Windows Update" -PercentComplete $PercentComplete
 if((Test-RegistryValue -path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate' -value 'DoNotConnectToWindowsUpdateInternetLocations') -eq $true) {Set-itemproperty -path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate -Name "DoNotConnectToWindowsUpdateInternetLocations" -Value "1" | Out-Null} else {new-itemproperty -path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate -Name "DoNotConnectToWindowsUpdateInternetLocations" -Value "1" | Out-Null}
 if((Test-RegistryValue -path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate' -value 'UpdateServiceURLAlternative') -eq $true) {Set-itemproperty -path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate -Name "UpdateServiceURLAlternative" -Value "http://intentionally.disabled" | Out-Null} else {new-itemproperty -path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate -Name "UpdateServiceURLAlternative" -Value "http://intentionally.disabled" | Out-Null}
 if((Test-RegistryValue -path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate' -value 'WUServer') -eq $true) {Set-itemproperty -path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate -Name "WUServer" -Value "http://intentionally.disabled" | Out-Null} else {new-itemproperty -path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate -Name "WUServer" -Value "http://intentionally.disabled" | Out-Null}
@@ -488,26 +499,26 @@ if((Test-RegistryValue -path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsU
 
 #set automatic time and timezone
 function set-time {
-Write-Output "Setting Time to Automatic"
+ProgressWriter -Status "Setting computer time to automatic" -PercentComplete $PercentComplete
 Set-ItemProperty -path HKLM:\SYSTEM\CurrentControlSet\Services\W32Time\Parameters -Name Type -Value NTP | Out-Null
 Set-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\tzautoupdate -Name Start -Value 00000003 | Out-Null
 }
 
 #disable new network window
 function disable-network-window {
-Write-Output "Disabling New Network Window"
+ProgressWriter -Status "Disabling New Network Window" -PercentComplete $PercentComplete
 if((Test-RegistryValue -path HKLM:\SYSTEM\CurrentControlSet\Control\Network -Value NewNetworkWindowOff)-eq $true) {} Else {new-itemproperty -path HKLM:\SYSTEM\CurrentControlSet\Control\Network -name "NewNetworkWindowOff" | Out-Null}
 }
 
 #Enable Pointer Precision 
 function enhance-pointer-precision {
-Write-Output "Enabling Enhanced Pointer Precision"
+ProgressWriter -Status "Enabling enchanced pointer precision" -PercentComplete $PercentComplete
 Set-Itemproperty -Path 'HKCU:\Control Panel\Mouse' -Name MouseSpeed -Value 1 | Out-Null
 }
 
 #enable Mouse Keys
 function enable-mousekeys {
-Write-Output "Enabling Mouse Keys"
+ProgressWriter -Status "Enabling mouse keys to assist with mouse cursor" -PercentComplete $PercentComplete
 set-Itemproperty -Path 'HKCU:\Control Panel\Accessibility\MouseKeys' -Name Flags -Value 63 | Out-Null
 }
 
@@ -519,40 +530,41 @@ New-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\
 
 #Sets all applications to force close on shutdown
 function force-close-apps {
+ProgressWriter -Status "Setting Windows not to stop shutdown if there are unsaved apps" -PercentComplete $PercentComplete
 if (((Get-Item -Path "HKCU:\Control Panel\Desktop").GetValue("AutoEndTasks") -ne $null) -eq $true) 
 {Set-ItemProperty -path "HKCU:\Control Panel\Desktop" -Name "AutoEndTasks" -Value "1"
-"Removed Startup Item from Razer Synapse"}
+}
 Else {New-ItemProperty -path "HKCU:\Control Panel\Desktop" -Name "AutoEndTasks" -Value "1"}
 }
 
 #show hidden items
 function show-hidden-items {
-Write-Output "Showing Hidden Files in Explorer"
+ProgressWriter -Status "Showing hidden files in Windows Explorer" -PercentComplete $PercentComplete
 set-itemproperty -path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name Hidden -Value 1 | Out-Null
 }
 
 #show file extensions
 function show-file-extensions {
-Write-Output "Showing File Extensions"
+ProgressWriter -Status "Showing file extensions in Windows Explorer" -PercentComplete $PercentComplete
 Set-itemproperty -path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -name HideFileExt -Value 0 | Out-Null
 }
 
 #disable logout start menu
 function disable-logout {
-Write-Output "Disabling Logout"
+ProgressWriter -Status "Disabling log out button on start menu" -PercentComplete $PercentComplete
 if((Test-RegistryValue -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer -Value StartMenuLogOff )-eq $true) {Set-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer -Name StartMenuLogOff -Value 1 | Out-Null} Else {New-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer -Name StartMenuLogOff -Value 1 | Out-Null}
 }
 
 #disable lock start menu
 function disable-lock {
-Write-Output "Disable Lock"
+ProgressWriter -Status "Disabling option to lock your Windows user profile" -PercentComplete $PercentComplete
 if((Test-Path -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System) -eq $true) {} Else {New-Item -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies -Name Software | Out-Null}
 if((Test-RegistryValue -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Value DisableLockWorkstation) -eq $true) {Set-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Name DisableLockWorkstation -Value 1 | Out-Null } Else {New-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Name DisableLockWorkstation -Value 1 | Out-Null}
 }
 
 #set wallpaper
 function set-wallpaper {
-Write-Output "Setting WallPaper"
+ProgressWriter -Status "Setting the Parsec logo ass the computer wallpaper" -PercentComplete $PercentComplete
 if((Test-Path -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System) -eq $true) {} Else {New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies" -Name "System" | Out-Null}
 if((Test-RegistryValue -path HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System -value Wallpaper) -eq $true) {Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System -Name Wallpaper -value "C:\ParsecTemp\parsec+desktop.png" | Out-Null} Else {New-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System -Name Wallpaper -PropertyType String -value "C:\ParsecTemp\parsec+desktop.png" | Out-Null}
 if((Test-RegistryValue -path HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System -value WallpaperStyle) -eq $true) {Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System -Name WallpaperStyle -value 2 | Out-Null} Else {New-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System -Name WallpaperStyle -PropertyType String -value 2 | Out-Null}
@@ -567,7 +579,7 @@ New-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer -Prope
 
 #createshortcut
 function Create-AutoShutdown-Shortcut{
-Write-Output "Create Auto Shutdown Shortcut"
+ProgressWriter -Status "Creating auto shutdown shortcut" -PercentComplete $PercentComplete
 $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$env:USERPROFILE\Desktop\Setup Auto Shutdown.lnk")
 $ShortCut.TargetPath="powershell.exe"
@@ -580,7 +592,7 @@ $ShortCut.Save()
 
 #createshortcut
 function Create-One-Hour-Warning-Shortcut{
-Write-Output "Create One Hour Warning"
+ProgressWriter -Status "Creating one hour warning shortcut" -PercentComplete $PercentComplete
 $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$env:USERPROFILE\Desktop\Setup One Hour Warning.lnk")
 $ShortCut.TargetPath="powershell.exe"
@@ -593,13 +605,12 @@ $ShortCut.Save()
 
 #create shortcut for electron app
 function create-shortcut-app {
-Write-Output "Moving Parsec app shortcut to Desktop"
 Copy-Item -Path $path\ParsecTemp\PostInstall\Parsec.lnk -Destination $path
 }
 
 #Disables Server Manager opening on Startup
 function disable-server-manager {
-Write-Output "Disable Auto Opening Server Manager"
+ProgressWriter -Status "Disabling Windows Server Manager from starting at startup" -PercentComplete $PercentComplete
 Get-ScheduledTask -TaskName ServerManager | Disable-ScheduledTask | Out-Null
 }
 
@@ -612,7 +623,6 @@ Remove-Item -Path "$path\EC2 Microsoft Windows Guide.website"
 
 Function ExtractRazerAudio {
 #Move extracts Razer Surround Files into correct location
-Write-Host "Moving Razer Surround files to the correct location"
 cmd.exe /c '"C:\Program Files\7-Zip\7z.exe" x C:\ParsecTemp\Apps\razer-surround-driver.exe -oC:\ParsecTemp\Apps\razer-surround-driver -y' | Out-Null
 }
 
@@ -625,17 +635,14 @@ $regex = '(?<=<SilentMode>)[^<]*'
 
  #Audio Driver Install
 function AudioInstall {
-Write-Output "Installing audio driver"
 #(New-Object System.Net.WebClient).DownloadFile($(((Invoke-WebRequest -Uri https://www.tightvnc.com/download.php -UseBasicParsing).Links.OuterHTML -like "*Installer for Windows (64-bit)*").split('"')[1].split('"')[0]), "C:\ParsecTemp\Apps\tightvnc.msi")
 (New-Object System.Net.WebClient).DownloadFile("http://rzr.to/surround-pc-download", "C:\ParsecTemp\Apps\razer-surround-driver.exe")
 #start-process msiexec.exe -ArgumentList '/i C:\ParsecTemp\Apps\TightVNC.msi /quiet /norestart ADDLOCAL=Server SET_USECONTROLAUTHENTICATION=1 VALUE_OF_USECONTROLAUTHENTICATION=1 SET_CONTROLPASSWORD=1 VALUE_OF_CONTROLPASSWORD=4ubg9sde SET_USEVNCAUTHENTICATION=1 VALUE_OF_USEVNCAUTHENTICATION=1 SET_PASSWORD=1 VALUE_OF_PASSWORD=4ubg9sde' -Wait
-Write-Host "Installing Razer Surround - it's the Audio Driver - you DON'T need to sign into Razer Synapse" -ForegroundColor Red
 ExtractRazerAudio
 ModidifyManifest
 $OriginalLocation = Get-Location
 Set-Location -Path 'C:\ParsecTemp\Apps\razer-surround-driver\$TEMP\RazerSurroundInstaller\'
-Write-Output "The Audio Driver, Razer Surround is now installing"
-Start-Process RzUpdateManager.exe
+Start-Process RzUpdateManager.exe -Wait
 Set-Location $OriginalLocation
 Set-Service -Name audiosrv -StartupType Automatic
 #Write-Output "VNC has been installed on this computer using Port 5900 and Password 4ubg9sde"
@@ -645,7 +652,7 @@ Set-Service -Name audiosrv -StartupType Automatic
 function gpu-update-shortcut {
 (New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPU%20Updater%20Tool.ps1", "$ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1")
 Unblock-File -Path "$ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1"
-Write-Output "GPU-Update-Shortcut"
+ProgressWriter -Status "Creating GPU Updater icon on Desktop" -PercentComplete $PercentComplete
 $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$path\GPU Updater.lnk")
 $ShortCut.TargetPath="powershell.exe"
@@ -659,39 +666,33 @@ $ShortCut.Save()
 
 #Provider specific driver install and setup
 Function provider-specific {
-Write-Output "Doing provider specific customizations"
+ProgressWriter -Status "Installing Audio Driver if required and removing system information from appearing on Google Cloud Desktops" -PercentComplete $PercentComplete
 #Device ID Query 
 $gputype = get-wmiobject -query "select DeviceID from Win32_PNPEntity Where (deviceid Like '%PCI\\VEN_10DE%') and (PNPClass = 'Display' or Name = '3D Video Controller')" | Select-Object DeviceID -ExpandProperty DeviceID
 if ($gputype -eq $null) 
-{Write-Output "No GPU Detected, skipping provider specific tasks"}
+{}
 Else{
 if($gputype.substring(13,8) -eq "DEV_13F2") {
 #AWS G3.4xLarge M60
-Write-Output "Tesla M60 Detected"
 AudioInstall
 }
 ElseIF($gputype.Substring(13,8) -eq "DEV_118A"){#AWS G2.2xLarge K520
 AudioInstall
-Write-Output "GRID K520 Detected"
 }
 ElseIF($gputype.Substring(13,8) -eq "DEV_1BB1") {
 #Paperspace P4000
-Write-Output "Quadro P4000 Detected"
 } 
 Elseif($gputype.Substring(13,8) -eq "DEV_1BB0") {
 #Paperspace P5000
-Write-Output "Quadro P5000 Detected"
 }
 Elseif($gputype.substring(13,8) -eq "DEV_15F8") {
 #Tesla P100
-Write-Output "Tesla P100 Detected"
 if((Test-Path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe") -eq $true) {remove-item -path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe"} Else {}
 if((Test-Path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk") -eq $true) {Remove-Item -path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk"} Else {}
 AudioInstall
 }
 Elseif($gputype.substring(13,8) -eq "DEV_1BB3") {
 #Tesla P4
-Write-Output "Tesla P4 Detected"
 if((Test-Path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe") -eq $true) {remove-item -path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe"} Else {}
 if((Test-Path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk") -eq $true) {Remove-Item -path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk"} Else {}
 autologin
@@ -699,30 +700,26 @@ AudioInstall
 }
 Elseif($gputype.substring(13,8) -eq "DEV_1EB8") {
 #Tesla T4
-Write-Output "Tesla T4 Detected"
 if((Test-Path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe") -eq $true) {remove-item -path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe"} Else {}
 if((Test-Path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk") -eq $true) {Remove-Item -path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk"} Else {}
 AudioInstall
 }
 Elseif($gputype.substring(13,8) -eq "DEV_1430") {
 #Quadro M2000
-Write-Output "Quadro M2000 Detected"
 AudioInstall
 }
-Else{write-host "The installed GPU is not currently supported, skipping provider specific tasks"}
+Else{}
 }
 }
 
 function Install7Zip {
 #7Zip is required to extract the Parsec-Windows.exe File
-Write-Host "Downloading and Installing 7Zip"
 $url = Invoke-WebRequest -Uri https://www.7-zip.org/download.html
 (New-Object System.Net.WebClient).DownloadFile("https://www.7-zip.org/$($($($url.Links | Where-Object outertext -Like "Download")[1]).OuterHTML.split('"')[1])" ,"C:\ParsecTemp\Apps\7zip.exe")
 Start-Process C:\ParsecTemp\Apps\7zip.exe -ArgumentList '/S /D="C:\Program Files\7-Zip"' -Wait}
 
 Function ExtractInstallFiles {
 #Move Parsec Files into correct location
-Write-Host "Moving files to the correct location"
 cmd.exe /c '"C:\Program Files\7-Zip\7z.exe" x C:\ParsecTemp\Apps\parsec-windows.exe -oC:\ParsecTemp\Apps\Parsec-Windows -y' | Out-Null
 if((Test-Path -Path 'C:\Program Files\Parsec')-eq $true) {} Else {New-Item -Path 'C:\Program Files\Parsec' -ItemType Directory | Out-Null}
 if((Test-Path -Path "C:\Program Files\Parsec\skel") -eq $true) {} Else {Move-Item -Path C:\ParsecTemp\Apps\Parsec-Windows\skel -Destination 'C:\Program Files\Parsec' | Out-Null} 
@@ -735,17 +732,16 @@ Start-Sleep 1
 
 #Checks for Server 2019 and asks user to install Windows Xbox Accessories in order to let their controller work
 Function Server2019Controller {
+ProgressWriter -Status "Adding Xbox 360 Controller driver to Windows Server 2019" -PercentComplete $PercentComplete
 if ((gwmi win32_operatingsystem | % caption) -like '*Windows Server 2019*') {
-    "Detected Windows Server 2019, downloading Xbox Accessories 1.2 to enable controller support"
     (New-Object System.Net.WebClient).DownloadFile("http://download.microsoft.com/download/6/9/4/69446ACF-E625-4CCF-8F56-58B589934CD3/Xbox360_64Eng.exe", "C:\ParsecTemp\Drivers\Xbox360_64Eng.exe")
     cmd.exe /c '"C:\Program Files\7-Zip\7z.exe" x C:\ParsecTemp\Drivers\Xbox360_64Eng.exe -oC:\ParsecTemp\Drivers\Xbox360_64Eng -y' | Out-Null
-    cmd.exe /c '"C:\Program Files\Parsec\vigem\10\x64\devcon.exe" dp_add "C:\ParsecTemp\Drivers\Xbox360_64Eng\xbox360\setup64\files\driver\win7\xusb21.inf"'
+    cmd.exe /c '"C:\Program Files\Parsec\vigem\10\x64\devcon.exe" dp_add "C:\ParsecTemp\Drivers\Xbox360_64Eng\xbox360\setup64\files\driver\win7\xusb21.inf"' | Out-Null
     }
 }
 
 Function InstallViGEmBus {
 #Required for Controller Support.
-Write-Host "Installing ViGEmBus - https://github.com/ViGEm/ViGEmBus"
 #$Vigem = @{}
 #$Vigem.DriverFile = "C:\Program Files\Parsec\Vigem\ViGEmBus.cat";
 #$Vigem.CertName = 'C:\Program Files\Parsec\Vigem\Wohlfeil_IT_e_U_.cer';
@@ -765,30 +761,28 @@ cmd.exe /c '"C:\Program Files\Parsec\vigem\10\x64\devcon.exe" install "C:\Progra
 
 Function CreateFireWallRule {
 #Creates Parsec Firewall Rule in Windows Firewall
-Write-host "Creating Parsec Firewall Rule"
 New-NetFirewallRule -DisplayName "Parsec" -Direction Inbound -Program "C:\Program Files\Parsec\Parsecd.exe" -Profile Private,Public -Action Allow -Enabled True | Out-Null
 }
 
 Function CreateParsecService {
 #Creates Parsec Service
-Write-host "Creating Parsec Service"
 cmd.exe /c 'sc.exe Create "Parsec" binPath= "\"C:\Program Files\Parsec\pservice.exe\"" start= "auto"' | Out-Null
 sc.exe Start 'Parsec' | Out-Null
 }
 
 
 Function InstallParsec {
-Write-Host "Installing Parsec"
 Install7Zip
 ExtractInstallFiles
 InstallViGEmBus
 CreateFireWallRule
 CreateParsecService
-Write-host "Successfully installed Parsec"
+create-shortcut-app
 }
 
 #Apps that require human intervention
 function Install-Gaming-Apps {
+ProgressWriter -Status "Installing Parsec, ViGEm https://github.com/ViGEm/ViGEmBus and 7Zip" -PercentComplete $PercentComplete
 InstallParsec
 New-ItemProperty -path HKCU:\Software\Microsoft\Windows\CurrentVersion\Run -Name "Parsec.App.0" -Value "C:\Program Files\Parsec\parsecd.exe" | Out-Null
 Start-Process -FilePath "C:\Program Files\Parsec\parsecd.exe"
@@ -798,7 +792,7 @@ Write-Output "app_host=1" | Out-File -FilePath $ENV:AppData\Parsec\config.txt -E
 
 #Disable Devices
 function disable-devices {
-write-output "Disabling devices not required"
+ProgressWriter -Status "Disabling Microsoft Basic Display Adapter, Generic Non PNP Monitor and other devices" -PercentComplete $PercentComplete
 Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/r disable "HDAUDIO\FUNC_01&VEN_10DE&DEV_0083&SUBSYS_10DE11A3*"'
 Get-PnpDevice| where {$_.friendlyname -like "Generic Non-PNP Monitor" -and $_.status -eq "OK"} | Disable-PnpDevice -confirm:$false
 Get-PnpDevice| where {$_.friendlyname -like "Microsoft Basic Display Adapter" -and $_.status -eq "OK"} | Disable-PnpDevice -confirm:$false
@@ -807,14 +801,14 @@ Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/r disa
 
 #Cleanup
 function clean-up {
-Write-Output "Cleaning up!"
+ProgressWriter -Status "Deleting temporary files from C:\ParsecTemp" -PercentComplete $PercentComplete
 Remove-Item -Path C:\ParsecTemp\Drivers -force -Recurse
 Remove-Item -Path $path\ParsecTemp -force -Recurse
 }
 
 #cleanup recent files
 function clean-up-recent {
-Write-Output "Removing recent files"
+ProgressWriter -Status "Delete recently accessed files list from Windows Explorer" -PercentComplete $PercentComplete
 remove-item "$env:APPDATA\Microsoft\Windows\Recent\*" -Recurse -Force | Out-Null
 }
 
@@ -882,37 +876,45 @@ Write-Host -foregroundcolor red "
 
 "   
 PromptUserAutoLogon -PromptPasswordUpdateGPU $PromptPasswordUpdateGPU
-setupEnvironment
-addRegItems
-create-directories
-disable-iesecurity
-download-resources
-install-windows-features
-set-update-policy 
-force-close-apps 
-disable-network-window
-disable-logout
-disable-lock
-show-hidden-items
-show-file-extensions
-enhance-pointer-precision
-enable-mousekeys
-set-time
-set-wallpaper
-Create-AutoShutdown-Shortcut
-Create-One-Hour-Warning-Shortcut
-disable-server-manager
-Install-Gaming-Apps
-Start-Sleep -s 5
-Server2019Controller
-create-shortcut-app
-gpu-update-shortcut
-disable-devices
-clean-up
-clean-up-recent
-provider-specific
+$ScripttaskList = @(
+"setupEnvironment";
+"addRegItems";
+"create-directories";
+"disable-iesecurity";
+"download-resources";
+"install-windows-features";
+"set-update-policy";
+"force-close-apps";
+"disable-network-window";
+"disable-logout";
+"disable-lock";
+"show-hidden-items";
+"show-file-extensions";
+"enhance-pointer-precision";
+"enable-mousekeys";
+"set-time";
+"set-wallpaper";
+"Create-AutoShutdown-Shortcut";
+"Create-One-Hour-Warning-Shortcut";
+"disable-server-manager";
+"Install-Gaming-Apps";
+"Server2019Controller";
+"gpu-update-shortcut";
+"disable-devices";
+"clean-up";
+"clean-up-recent";
+"provider-specific"
+)
+
+foreach ($func in $ScripttaskList) {
+$PercentComplete =$($ScriptTaskList.IndexOf($func) / $ScripttaskList.Count * 100)
+& $func $PercentComplete
+}
+
 StartGPUUpdate -PromptPasswordUpdateGPU $PromptPasswordUpdateGPU
+ProgressWriter -status "Done" -percentcomplete 100
 Write-Host "1. Open Parsec and sign in" -ForegroundColor black -BackgroundColor Green 
 Write-Host "2. Use GPU Updater to update your GPU Drivers!" -ForegroundColor black -BackgroundColor Green 
+Write-Host "You don't need to sign into Razer Synapse" -ForegroundColor black -BackgroundColor Green 
 Write-host "DONE!" -ForegroundColor black -BackgroundColor Green 
 pause
