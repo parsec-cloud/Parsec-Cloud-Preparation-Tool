@@ -122,7 +122,7 @@ add-type  @"
                     POLICY_CREATE_SECRET = 0x00000020L,
                     POLICY_CREATE_PRIVILEGE = 0x00000040L,
                     POLICY_SET_DEFAULT_QUOTA_LIMITS = 0x00000080L,
-                    POLICY_SET_AUDIT_REQUIREMENTS = 0x00000100L,
+                    POLICY_SET_AUDIT_REQUIREMENTS = 0x00000100L,s
                     POLICY_AUDIT_LOG_ADMIN = 0x00000200L,
                     POLICY_SERVER_ADMIN = 0x00000400L,
                     POLICY_LOOKUP_NAMES = 0x00000800L,
@@ -465,7 +465,7 @@ ProgressWriter -Status "Downloading Parsec" -PercentComplete $PercentComplete
 ProgressWriter -Status "Downloading GPU Updater" -PercentComplete $PercentComplete
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/parsec+desktop.png", "C:\ParsecTemp\parsec+desktop.png")
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/white_ico_agc_icon.ico", "C:\ParsecTemp\white_ico_agc_icon.ico")
-(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPU%20Updater%20Tool.ps1", "$env:APPDATA\ParsecLoader\GPU Updater Tool.ps1")
+(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPUUpdaterTool.ps1", "$env:APPDATA\ParsecLoader\GPUUpdaterTool.ps1")
 ProgressWriter -Status "Downloading Google Chrome" -PercentComplete $PercentComplete
 (New-Object System.Net.WebClient).DownloadFile("https://dl.google.com/tag/s/dl/chrome/install/googlechromestandaloneenterprise64.msi", "C:\ParsecTemp\Apps\googlechromestandaloneenterprise64.msi")
 
