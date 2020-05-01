@@ -122,7 +122,7 @@ add-type  @"
                     POLICY_CREATE_SECRET = 0x00000020L,
                     POLICY_CREATE_PRIVILEGE = 0x00000040L,
                     POLICY_SET_DEFAULT_QUOTA_LIMITS = 0x00000080L,
-                    POLICY_SET_AUDIT_REQUIREMENTS = 0x00000100L,s
+                    POLICY_SET_AUDIT_REQUIREMENTS = 0x00000100L,
                     POLICY_AUDIT_LOG_ADMIN = 0x00000200L,
                     POLICY_SERVER_ADMIN = 0x00000400L,
                     POLICY_LOOKUP_NAMES = 0x00000800L,
