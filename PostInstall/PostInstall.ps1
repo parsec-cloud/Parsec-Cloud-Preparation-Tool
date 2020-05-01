@@ -650,7 +650,7 @@ Set-Service -Name audiosrv -StartupType Automatic
 
 #Creates shortcut for the GPU Updater tool
 function gpu-update-shortcut {
-(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPU%20Updater%20Tool.ps1", "$ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1")
+(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPUUpdaterTool.ps1", "$ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1")
 Unblock-File -Path "$ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1"
 ProgressWriter -Status "Creating GPU Updater icon on Desktop" -PercentComplete $PercentComplete
 $Shell = New-Object -ComObject ("WScript.Shell")
