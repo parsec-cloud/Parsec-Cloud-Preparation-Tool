@@ -642,7 +642,7 @@ ExtractRazerAudio
 ModidifyManifest
 $OriginalLocation = Get-Location
 Set-Location -Path 'C:\ParsecTemp\Apps\razer-surround-driver\$TEMP\RazerSurroundInstaller\'
-Start-Process RzUpdateManager.exe -Wait
+Start-Process RzUpdateManager.exe
 Set-Location $OriginalLocation
 Set-Service -Name audiosrv -StartupType Automatic
 #Write-Output "VNC has been installed on this computer using Port 5900 and Password 4ubg9sde"
