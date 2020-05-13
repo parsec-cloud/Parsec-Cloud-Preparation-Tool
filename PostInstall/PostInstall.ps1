@@ -19,6 +19,8 @@ if((Test-Path $ENV:APPDATA\ParsecLoader\WarningMessage.ps1) -eq $true) {} Else {
 if((Test-Path $ENV:APPDATA\ParsecLoader\Parsec.png) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\Parsec.png -Destination $ENV:APPDATA\ParsecLoader}
 if((Test-Path $ENV:APPDATA\ParsecLoader\ShowDialog.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\ShowDialog.ps1 -Destination $ENV:APPDATA\ParsecLoader}
 if((Test-Path $ENV:APPDATA\ParsecLoader\OneHour.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\OneHour.ps1 -Destination $ENV:APPDATA\ParsecLoader}
+if((Test-Path $ENV:APPDATA\ParsecLoader\GPU%20Updater%20Tool.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\GPU%20Updater%20Tool.ps1 -Destination $ENV:APPDATA\ParsecLoader}
+if((Test-Path $ENV:APPDATA\ParsecLoader\RazerSurroundInstaller_v2.0.29.2.exe) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\RazerSurroundInstaller_v2.0.29.2.exe -Destination $ENV:APPDATA\ParsecLoader}
 }
 
 
