@@ -1,12 +1,24 @@
-﻿$path = [Environment]::GetFolderPath("Desktop")
+param (
+[switch]$DontPromptPasswordUpdateGPU
+)
+
+Function ProgressWriter {
+param (
+[int]$percentcomplete,
+[string]$status
+)
+Write-Progress -Activity "Setting Up Your Machine" -Status $status -PercentComplete $PercentComplete
+}
+
+$path = [Environment]::GetFolderPath("Desktop")
 $currentusersid = Get-LocalUser "$env:USERNAME" | Select-Object SID | ft -HideTableHeaders | Out-String | ForEach-Object { $_.Trim() }
 
 #Creating Folders and moving script files into System directories
 function setupEnvironment {
+ProgressWriter -Status "Moving files and folders into place" -PercentComplete $PercentComplete
 if((Test-Path -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup) -eq $true) {} Else {New-Item -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup -ItemType directory | Out-Null}
 if((Test-Path -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown) -eq $true) {} Else {New-Item -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown -ItemType directory | Out-Null}
 if((Test-Path -Path $env:USERPROFILE\AppData\Roaming\ParsecLoader) -eq $true) {} Else {New-Item -Path $env:USERPROFILE\AppData\Roaming\ParsecLoader -ItemType directory | Out-Null}
-if((Test-Path -Path "$path\Auto Login") -eq $true) {} Else {New-Item -path "$path\Auto Login" -ItemType Directory | Out-Null}
 if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\psscripts.ini) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\psscripts.ini -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts}
 if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown\NetworkRestore.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\NetworkRestore.ps1 -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown} 
 if((Test-Path $ENV:APPDATA\ParsecLoader\clear-proxy.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\clear-proxy.ps1 -Destination $ENV:APPDATA\ParsecLoader}
@@ -23,6 +35,351 @@ if((Test-Path $ENV:APPDATA\ParsecLoader\GPU%20Updater%20Tool.ps1) -eq $true) {} 
 if((Test-Path $ENV:APPDATA\ParsecLoader\RazerSurroundInstaller_v2.0.29.2.exe) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\RazerSurroundInstaller_v2.0.29.2.exe -Destination $ENV:APPDATA\ParsecLoader}
 }
 
+function cloudprovider { 
+    #finds the cloud provider that this VM is hosted by
+    $gcp = $(
+                try {
+                    (Invoke-WebRequest -uri http://metadata.google.internal/computeMetadata/v1/ -Method GET -header @{'metadata-flavor'='Google'} -TimeoutSec 5)
+                    }
+                catch {
+                    }
+             )
+
+    $aws = $(
+                Try {
+                    (Invoke-WebRequest -uri http://169.254.169.254/latest/meta-data/ -TimeoutSec 5)
+                    }
+                catch {
+                    }
+             )
+
+    $paperspace = $(
+                        Try {
+                            (Invoke-WebRequest -uri http://metadata.paperspace.com/meta-data/machine -TimeoutSec 5)
+                            }
+                        catch {
+                            }
+                    )
+
+    $azure = $(
+                  Try {(Invoke-WebRequest -Uri "http://169.254.169.254/metadata/instance?api-version=2018-10-01" -Headers @{Metadata="true"} -TimeoutSec 5)}
+                  catch {}              
+               )
+
+
+    if ($GCP.StatusCode -eq 200) {
+        "Google"
+        } 
+    Elseif ($AWS.StatusCode -eq 200) {
+        "AWS"
+        } 
+    Elseif ($paperspace.StatusCode -eq 200) {
+        "Paperspace"
+        }
+    Elseif ($azure.StatusCode -eq 200) {
+        "Azure"
+        }
+    Else {
+        "Generic"
+        }
+}
+
+
+add-type  @"
+        using System;
+        using System.Collections.Generic;
+        using System.Text;
+        using System.Runtime.InteropServices;
+ 
+        namespace ComputerSystem
+        {
+            public class LSAutil
+            {
+                [StructLayout(LayoutKind.Sequential)]
+                private struct LSA_UNICODE_STRING
+                {
+                    public UInt16 Length;
+                    public UInt16 MaximumLength;
+                    public IntPtr Buffer;
+                }
+ 
+                [StructLayout(LayoutKind.Sequential)]
+                private struct LSA_OBJECT_ATTRIBUTES
+                {
+                    public int Length;
+                    public IntPtr RootDirectory;
+                    public LSA_UNICODE_STRING ObjectName;
+                    public uint Attributes;
+                    public IntPtr SecurityDescriptor;
+                    public IntPtr SecurityQualityOfService;
+                }
+ 
+                private enum LSA_AccessPolicy : long
+                {
+                    POLICY_VIEW_LOCAL_INFORMATION = 0x00000001L,
+                    POLICY_VIEW_AUDIT_INFORMATION = 0x00000002L,
+                    POLICY_GET_PRIVATE_INFORMATION = 0x00000004L,
+                    POLICY_TRUST_ADMIN = 0x00000008L,
+                    POLICY_CREATE_ACCOUNT = 0x00000010L,
+                    POLICY_CREATE_SECRET = 0x00000020L,
+                    POLICY_CREATE_PRIVILEGE = 0x00000040L,
+                    POLICY_SET_DEFAULT_QUOTA_LIMITS = 0x00000080L,
+                    POLICY_SET_AUDIT_REQUIREMENTS = 0x00000100L,
+                    POLICY_AUDIT_LOG_ADMIN = 0x00000200L,
+                    POLICY_SERVER_ADMIN = 0x00000400L,
+                    POLICY_LOOKUP_NAMES = 0x00000800L,
+                    POLICY_NOTIFICATION = 0x00001000L
+                }
+ 
+                [DllImport("advapi32.dll", SetLastError = true, PreserveSig = true)]
+                private static extern uint LsaRetrievePrivateData(
+                            IntPtr PolicyHandle,
+                            ref LSA_UNICODE_STRING KeyName,
+                            out IntPtr PrivateData
+                );
+ 
+                [DllImport("advapi32.dll", SetLastError = true, PreserveSig = true)]
+                private static extern uint LsaStorePrivateData(
+                        IntPtr policyHandle,
+                        ref LSA_UNICODE_STRING KeyName,
+                        ref LSA_UNICODE_STRING PrivateData
+                );
+ 
+                [DllImport("advapi32.dll", SetLastError = true, PreserveSig = true)]
+                private static extern uint LsaOpenPolicy(
+                    ref LSA_UNICODE_STRING SystemName,
+                    ref LSA_OBJECT_ATTRIBUTES ObjectAttributes,
+                    uint DesiredAccess,
+                    out IntPtr PolicyHandle
+                );
+ 
+                [DllImport("advapi32.dll", SetLastError = true, PreserveSig = true)]
+                private static extern uint LsaNtStatusToWinError(
+                    uint status
+                );
+ 
+                [DllImport("advapi32.dll", SetLastError = true, PreserveSig = true)]
+                private static extern uint LsaClose(
+                    IntPtr policyHandle
+                );
+ 
+                [DllImport("advapi32.dll", SetLastError = true, PreserveSig = true)]
+                private static extern uint LsaFreeMemory(
+                    IntPtr buffer
+                );
+ 
+                private LSA_OBJECT_ATTRIBUTES objectAttributes;
+                private LSA_UNICODE_STRING localsystem;
+                private LSA_UNICODE_STRING secretName;
+ 
+                public LSAutil(string key)
+                {
+                    if (key.Length == 0)
+                    {
+                        throw new Exception("Key lenght zero");
+                    }
+ 
+                    objectAttributes = new LSA_OBJECT_ATTRIBUTES();
+                    objectAttributes.Length = 0;
+                    objectAttributes.RootDirectory = IntPtr.Zero;
+                    objectAttributes.Attributes = 0;
+                    objectAttributes.SecurityDescriptor = IntPtr.Zero;
+                    objectAttributes.SecurityQualityOfService = IntPtr.Zero;
+ 
+                    localsystem = new LSA_UNICODE_STRING();
+                    localsystem.Buffer = IntPtr.Zero;
+                    localsystem.Length = 0;
+                    localsystem.MaximumLength = 0;
+ 
+                    secretName = new LSA_UNICODE_STRING();
+                    secretName.Buffer = Marshal.StringToHGlobalUni(key);
+                    secretName.Length = (UInt16)(key.Length * UnicodeEncoding.CharSize);
+                    secretName.MaximumLength = (UInt16)((key.Length + 1) * UnicodeEncoding.CharSize);
+                }
+ 
+                private IntPtr GetLsaPolicy(LSA_AccessPolicy access)
+                {
+                    IntPtr LsaPolicyHandle;
+ 
+                    uint ntsResult = LsaOpenPolicy(ref this.localsystem, ref this.objectAttributes, (uint)access, out LsaPolicyHandle);
+ 
+                    uint winErrorCode = LsaNtStatusToWinError(ntsResult);
+                    if (winErrorCode != 0)
+                    {
+                        throw new Exception("LsaOpenPolicy failed: " + winErrorCode);
+                    }
+ 
+                    return LsaPolicyHandle;
+                }
+ 
+                private static void ReleaseLsaPolicy(IntPtr LsaPolicyHandle)
+                {
+                    uint ntsResult = LsaClose(LsaPolicyHandle);
+                    uint winErrorCode = LsaNtStatusToWinError(ntsResult);
+                    if (winErrorCode != 0)
+                    {
+                        throw new Exception("LsaClose failed: " + winErrorCode);
+                    }
+                }
+ 
+                public void SetSecret(string value)
+                {
+                    LSA_UNICODE_STRING lusSecretData = new LSA_UNICODE_STRING();
+ 
+                    if (value.Length > 0)
+                    {
+                        //Create data and key
+                        lusSecretData.Buffer = Marshal.StringToHGlobalUni(value);
+                        lusSecretData.Length = (UInt16)(value.Length * UnicodeEncoding.CharSize);
+                        lusSecretData.MaximumLength = (UInt16)((value.Length + 1) * UnicodeEncoding.CharSize);
+                    }
+                    else
+                    {
+                        //Delete data and key
+                        lusSecretData.Buffer = IntPtr.Zero;
+                        lusSecretData.Length = 0;
+                        lusSecretData.MaximumLength = 0;
+                    }
+ 
+                    IntPtr LsaPolicyHandle = GetLsaPolicy(LSA_AccessPolicy.POLICY_CREATE_SECRET);
+                    uint result = LsaStorePrivateData(LsaPolicyHandle, ref secretName, ref lusSecretData);
+                    ReleaseLsaPolicy(LsaPolicyHandle);
+ 
+                    uint winErrorCode = LsaNtStatusToWinError(result);
+                    if (winErrorCode != 0)
+                    {
+                        throw new Exception("StorePrivateData failed: " + winErrorCode);
+                    }
+                }
+            }
+        }
+"@
+
+Function TestCredential {
+    param
+    (
+        [PSCredential]$Credential
+    )
+    try {
+        Start-Process -FilePath cmd.exe /c -Credential ($Credential)
+        }
+    Catch {
+        If ($Error[0].Exception.Message) {
+        $Error[0].Exception.Message
+        Throw
+        }
+        }
+    }
+
+function Set-AutoLogon {
+    [CmdletBinding(SupportsShouldProcess)]
+    param
+    (
+        [PSCredential]$Credential
+    )
+    Try {
+        if ($Credential.GetNetworkCredential().Domain) {
+            $DefaultDomainName = $Credential.GetNetworkCredential().Domain
+            }
+        elseif ((Get-WMIObject Win32_ComputerSystem).PartOfDomain) {
+            $DefaultDomainName = "."
+        }
+        else {
+            $DefaultDomainName = ""
+        }
+
+        if ($PSCmdlet.ShouldProcess(('User "{0}\{1}"' -f $DefaultDomainName, $Credential.GetNetworkCredential().Username), "Set Auto logon")) {
+            Write-Verbose ('DomainName: {0} / UserName: {1}' -f $DefaultDomainName, $Credential.GetNetworkCredential().Username)
+            Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name "AutoAdminLogon" -Value 1
+            Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name "DefaultDomainName" -Value ""
+            Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name "DefaultUserName" -Value $Credential.UserName
+            Remove-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name "AutoLogonCount" -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name "DefaultPassword" -ErrorAction SilentlyContinue
+            $private:LsaUtil = New-Object ComputerSystem.LSAutil -ArgumentList "DefaultPassword"
+            $LsaUtil.SetSecret($Credential.GetNetworkCredential().Password)
+            "Auto Logon Configured"
+            Remove-Variable Credential
+            }
+    }
+    Catch {
+        $Error[0].Exception.Message
+        Throw
+        }
+}
+
+
+Function GetInstanceCredential {
+
+    Try {
+        $Credential = Get-Credential -Credential $null
+        Try {
+            TestCredential -Credential $Credential
+            }
+        Catch {
+            "Credentials Incorrect"
+            }
+            Try {
+                Set-AutoLogon -Credential $Credential
+                }
+            Catch {
+                $Error[0].Exception
+                "Retry?"
+                $ReadHost = Read-Host "(Y/N)"
+                Switch ($ReadHost) 
+                   {
+                   Y {
+                      GetInstanceCredential 
+                       }
+                   N {
+                       }
+                    }
+                }
+
+        }
+    Catch {
+        "You pressed cancel, retry?"
+        $ReadHost = Read-Host "(Y/N)"
+        Switch ($ReadHost) 
+            {
+            Y {
+                GetInstanceCredential
+                }
+            N {
+                }
+            }
+        }
+    }
+    
+Function PromptUserAutoLogon {
+param (
+[switch]$DontPromptPasswordUpdateGPU
+)
+$CloudProvider = CloudProvider
+    If ($DontPromptPasswordUpdateGPU) {
+        }
+    ElseIf ($CloudProvider -eq "Paperspace") {
+    }
+    Else {
+        "Detected $CloudProvider"
+        Write-Host @"
+Do you want this computer to log on to Windows automatically? 
+(Y): This is good when you want the cloud computer to boot straight to Parsec but is less secure as the computer will not be protected by a password at start up
+(N): If you plan to log into Windows with RDP then connect via Parsec, or have been told you don't need to set this up
+"@ -ForegroundColor Black -BackgroundColor Red
+        $ReadHost = Read-Host "(Y/N)" 
+        Switch ($ReadHost) 
+            {
+            Y {
+                GetInstanceCredential
+                }
+            N {
+                }
+            }
+        }
+    }
+
+
+
 
 
 #Modifies Local Group Policy to enable Shutdown scrips items
@@ -30,7 +387,6 @@ function add-gpo-modifications {
 $querygpt = Get-content C:\Windows\System32\GroupPolicy\gpt.ini
 $matchgpt = $querygpt -match '{42B5FAAE-6536-11D2-AE5A-0000F87571E3}{40B6664F-4972-11D1-A7CA-0000F87571E3}'
 if ($matchgpt -contains "*0000F87571E3*" -eq $false) {
-write-output "Adding modifications to GPT.ini"
 $gptstring = get-content C:\Windows\System32\GroupPolicy\gpt.ini
 $gpoversion = $gptstring -match "Version"
 $GPO = $gptstring -match "gPCMachineExtensionNames"
@@ -45,7 +401,9 @@ else{write-output "Not Required"}
 }
 
 #Adds Premade Group Policu Item if existing configuration doesn't exist
-function addRegItems{if (Test-Path ("C:\Windows\system32\GroupPolicy" + "\gpt.ini")) 
+function addRegItems{
+ProgressWriter -Status "Adding Registry Items and Group Policy" -PercentComplete $PercentComplete
+if (Test-Path ("C:\Windows\system32\GroupPolicy" + "\gpt.ini")) 
 {add-gpo-modifications}
 Else
 {Move-Item -Path $path\ParsecTemp\PreInstall\gpt.ini -Destination C:\Windows\system32\GroupPolicy -Force | Out-Null}
@@ -82,7 +440,7 @@ return $false
 
 #Create ParsecTemp folder in C Drive
 function create-directories {
-Write-Output "Creating Directories in C:\ Drive"
+ProgressWriter -Status "Creating Directories (C:\ParsecTemp)" -PercentComplete $PercentComplete
 if((Test-Path -Path C:\ParsecTemp) -eq $true) {} Else {New-Item -Path C:\ParsecTemp -ItemType directory | Out-Null}
 if((Test-Path -Path C:\ParsecTemp\Apps) -eq $true) {} Else {New-Item -Path C:\ParsecTemp\Apps -ItemType directory | Out-Null}
 if((Test-Path -Path C:\ParsecTemp\DirectX) -eq $true) {} Else {New-Item -Path C:\ParsecTemp\DirectX -ItemType directory | Out-Null}
@@ -92,7 +450,7 @@ if((Test-Path -Path C:\ParsecTemp\Devcon) -eq $true) {} Else {New-Item -Path C:\
 
 #disable IE security
 function disable-iesecurity {
-Write-Output "Enabling Web Browsing on IE (Disabling IE Security)"
+ProgressWriter -Status "Disabling Internet Explorer security to enable web browsing" -PercentComplete $PercentComplete
 Set-Itemproperty "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}" -name IsInstalled -value 0 -force | Out-Null
 Set-ItemProperty "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A8-37EF-4b3f-8CFC-4F3A74704073}" -Name IsInstalled -Value 0 -Force | Out-Null
 Stop-Process -Name Explorer -Force
@@ -100,38 +458,39 @@ Stop-Process -Name Explorer -Force
 
 #download-files-S3
 function download-resources {
-Write-Output "Downloading Parsec, Google Chrome, DirectX June 2010 Redist, DevCon and GPU Updater Tool."
-Write-Host "Downloading DirectX" -NoNewline
+ProgressWriter -Status "Downloading DirectX June 2010 Redist" -PercentComplete $PercentComplete
 (New-Object System.Net.WebClient).DownloadFile("https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe", "C:\ParsecTemp\Apps\directx_Jun2010_redist.exe") 
-Write-host "`r - Success!"
-Write-Host "Downloading Devcon" -NoNewline
+ProgressWriter -Status "Downloading Devcon" -PercentComplete $PercentComplete
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parsec-files-ami-setup/Devcon/devcon.exe", "C:\ParsecTemp\Devcon\devcon.exe")
-Write-host "`r - Success!"
-Write-Host "Downloading Parsec" -NoNewline
+ProgressWriter -Status "Downloading Parsec" -PercentComplete $PercentComplete
 (New-Object System.Net.WebClient).DownloadFile("https://builds.parsecgaming.com/package/parsec-windows.exe", "C:\ParsecTemp\Apps\parsec-windows.exe")
-Write-host "`r - Success!"
-Write-Host "Downloading Chrome" -NoNewline
+ProgressWriter -Status "Downloading GPU Updater" -PercentComplete $PercentComplete
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/parsec+desktop.png", "C:\ParsecTemp\parsec+desktop.png")
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/white_ico_agc_icon.ico", "C:\ParsecTemp\white_ico_agc_icon.ico")
-(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPU%20Updater%20Tool.ps1", "$env:APPDATA\ParsecLoader\GPU Updater Tool.ps1")
+(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPUUpdaterTool.ps1", "$env:APPDATA\ParsecLoader\GPUUpdaterTool.ps1")
+ProgressWriter -Status "Downloading Google Chrome" -PercentComplete $PercentComplete
 (New-Object System.Net.WebClient).DownloadFile("https://dl.google.com/tag/s/dl/chrome/install/googlechromestandaloneenterprise64.msi", "C:\ParsecTemp\Apps\googlechromestandaloneenterprise64.msi")
-Write-host "`r - Success!"
+
 }
 
 #install-base-files-silently
 function install-windows-features {
-Write-Output "Installing Google Chrome, .Net 3.5, Direct Play and DirectX Redist 2010"
+ProgressWriter -Status "Installing Chrome" -PercentComplete $PercentComplete
 start-process -filepath "C:\Windows\System32\msiexec.exe" -ArgumentList '/qn /i "C:\ParsecTemp\Apps\googlechromestandaloneenterprise64.msi"' -Wait
+ProgressWriter -Status "Installing DirectX June 2010 Redist" -PercentComplete $PercentComplete
 Start-Process -FilePath "C:\ParsecTemp\Apps\directx_jun2010_redist.exe" -ArgumentList '/T:C:\ParsecTemp\DirectX /Q'-wait
 Start-Process -FilePath "C:\ParsecTemp\DirectX\DXSETUP.EXE" -ArgumentList '/silent' -wait
+ProgressWriter -Status "Installing Direct Play" -PercentComplete $PercentComplete
 Install-WindowsFeature Direct-Play | Out-Null
+ProgressWriter -Status "Installing .net 3.5" -PercentComplete $PercentComplete
 Install-WindowsFeature Net-Framework-Core | Out-Null
+ProgressWriter -Status "Cleaning up" -PercentComplete $PercentComplete
 Remove-Item -Path C:\ParsecTemp\DirectX -force -Recurse 
 }
 
 #set update policy
 function set-update-policy {
-Write-Output "Disabling Windows Update"
+ProgressWriter -Status "Disabling Windows Update" -PercentComplete $PercentComplete
 if((Test-RegistryValue -path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate' -value 'DoNotConnectToWindowsUpdateInternetLocations') -eq $true) {Set-itemproperty -path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate -Name "DoNotConnectToWindowsUpdateInternetLocations" -Value "1" | Out-Null} else {new-itemproperty -path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate -Name "DoNotConnectToWindowsUpdateInternetLocations" -Value "1" | Out-Null}
 if((Test-RegistryValue -path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate' -value 'UpdateServiceURLAlternative') -eq $true) {Set-itemproperty -path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate -Name "UpdateServiceURLAlternative" -Value "http://intentionally.disabled" | Out-Null} else {new-itemproperty -path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate -Name "UpdateServiceURLAlternative" -Value "http://intentionally.disabled" | Out-Null}
 if((Test-RegistryValue -path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate' -value 'WUServer') -eq $true) {Set-itemproperty -path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate -Name "WUServer" -Value "http://intentionally.disabled" | Out-Null} else {new-itemproperty -path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate -Name "WUServer" -Value "http://intentionally.disabled" | Out-Null}
@@ -142,26 +501,26 @@ if((Test-RegistryValue -path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsU
 
 #set automatic time and timezone
 function set-time {
-Write-Output "Setting Time to Automatic"
+ProgressWriter -Status "Setting computer time to automatic" -PercentComplete $PercentComplete
 Set-ItemProperty -path HKLM:\SYSTEM\CurrentControlSet\Services\W32Time\Parameters -Name Type -Value NTP | Out-Null
 Set-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\tzautoupdate -Name Start -Value 00000003 | Out-Null
 }
 
 #disable new network window
 function disable-network-window {
-Write-Output "Disabling New Network Window"
+ProgressWriter -Status "Disabling New Network Window" -PercentComplete $PercentComplete
 if((Test-RegistryValue -path HKLM:\SYSTEM\CurrentControlSet\Control\Network -Value NewNetworkWindowOff)-eq $true) {} Else {new-itemproperty -path HKLM:\SYSTEM\CurrentControlSet\Control\Network -name "NewNetworkWindowOff" | Out-Null}
 }
 
 #Enable Pointer Precision 
 function enhance-pointer-precision {
-Write-Output "Enabling Enhanced Pointer Precision"
+ProgressWriter -Status "Enabling enchanced pointer precision" -PercentComplete $PercentComplete
 Set-Itemproperty -Path 'HKCU:\Control Panel\Mouse' -Name MouseSpeed -Value 1 | Out-Null
 }
 
 #enable Mouse Keys
 function enable-mousekeys {
-Write-Output "Enabling Mouse Keys"
+ProgressWriter -Status "Enabling mouse keys to assist with mouse cursor" -PercentComplete $PercentComplete
 set-Itemproperty -Path 'HKCU:\Control Panel\Accessibility\MouseKeys' -Name Flags -Value 63 | Out-Null
 }
 
@@ -173,33 +532,34 @@ New-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\
 
 #Sets all applications to force close on shutdown
 function force-close-apps {
+ProgressWriter -Status "Setting Windows not to stop shutdown if there are unsaved apps" -PercentComplete $PercentComplete
 if (((Get-Item -Path "HKCU:\Control Panel\Desktop").GetValue("AutoEndTasks") -ne $null) -eq $true) 
 {Set-ItemProperty -path "HKCU:\Control Panel\Desktop" -Name "AutoEndTasks" -Value "1"
-"Removed Startup Item from Razer Synapse"}
+}
 Else {New-ItemProperty -path "HKCU:\Control Panel\Desktop" -Name "AutoEndTasks" -Value "1"}
 }
 
 #show hidden items
 function show-hidden-items {
-Write-Output "Showing Hidden Files in Explorer"
+ProgressWriter -Status "Showing hidden files in Windows Explorer" -PercentComplete $PercentComplete
 set-itemproperty -path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name Hidden -Value 1 | Out-Null
 }
 
 #show file extensions
 function show-file-extensions {
-Write-Output "Showing File Extensions"
+ProgressWriter -Status "Showing file extensions in Windows Explorer" -PercentComplete $PercentComplete
 Set-itemproperty -path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -name HideFileExt -Value 0 | Out-Null
 }
 
 #disable logout start menu
 function disable-logout {
-Write-Output "Disabling Logout"
+ProgressWriter -Status "Disabling log out button on start menu" -PercentComplete $PercentComplete
 if((Test-RegistryValue -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer -Value StartMenuLogOff )-eq $true) {Set-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer -Name StartMenuLogOff -Value 1 | Out-Null} Else {New-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer -Name StartMenuLogOff -Value 1 | Out-Null}
 }
 
 #disable lock start menu
 function disable-lock {
-Write-Output "Disable Lock"
+ProgressWriter -Status "Disabling option to lock your Windows user profile" -PercentComplete $PercentComplete
 if((Test-Path -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System) -eq $true) {} Else {New-Item -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies -Name Software | Out-Null}
 if((Test-RegistryValue -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Value DisableLockWorkstation) -eq $true) {Set-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Name DisableLockWorkstation -Value 1 | Out-Null } Else {New-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Name DisableLockWorkstation -Value 1 | Out-Null}
 }
@@ -219,55 +579,9 @@ New-Item -path HKLM:\SOFTWARE\Policies\Microsoft\Windows -name Explorer
 New-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer -PropertyType DWORD -Name HideRecentlyAddedApps -Value 1
 }
 
-#enable auto login - remove user password
-function autoLogin { Write-Host "This cloud machine needs to be set to automatically login - please use the Setup Auto Login shortcut + Instructions on the desktop to set this up when the script is finished" -ForegroundColor red 
-(New-Object System.Net.WebClient).DownloadFile("https://download.sysinternals.com/files/AutoLogon.zip", "$env:APPDATA\ParsecLoader\Autologon.zip")
-Expand-Archive "$env:APPDATA\ParsecLoader\Autologon.zip" -DestinationPath "$env:APPDATA\ParsecLoader" -Force
-$output = "
-This application was provided by Mark Rusinovish from System Internals",
-"https://docs.microsoft.com/en-us/sysinternals/downloads/autologon",
-"",
-"What this application does:  Enables your server to automatically login, so you can log into Parsec straight away.",
-"When to use it: The first time you setup your server, or when you change your servers password.",
-"",
-"Instructions",
-"Accept the EULA and enter the following details",
-"Username: $env:username",
-"Domain: $env:Computername",
-"Password: The password you got from Azure/AWS/Google that you use to log into RDP"
-$output | Out-File "$path\Auto Login\Auto Login Instructions.txt"
-
-autoLoginShortCut
-}
-
-#Creates Shortcut to Autologon.exe
-function autoLoginShortCut {
-Write-Output "Create Auto Login Shortcut"
-$Shell = New-Object -ComObject ("WScript.Shell")
-$ShortCut = $Shell.CreateShortcut("$path\Auto Login\Setup Auto Logon.lnk")
-$ShortCut.TargetPath="$env:USERPROFILE\AppData\Roaming\ParsecLoader\Autologon.exe"
-$ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
-$ShortCut.WindowStyle = 0;
-$ShortCut.Description = "Setup AutoLogon Shortcut";
-$ShortCut.Save()
-}
-
-#createshortcut
-function Create-ClearProxy-Shortcut{
-Write-Output "Create ClearProxy shortcut"
-$Shell = New-Object -ComObject ("WScript.Shell")
-$ShortCut = $Shell.CreateShortcut("$env:USERPROFILE\Desktop\Auto Recover GPU.lnk")
-$ShortCut.TargetPath="powershell.exe"
-$ShortCut.Arguments='-ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\CreateClearProxyScheduledTask.ps1"'
-$ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
-$ShortCut.WindowStyle = 0;
-$ShortCut.Description = "ClearProxy shortcut";
-$ShortCut.Save()
-}
-
 #createshortcut
 function Create-AutoShutdown-Shortcut{
-Write-Output "Create Auto Shutdown Shortcut"
+ProgressWriter -Status "Creating auto shutdown shortcut" -PercentComplete $PercentComplete
 $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$env:USERPROFILE\Desktop\Setup Auto Shutdown.lnk")
 $ShortCut.TargetPath="powershell.exe"
@@ -280,7 +594,7 @@ $ShortCut.Save()
 
 #createshortcut
 function Create-One-Hour-Warning-Shortcut{
-Write-Output "Create One Hour Warning"
+ProgressWriter -Status "Creating one hour warning shortcut" -PercentComplete $PercentComplete
 $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$env:USERPROFILE\Desktop\Setup One Hour Warning.lnk")
 $ShortCut.TargetPath="powershell.exe"
@@ -293,13 +607,12 @@ $ShortCut.Save()
 
 #create shortcut for electron app
 function create-shortcut-app {
-Write-Output "Moving Parsec app shortcut to Desktop"
 Copy-Item -Path $path\ParsecTemp\PostInstall\Parsec.lnk -Destination $path
 }
 
 #Disables Server Manager opening on Startup
 function disable-server-manager {
-Write-Output "Disable Auto Opening Server Manager"
+ProgressWriter -Status "Disabling Windows Server Manager from starting at startup" -PercentComplete $PercentComplete
 Get-ScheduledTask -TaskName ServerManager | Disable-ScheduledTask | Out-Null
 }
 
@@ -312,7 +625,6 @@ Remove-Item -Path "$path\EC2 Microsoft Windows Guide.website"
 
 Function ExtractRazerAudio {
 #Move extracts Razer Surround Files into correct location
-Write-Host "Moving Razer Surround files to the correct location"
 cmd.exe /c '"C:\Program Files\7-Zip\7z.exe" x C:\ParsecTemp\Apps\razer-surround-driver.exe -oC:\ParsecTemp\Apps\razer-surround-driver -y' | Out-Null
 }
 
@@ -323,37 +635,30 @@ $regex = '(?<=<SilentMode>)[^<]*'
 (Get-Content $InstallerManifest) -replace $regex, 'true' | Set-Content $InstallerManifest -Encoding UTF8
 }
 
-#AWS Specific tweaks
-function aws-setup {
-#clean-aws
-Write-Output "Installing VNC, and installing audio driver"
-(New-Object System.Net.WebClient).DownloadFile($(((Invoke-WebRequest -Uri https://www.tightvnc.com/download.php -UseBasicParsing).Links.OuterHTML -like "*Installer for Windows (64-bit)*").split('"')[1].split('"')[0]), "C:\ParsecTemp\Apps\tightvnc.msi")
+ #Audio Driver Install
+function AudioInstall {
+#(New-Object System.Net.WebClient).DownloadFile($(((Invoke-WebRequest -Uri https://www.tightvnc.com/download.php -UseBasicParsing).Links.OuterHTML -like "*Installer for Windows (64-bit)*").split('"')[1].split('"')[0]), "C:\ParsecTemp\Apps\tightvnc.msi")
 (New-Object System.Net.WebClient).DownloadFile("http://rzr.to/surround-pc-download", "C:\ParsecTemp\Apps\razer-surround-driver.exe")
-start-process msiexec.exe -ArgumentList '/i C:\ParsecTemp\Apps\TightVNC.msi /quiet /norestart ADDLOCAL=Server SET_USECONTROLAUTHENTICATION=1 VALUE_OF_USECONTROLAUTHENTICATION=1 SET_CONTROLPASSWORD=1 VALUE_OF_CONTROLPASSWORD=4ubg9sde SET_USEVNCAUTHENTICATION=1 VALUE_OF_USEVNCAUTHENTICATION=1 SET_PASSWORD=1 VALUE_OF_PASSWORD=4ubg9sde' -Wait
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value $env:USERNAME | Out-Null
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name DefaultUserName -Value "" | Out-Null
-if((Test-RegistryValue -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Value AutoAdminLogin)-eq $true){Set-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogin -Value 1 | Out-Null} Else {New-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoAdminLogin -Value 1 | Out-Null}
-Write-Host "Installing Razer Surround - it's the Audio Driver - you DON'T need to sign into Razer Synapse" -ForegroundColor Red
+#start-process msiexec.exe -ArgumentList '/i C:\ParsecTemp\Apps\TightVNC.msi /quiet /norestart ADDLOCAL=Server SET_USECONTROLAUTHENTICATION=1 VALUE_OF_USECONTROLAUTHENTICATION=1 SET_CONTROLPASSWORD=1 VALUE_OF_CONTROLPASSWORD=4ubg9sde SET_USEVNCAUTHENTICATION=1 VALUE_OF_USEVNCAUTHENTICATION=1 SET_PASSWORD=1 VALUE_OF_PASSWORD=4ubg9sde' -Wait
 ExtractRazerAudio
 ModidifyManifest
 $OriginalLocation = Get-Location
 Set-Location -Path 'C:\ParsecTemp\Apps\razer-surround-driver\$TEMP\RazerSurroundInstaller\'
-Write-Output "The Audio Driver, Razer Surround is now installing"
 Start-Process RzUpdateManager.exe
 Set-Location $OriginalLocation
 Set-Service -Name audiosrv -StartupType Automatic
-Write-Output "VNC has been installed on this computer using Port 5900 and Password 4ubg9sde"
+#Write-Output "VNC has been installed on this computer using Port 5900 and Password 4ubg9sde"
 }
 
 #Creates shortcut for the GPU Updater tool
 function gpu-update-shortcut {
-(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPU%20Updater%20Tool.ps1", "$ENV:Appdata\ParsecLoader\GPU Updater Tool.ps1")
-Unblock-File -Path "$ENV:Appdata\ParsecLoader\GPU Updater Tool.ps1"
-Write-Output "GPU-Update-Shortcut"
+(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPUUpdaterTool.ps1", "$ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1")
+Unblock-File -Path "$ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1"
+ProgressWriter -Status "Creating GPU Updater icon on Desktop" -PercentComplete $PercentComplete
 $Shell = New-Object -ComObject ("WScript.Shell")
 $ShortCut = $Shell.CreateShortcut("$path\GPU Updater.lnk")
 $ShortCut.TargetPath="powershell.exe"
-$ShortCut.Arguments='-ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\GPU Updater Tool.ps1"'
+$ShortCut.Arguments='-ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\GPUUpdaterTool.ps1"'
 $ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
 $ShortCut.IconLocation = "$env:USERPROFILE\AppData\Roaming\ParsecLoader\GPU-Update.ico, 0";
 $ShortCut.WindowStyle = 0;
@@ -363,77 +668,60 @@ $ShortCut.Save()
 
 #Provider specific driver install and setup
 Function provider-specific {
-Write-Output "Doing provider specific customizations"
+ProgressWriter -Status "Installing Audio Driver if required and removing system information from appearing on Google Cloud Desktops" -PercentComplete $PercentComplete
 #Device ID Query 
 $gputype = get-wmiobject -query "select DeviceID from Win32_PNPEntity Where (deviceid Like '%PCI\\VEN_10DE%') and (PNPClass = 'Display' or Name = '3D Video Controller')" | Select-Object DeviceID -ExpandProperty DeviceID
 if ($gputype -eq $null) 
-{Write-Output "No GPU Detected, skipping provider specific tasks"}
+{}
 Else{
 if($gputype.substring(13,8) -eq "DEV_13F2") {
 #AWS G3.4xLarge M60
-Write-Output "Tesla M60 Detected"
-autologin
-aws-setup
+AudioInstall
 }
 ElseIF($gputype.Substring(13,8) -eq "DEV_118A"){#AWS G2.2xLarge K520
-autologin
-aws-setup
-Write-Output "GRID K520 Detected"
+AudioInstall
 }
 ElseIF($gputype.Substring(13,8) -eq "DEV_1BB1") {
 #Paperspace P4000
-Write-Output "Quadro P4000 Detected"
 } 
 Elseif($gputype.Substring(13,8) -eq "DEV_1BB0") {
 #Paperspace P5000
-Write-Output "Quadro P5000 Detected"
 }
 Elseif($gputype.substring(13,8) -eq "DEV_15F8") {
 #Tesla P100
-Write-Output "Tesla P100 Detected"
 if((Test-Path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe") -eq $true) {remove-item -path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe"} Else {}
 if((Test-Path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk") -eq $true) {Remove-Item -path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk"} Else {}
-autologin
-aws-setup
+AudioInstall
 }
 Elseif($gputype.substring(13,8) -eq "DEV_1BB3") {
 #Tesla P4
-Write-Output "Tesla P4 Detected"
 if((Test-Path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe") -eq $true) {remove-item -path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe"} Else {}
 if((Test-Path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk") -eq $true) {Remove-Item -path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk"} Else {}
 autologin
-aws-setup
+AudioInstall
 }
 Elseif($gputype.substring(13,8) -eq "DEV_1EB8") {
 #Tesla T4
-Write-Output "Tesla T4 Detected"
 if((Test-Path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe") -eq $true) {remove-item -path "C:\Program Files\Google\Compute Engine\tools\BGInfo.exe"} Else {}
 if((Test-Path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk") -eq $true) {Remove-Item -path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\BGinfo.lnk"} Else {}
-autologin
-aws-setup
+AudioInstall
 }
 Elseif($gputype.substring(13,8) -eq "DEV_1430") {
 #Quadro M2000
-Write-Output "Quadro M2000 Detected"
-autologin
-aws-setup
+AudioInstall
 }
-Else{write-host "The installed GPU is not currently supported, skipping provider specific tasks"}
+Else{}
 }
 }
-
-
 
 function Install7Zip {
 #7Zip is required to extract the Parsec-Windows.exe File
-Write-Host "Downloading and Installing 7Zip"
 $url = Invoke-WebRequest -Uri https://www.7-zip.org/download.html
 (New-Object System.Net.WebClient).DownloadFile("https://www.7-zip.org/$($($($url.Links | Where-Object outertext -Like "Download")[1]).OuterHTML.split('"')[1])" ,"C:\ParsecTemp\Apps\7zip.exe")
 Start-Process C:\ParsecTemp\Apps\7zip.exe -ArgumentList '/S /D="C:\Program Files\7-Zip"' -Wait}
 
 Function ExtractInstallFiles {
 #Move Parsec Files into correct location
-Write-Host "Moving files to the correct location"
 cmd.exe /c '"C:\Program Files\7-Zip\7z.exe" x C:\ParsecTemp\Apps\parsec-windows.exe -oC:\ParsecTemp\Apps\Parsec-Windows -y' | Out-Null
 if((Test-Path -Path 'C:\Program Files\Parsec')-eq $true) {} Else {New-Item -Path 'C:\Program Files\Parsec' -ItemType Directory | Out-Null}
 if((Test-Path -Path "C:\Program Files\Parsec\skel") -eq $true) {} Else {Move-Item -Path C:\ParsecTemp\Apps\Parsec-Windows\skel -Destination 'C:\Program Files\Parsec' | Out-Null} 
@@ -446,17 +734,16 @@ Start-Sleep 1
 
 #Checks for Server 2019 and asks user to install Windows Xbox Accessories in order to let their controller work
 Function Server2019Controller {
+ProgressWriter -Status "Adding Xbox 360 Controller driver to Windows Server 2019" -PercentComplete $PercentComplete
 if ((gwmi win32_operatingsystem | % caption) -like '*Windows Server 2019*') {
-    "Detected Windows Server 2019, downloading Xbox Accessories 1.2 to enable controller support"
     (New-Object System.Net.WebClient).DownloadFile("http://download.microsoft.com/download/6/9/4/69446ACF-E625-4CCF-8F56-58B589934CD3/Xbox360_64Eng.exe", "C:\ParsecTemp\Drivers\Xbox360_64Eng.exe")
-    Write-Host "In order to use a controller, you need to install Microsoft Xbox Accessories " -ForegroundColor Red
-    Start-Process C:\ParsecTemp\Drivers\Xbox360_64Eng.exe -Wait
+    cmd.exe /c '"C:\Program Files\7-Zip\7z.exe" x C:\ParsecTemp\Drivers\Xbox360_64Eng.exe -oC:\ParsecTemp\Drivers\Xbox360_64Eng -y' | Out-Null
+    cmd.exe /c '"C:\Program Files\Parsec\vigem\10\x64\devcon.exe" dp_add "C:\ParsecTemp\Drivers\Xbox360_64Eng\xbox360\setup64\files\driver\win7\xusb21.inf"' | Out-Null
     }
 }
 
 Function InstallViGEmBus {
 #Required for Controller Support.
-Write-Host "Installing ViGEmBus - https://github.com/ViGEm/ViGEmBus"
 #$Vigem = @{}
 #$Vigem.DriverFile = "C:\Program Files\Parsec\Vigem\ViGEmBus.cat";
 #$Vigem.CertName = 'C:\Program Files\Parsec\Vigem\Wohlfeil_IT_e_U_.cer';
@@ -476,35 +763,28 @@ cmd.exe /c '"C:\Program Files\Parsec\vigem\10\x64\devcon.exe" install "C:\Progra
 
 Function CreateFireWallRule {
 #Creates Parsec Firewall Rule in Windows Firewall
-Write-host "Creating Parsec Firewall Rule"
 New-NetFirewallRule -DisplayName "Parsec" -Direction Inbound -Program "C:\Program Files\Parsec\Parsecd.exe" -Profile Private,Public -Action Allow -Enabled True | Out-Null
 }
 
 Function CreateParsecService {
 #Creates Parsec Service
-Write-host "Creating Parsec Service"
 cmd.exe /c 'sc.exe Create "Parsec" binPath= "\"C:\Program Files\Parsec\pservice.exe\"" start= "auto"' | Out-Null
 sc.exe Start 'Parsec' | Out-Null
 }
 
-Function DownloadParsecServiceManager {
-[Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
-(New-Object System.Net.WebClient).DownloadFile("https://github.com/jamesstringerparsec/Parsec-Service-Manager/blob/master/Launcher.exe?raw=true", "$ENV:UserProfile\Desktop\ParsecServiceManager.exe") | Unblock-File
-}
 
 Function InstallParsec {
-Write-Host "Installing Parsec"
 Install7Zip
 ExtractInstallFiles
 InstallViGEmBus
 CreateFireWallRule
 CreateParsecService
-DownloadParsecServiceManager
-Write-host "Successfully installed Parsec"
+create-shortcut-app
 }
 
 #Apps that require human intervention
 function Install-Gaming-Apps {
+ProgressWriter -Status "Installing Parsec, ViGEm https://github.com/ViGEm/ViGEmBus and 7Zip" -PercentComplete $PercentComplete
 InstallParsec
 New-ItemProperty -path HKCU:\Software\Microsoft\Windows\CurrentVersion\Run -Name "Parsec.App.0" -Value "C:\Program Files\Parsec\parsecd.exe" | Out-Null
 Start-Process -FilePath "C:\Program Files\Parsec\parsecd.exe"
@@ -514,7 +794,7 @@ Write-Output "app_host=1" | Out-File -FilePath $ENV:AppData\Parsec\config.txt -E
 
 #Disable Devices
 function disable-devices {
-write-output "Disabling devices not required"
+ProgressWriter -Status "Disabling Microsoft Basic Display Adapter, Generic Non PNP Monitor and other devices" -PercentComplete $PercentComplete
 Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/r disable "HDAUDIO\FUNC_01&VEN_10DE&DEV_0083&SUBSYS_10DE11A3*"'
 Get-PnpDevice| where {$_.friendlyname -like "Generic Non-PNP Monitor" -and $_.status -eq "OK"} | Disable-PnpDevice -confirm:$false
 Get-PnpDevice| where {$_.friendlyname -like "Microsoft Basic Display Adapter" -and $_.status -eq "OK"} | Disable-PnpDevice -confirm:$false
@@ -523,17 +803,28 @@ Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/r disa
 
 #Cleanup
 function clean-up {
-Write-Output "Cleaning up!"
+ProgressWriter -Status "Deleting temporary files from C:\ParsecTemp" -PercentComplete $PercentComplete
 Remove-Item -Path C:\ParsecTemp\Drivers -force -Recurse
 Remove-Item -Path $path\ParsecTemp -force -Recurse
 }
 
 #cleanup recent files
 function clean-up-recent {
-Write-Output "Removing recent files"
+ProgressWriter -Status "Delete recently accessed files list from Windows Explorer" -PercentComplete $PercentComplete
 remove-item "$env:APPDATA\Microsoft\Windows\Recent\*" -Recurse -Force | Out-Null
 }
 
+#Start GPU Update Tool
+Function StartGPUUpdate {
+    param(
+    [switch]$DontPromptPasswordUpdateGPU
+    )
+    if ($DontPromptPasswordUpdateGPU) {
+        }
+    Else {
+      start-process powershell.exe -verb RunAS -argument "-file $ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1"
+        }
+    }
 Write-Host -foregroundcolor red "
                                ((//////                                
                              #######//////                             
@@ -586,42 +877,46 @@ Write-Host -foregroundcolor red "
                     Google T4  VW    (Tesla T4 Virtual Workstation)
 
 "   
-setupEnvironment
-addRegItems
-create-directories
-disable-iesecurity
-download-resources
-install-windows-features
-set-update-policy 
-force-close-apps 
-disable-network-window
-disable-logout
-disable-lock
-show-hidden-items
-show-file-extensions
-enhance-pointer-precision
-enable-mousekeys
-set-time
-set-wallpaper
-Create-ClearProxy-Shortcut
-Create-AutoShutdown-Shortcut
-Create-One-Hour-Warning-Shortcut
-disable-server-manager
-Install-Gaming-Apps
-Start-Sleep -s 5
-Server2019Controller
-create-shortcut-app
-gpu-update-shortcut
-disable-devices
-clean-up
-clean-up-recent
-provider-specific
-Write-Host "Once you have installed Razer Surround, the script is finished" -ForegroundColor RED
-Write-Host "PARSEC WILL NOT BE VISIBLE IF YOU'RE CONNECTED VIA RDP" -ForegroundColor RED
-Write-Host  "USE ParsecServiceManager.exe (ON DESKTOP) IN ORDER TO SIGN IN" -ForegroundColor RED
-Write-Host "THINGS YOU NEED TO DO" -ForegroundColor RED
-Write-Host "1. Open Parsec and sign in (use ParsecServiceManager.exe if connected via RDP)" -ForegroundColor RED
-Write-Host "2. Open Setup Auto Logon on the Desktop and follow the instructions (in the text file on the Desktop)" -ForegroundColor RED
-Write-Host "3. Run GPU Updater Tool" -ForegroundColor RED
-Write-Host "4. If your computer doesn't reboot automatically, restart it from the Start Menu after GPU Updater Tool is finished" -ForegroundColor RED
+PromptUserAutoLogon -DontPromptPasswordUpdateGPU:$DontPromptPasswordUpdateGPU
+$ScripttaskList = @(
+"setupEnvironment";
+"addRegItems";
+"create-directories";
+"disable-iesecurity";
+"download-resources";
+"install-windows-features";
+"set-update-policy";
+"force-close-apps";
+"disable-network-window";
+"disable-logout";
+"disable-lock";
+"show-hidden-items";
+"show-file-extensions";
+"enhance-pointer-precision";
+"enable-mousekeys";
+"set-time";
+"set-wallpaper";
+"Create-AutoShutdown-Shortcut";
+"Create-One-Hour-Warning-Shortcut";
+"disable-server-manager";
+"Install-Gaming-Apps";
+"Server2019Controller";
+"gpu-update-shortcut";
+"disable-devices";
+"clean-up";
+"clean-up-recent";
+"provider-specific"
+)
+
+foreach ($func in $ScripttaskList) {
+$PercentComplete =$($ScriptTaskList.IndexOf($func) / $ScripttaskList.Count * 100)
+& $func $PercentComplete
+}
+
+StartGPUUpdate -DontPromptPasswordUpdateGPU:$DontPromptPasswordUpdateGPU
+ProgressWriter -status "Done" -percentcomplete 100
+Write-Host "1. Open Parsec and sign in" -ForegroundColor black -BackgroundColor Green 
+Write-Host "2. Use GPU Updater to update your GPU Drivers!" -ForegroundColor black -BackgroundColor Green 
+Write-Host "You don't need to sign into Razer Synapse" -ForegroundColor black -BackgroundColor Green 
+Write-host "DONE!" -ForegroundColor black -BackgroundColor Green 
 pause

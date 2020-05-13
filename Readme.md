@@ -62,26 +62,23 @@ Google P4 VW      (Tesla P4 with Virtual Workstation Driver)
 Google T4 VW      (Tesla T4 with Virtual Workstation Driver)  
 
 ### RDP:  
-Only use RDP to intially setup the instance. Parsec and RDP are not compatible (especially if you use RDP to log in). The Parsec UI will not be visible to you if you use RDP to log in, unless you open Parsec Service Manager located on the desktop.  Always use the auto logon tool to make the machine log in automatically, and use VNC/Teamviewer for management if required.  
-
-### VNC:
-AWS, Azure and Google machines will be automatically installed with VNC for troubleshooting purposes. VNC runs with elevated privileges and is able to function in certain situations where Parsec cannot. VNC uses port TCP 5900 (which you will need to manually enable in your instance security group settings), and has a default password of 4ubg9sde. If you open port 5900, make sure to only allow connections to port 5900 from your IP, and change the default password immediately on login — please do these two things. It’s a major security risk if you don’t.
+Only use RDP to intially setup the instance. Parsec and RDP are not friendly with each other.  
 
 ### Issues:
 Q. Stuck at 24%  
 A. Keep waiting, this installation takes a while.
 
-Q. Parsec won't open  
-A. Use Parsec Service Manager on the desktop to open and sign into Parsec.
-
 Q. My cloud machine is stuck at 1366x768  
-A. You should delete your machine and use the GRID Virtual Workstation variety provided by your cloud provider (it's a check box on GCP)
+A. Make sure you use GPU Update Tool to install the driver, and on Google Cloud you need to select the Virtual Workstation option when selecting an NVIDIA GPU when setting up an instance.
+
+Q. My Xbox 360 Controller isn't detected in Windows Server 2019  
+A. You will need to visit Device Manager, and choose to Automatically Update "Virtual Xbox 360 Controller" listed under the Unknown Devices catagory in Device Manager.
 
 Q. I made a mistake when adding my AWS access key or I want to remove it on my G4DN Instance  
 A. Open Powershell and type `Remove-AWSCredentialProfile -ProfileName GPUUpdateG4Dn` - This will remove the profile from the machine.
 
 Q. What about GPU X or Cloud Server Y - when will they be supported?  
-A. That's on you to test the script and describe the errors you see.
+A. That's on you to test the script and describe the errors you see, do not create an issue in Github that does not contain an issue.  Do not create an issue without any actual diagnosis information or error messages.
 
 
 
