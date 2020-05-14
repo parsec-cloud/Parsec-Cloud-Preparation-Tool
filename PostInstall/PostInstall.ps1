@@ -32,7 +32,7 @@ if((Test-Path $ENV:APPDATA\ParsecLoader\Parsec.png) -eq $true) {} Else {Move-Ite
 if((Test-Path $ENV:APPDATA\ParsecLoader\ShowDialog.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\ShowDialog.ps1 -Destination $ENV:APPDATA\ParsecLoader}
 if((Test-Path $ENV:APPDATA\ParsecLoader\OneHour.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\OneHour.ps1 -Destination $ENV:APPDATA\ParsecLoader}
 if((Test-Path $ENV:APPDATA\ParsecLoader\GPU%20Updater%20Tool.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\GPU%20Updater%20Tool.ps1 -Destination $ENV:APPDATA\ParsecLoader}
-if((Test-Path $ENV:APPDATA\ParsecLoader\RazerSurroundInstaller_v2.0.29.2.exe) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\RazerSurroundInstaller_v2.0.29.2.exe -Destination $ENV:APPDATA\ParsecLoader}
+if((Test-Path $ENV:APPDATA\ParsecLoader\RazerSurroundInstaller_v2.0.29.2.exe) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\RazerSurroundInstaller_v2.0.29.2.exe -Destination $path}
 }
 
 function cloudprovider { 
@@ -917,6 +917,6 @@ StartGPUUpdate -DontPromptPasswordUpdateGPU:$DontPromptPasswordUpdateGPU
 ProgressWriter -status "Done" -percentcomplete 100
 Write-Host "1. Open Parsec and sign in" -ForegroundColor black -BackgroundColor Green 
 Write-Host "2. Use GPU Updater to update your GPU Drivers!" -ForegroundColor black -BackgroundColor Green 
-Write-Host "You don't need to sign into Razer Synapse" -ForegroundColor black -BackgroundColor Green 
+Write-Host "3. Run RazerSurroundInstaller_v2.0.29.2.exe, You don't need to sign into Razer Synapse!" -ForegroundColor black -BackgroundColor Green 
 Write-host "DONE!" -ForegroundColor black -BackgroundColor Green 
 pause
