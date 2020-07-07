@@ -12,14 +12,38 @@ This is useful if your Machine bills per hour, like AWS"
 
 $confirmation = Read-Host "Are you Sure You Want To Proceed: Y/N"
 Switch ($confirmation) {
-Y {}
-N {Exit}
-}
+    Y {
+        }
+    N {
+        Exit
+        }
+    }
 
-try {Get-ScheduledTask -TaskName "One Hour Warning Message" -ErrorAction Stop | Out-Null
-Unregister-ScheduledTask -TaskName "One Hour Warning Message" -Confirm:$false
-}
-catch {}
+
+try {
+    Get-ScheduledTask -TaskName "One Hour Warning Message" -ErrorAction Stop | Out-Null
+    $ModifyOrRemove = "You already have the script installed, remove it?"
+        Switch ($ModifyOrRemove) {
+            N {
+                }
+            Y {
+                Unregister-ScheduledTask -TaskName "One Hour Warning Message" -Confirm:$false
+                "The warning message has been removed"
+                Pause
+                Exit}
+        }
+    }
+catch {
+    }
+
+
+
+try {
+    Get-ScheduledTask -TaskName "One Hour Warning Message" -ErrorAction Stop | Out-Null
+    Unregister-ScheduledTask -TaskName "One Hour Warning Message" -Confirm:$false
+    }
+catch {
+    }
 
 $action = New-ScheduledTaskAction -Execute 'C:\WINDOWS\system32\WindowsPowerShell\v1.0\powershell.exe' -Argument '-executionpolicy bypass -windowstyle hidden -file %appdata%\ParsecLoader\WarningMessage.ps1'
 
