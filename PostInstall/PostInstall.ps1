@@ -465,7 +465,7 @@ ProgressWriter -Status "Downloading Parsec" -PercentComplete $PercentComplete
 ProgressWriter -Status "Downloading GPU Updater" -PercentComplete $PercentComplete
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/parsec+desktop.png", "C:\ParsecTemp\parsec+desktop.png")
 (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/white_ico_agc_icon.ico", "C:\ParsecTemp\white_ico_agc_icon.ico")
-(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPUUpdaterTool.ps1", "$env:APPDATA\ParsecLoader\GPUUpdaterTool.ps1")
+(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/parsec-cloud/Cloud-GPU-Updater/master/GPUUpdaterTool.ps1", "$env:APPDATA\ParsecLoader\GPUUpdaterTool.ps1")
 ProgressWriter -Status "Downloading Google Chrome" -PercentComplete $PercentComplete
 (New-Object System.Net.WebClient).DownloadFile("https://dl.google.com/tag/s/dl/chrome/install/googlechromestandaloneenterprise64.msi", "C:\ParsecTemp\Apps\googlechromestandaloneenterprise64.msi")
 
@@ -650,7 +650,7 @@ Set-Service -Name audiosrv -StartupType Automatic
 
 #Creates shortcut for the GPU Updater tool
 function gpu-update-shortcut {
-(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jamesstringerparsec/Cloud-GPU-Updater/master/GPUUpdaterTool.ps1", "$ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1")
+(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/parsec-cloud/Cloud-GPU-Updater/master/GPUUpdaterTool.ps1", "$ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1")
 Unblock-File -Path "$ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1"
 ProgressWriter -Status "Creating GPU Updater icon on Desktop" -PercentComplete $PercentComplete
 $Shell = New-Object -ComObject ("WScript.Shell")
