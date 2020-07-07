@@ -78,7 +78,10 @@ Q. I made a mistake when adding my AWS access key or I want to remove it on my G
 A. Open Powershell and type `Remove-AWSCredentialProfile -ProfileName GPUUpdateG4Dn` - This will remove the profile from the machine.
 
 Q. What about GPU X or Cloud Server Y - when will they be supported?  
-A. That's on you to test the script and describe the errors you see, do not create an issue in Github that does not contain an issue.  Do not create an issue without any actual diagnosis information or error messages.
+A. That's on you to test the script and describe the errors you see, do not create an issue in Github that does not contain an issue.  Do not create an issue without any actual diagnosis information or error messages.  
+
+Q. How do I change my wallpaper?  
+A. Delete the Wallpaper registry value from HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\System  
 
 
 
