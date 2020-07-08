@@ -68,3 +68,4 @@ Get-ChildItem -Path $path\ParsecTemp -Recurse | Unblock-File
 Write-Output "Starting main script, this Window will close in 60 seconds"
 start-process powershell.exe -verb RunAS -argument "-file $path\parsectemp\PostInstall\PostInstall.ps1"
 Start-Sleep -Seconds 60
+stop-process -Id $PID
