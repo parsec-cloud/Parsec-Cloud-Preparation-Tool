@@ -83,5 +83,5 @@ A. That's on you to test the script and describe the errors you see, do not crea
 Q. How do I change my wallpaper?  
 A. Delete the Wallpaper registry value from HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\System  
   
-Q. I created an Amazon AMI using this script but when I create a machine from this image I can't select high display resolutions.  
+Q. I created an Amazon AMI using this script but when I create a machine from the AMI I can't select high display resolutions.  
 A. AWS adds some persistent routes to machines which will need to be deleted if you want the NVIDIA Driver to be licensed and display all features and resolutions.  You can do this via  `route print` then making note of the persistant routes and using `route -p DELETE NETWORK.ADDRESS.OF.ROUTE`.  After a reboot the machine should allow high resolutions.  
