@@ -1,14 +1,14 @@
 param (
-[switch]$DontPromptPasswordUpdateGPU
-)
+    [switch]$DontPromptPasswordUpdateGPU
+    )
 
 Function ProgressWriter {
-param (
-[int]$percentcomplete,
-[string]$status
-)
-Write-Progress -Activity "Setting Up Your Machine" -Status $status -PercentComplete $PercentComplete
-}
+    param (
+    [int]$percentcomplete,
+    [string]$status
+    )
+    Write-Progress -Activity "Setting Up Your Machine" -Status $status -PercentComplete $PercentComplete
+    }
 
 $path = [Environment]::GetFolderPath("Desktop")
 $currentusersid = Get-LocalUser "$env:USERNAME" | Select-Object SID | ft -HideTableHeaders | Out-String | ForEach-Object { $_.Trim() }
@@ -281,10 +281,10 @@ function Set-AutoLogon {
             }
         elseif ((Get-WMIObject Win32_ComputerSystem).PartOfDomain) {
             $DefaultDomainName = "."
-        }
+            }
         else {
             $DefaultDomainName = ""
-        }
+            }
 
         if ($PSCmdlet.ShouldProcess(('User "{0}\{1}"' -f $DefaultDomainName, $Credential.GetNetworkCredential().Username), "Set Auto logon")) {
             Write-Verbose ('DomainName: {0} / UserName: {1}' -f $DefaultDomainName, $Credential.GetNetworkCredential().Username)
