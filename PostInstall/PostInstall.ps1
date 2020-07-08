@@ -2,6 +2,8 @@ param (
     [switch]$DontPromptPasswordUpdateGPU
     )
 
+$host.ui.RawUI.WindowTitle = "Parsec Cloud Preparation Tool"
+
 Function ProgressWriter {
     param (
     [int]$percentcomplete,
