@@ -52,9 +52,14 @@
 "                                         
 Write-Output "Setting up Environment"
 $path = [Environment]::GetFolderPath("Desktop")
-if((Test-Path -Path $path\ParsecTemp )-eq $true){} Else {New-Item -Path $path\ParsecTemp -ItemType directory | Out-Null}
+if((Test-Path -Path $path\ParsecTemp ) -eq $true){
+    } 
+Else {
+    New-Item -Path $path\ParsecTemp -ItemType directory| Out-Null
+    }
+
 Unblock-File -Path .\*
-copy-Item .\* -Destination $path\ParsecTemp\ -Recurse | Out-Null
+copy-Item .\* -Destination $path\ParsecTemp\ -Force -Recurse | Out-Null
 #lil nap
 Start-Sleep -s 1
 #Unblocking all script files
