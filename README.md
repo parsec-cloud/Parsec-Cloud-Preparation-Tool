@@ -36,12 +36,12 @@ Then fill in the details on the next page.
 4. Copy the below code and follow the instructions in the script - you'll see them in RED
 
 ```
-[Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"  
-(New-Object System.Net.WebClient).DownloadFile("https://github.com/parsec-cloud/Parsec-Cloud-Preparation-Tool/archive/master.zip","$ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool.zip")  
-New-Item -Path $ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool -ItemType Directory  
-Expand-Archive $ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool.Zip -DestinationPath $ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool  
-CD $ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool\Parsec-Cloud-Preparation-Tool-master\  
-Powershell.exe -File $ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool\Parsec-Cloud-Preparation-Tool-master\Loader.ps1
+[Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls" 
+$ScriptWebArchive = "https://github.com/parsec-cloud/Parsec-Cloud-Preparation-Tool/archive/master.zip"  
+$LocalArchivePath = "$ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool"  
+(New-Object System.Net.WebClient).DownloadFile($ScriptWebArchive, "$LocalArchivePath.zip")  
+Expand-Archive "$LocalArchivePath.zip" -DestinationPath $LocalArchivePath -Force  
+CD $LocalArchivePath\Parsec-Cloud-Preparation-Tool-master\ | powershell.exe .\loader.ps1  
 ```
 
 This tool supports:
