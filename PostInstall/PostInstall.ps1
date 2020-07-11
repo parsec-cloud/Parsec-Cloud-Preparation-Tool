@@ -68,19 +68,19 @@ function cloudprovider {
 
 
     if ($GCP.StatusCode -eq 200) {
-        "Google"
+        "Google Cloud Instance Detectd"
         } 
     Elseif ($AWS.StatusCode -eq 200) {
-        "AWS"
+        "Amazon AWS Instance Detected"
         } 
     Elseif ($paperspace.StatusCode -eq 200) {
-        "Paperspace"
+        "Paperspace Instance Detected"
         }
     Elseif ($azure.StatusCode -eq 200) {
-        "Azure"
+        "Microsoft Azure Instance Detected"
         }
     Else {
-        "Generic"
+        "Generic Instance Detected"
         }
 }
 
@@ -856,7 +856,7 @@ Write-Host -foregroundcolor red "
                     It's provided with no warranty, 
                     so use it at your own risk.
                     
-                    Check out the Readme.txt for more
+                    Check out the README.md for more
                     information.
 
                     This tool supports:
