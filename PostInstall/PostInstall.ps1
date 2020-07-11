@@ -68,19 +68,19 @@ function cloudprovider {
 
 
     if ($GCP.StatusCode -eq 200) {
-        "Google Cloud Instance Detectd"
+        "Google Cloud Instance"
         } 
     Elseif ($AWS.StatusCode -eq 200) {
-        "Amazon AWS Instance Detected"
+        "Amazon AWS Instance"
         } 
     Elseif ($paperspace.StatusCode -eq 200) {
-        "Paperspace Instance Detected"
+        "Paperspace Instance"
         }
     Elseif ($azure.StatusCode -eq 200) {
-        "Microsoft Azure Instance Detected"
+        "Microsoft Azure Instance"
         }
     Else {
-        "Generic Instance Detected"
+        "Generic Instance"
         }
 }
 
