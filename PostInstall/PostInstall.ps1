@@ -309,20 +309,13 @@ function Set-AutoLogon {
 
 
 Function GetInstanceCredential {
-
     Try {
         $Credential = Get-Credential -Credential $null
         Try {
-            TestCredential -Credential $Credential
+            TestCredential -Credential $Credential 
             }
         Catch {
-            "Credentials Incorrect"
-            }
-            Try {
-                Set-AutoLogon -Credential $Credential
-                }
-            Catch {
-                $Error[0].Exception
+                #$Error[0].Exception.Message
                 "Retry?"
                 $ReadHost = Read-Host "(Y/N)"
                 Switch ($ReadHost) 
@@ -333,8 +326,7 @@ Function GetInstanceCredential {
                    N {
                        }
                     }
-                }
-
+            }
         }
     Catch {
         "You pressed cancel, retry?"
