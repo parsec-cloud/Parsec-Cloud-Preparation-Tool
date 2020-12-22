@@ -28,6 +28,7 @@ It's provided with no warranty, so use it at your own risk.
 
 ### Who this script is for:
 Home users who want to experiment with creating their own cloud server to play games.  
+
 If you are an IT person or business owner who is looking to roll out Parsec enabled cloud desktops for your business, you must license a [Parsec Teams subscription](https://parsec.app/teams/).
 
 ### Instructions:                    
