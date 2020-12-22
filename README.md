@@ -33,7 +33,7 @@ It's provided with no warranty, so use it at your own risk.
 4. Copy the below code and follow the instructions in the script - you'll see them in RED
 
 ### Special notes for Google Cloud users:
-Do not select "Turn on Display Device" when setting up the instance, this will cause you to have a display that cannot be removed, that Parsec can't use.
+Do not select "Turn on Display Device" when setting up the instance, this will cause you to have a display that cannot be removed. Parsec can't use this display and you will need to start again from scratch if you create an instance with that option enabled.
 
 ### Copy this code into Powershell
 ```
