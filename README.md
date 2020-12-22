@@ -35,7 +35,7 @@ It's provided with no warranty, so use it at your own risk.
 ### Special notes for Google Cloud users:
 Do not select "Turn on Display Device" when setting up the instance, this will cause you to have a display that cannot be removed. Parsec can't use this display and you will need to start again from scratch if you create an instance with that option enabled.
 
-### Copy this code into Powershell (you may need to press enter at the end)
+### Copy this code into Powershell (you may need to press enter at the end):
 ```
 [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls" 
 $ScriptWebArchive = "https://github.com/parsec-cloud/Parsec-Cloud-Preparation-Tool/archive/master.zip"  
