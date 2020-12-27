@@ -92,7 +92,7 @@ A. Delete the Wallpaper registry value from HKEY_CURRENT_USER\Software\Microsoft
 Q. I created an Amazon AMI using this script but when I create a machine from the AMI I can't select high display resolutions above 1366x768  
 A. AWS adds some persistent routes to machines which will need to be deleted if you want the NVIDIA Driver to be licensed and display all features and resolutions.  You can do this via  `route print` then making note of the persistant routes and using `route -p DELETE NETWORK.ADDRESS.OF.ROUTE`.  After a reboot the machine should allow high resolutions.  
 
-Q. I connect to my host with Parsec and see a Parsec logo on the desktop, and the Windows Task bar, but when I click icons in the task bar, nothing happens.
+Q. I connect to my host with Parsec and see a Parsec logo on the desktop, and the Windows Task bar, but when I click icons in the task bar, nothing happens.  
 A. There is another screen on the cloud machine that Parsec can't capture, that is set to your default/primary display, do the following to switch the primary display to the screen that Parsec can capture.  
 
 1. Connect to the host via Parssec
