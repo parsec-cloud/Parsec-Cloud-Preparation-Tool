@@ -321,12 +321,12 @@ Function GetInstanceCredential {
                 #$Error[0].Exception.Message
                 "Retry?"
                 $ReadHost = Read-Host "(Y/N)"
-                Switch ($ReadHost) 
-                   {
+                Switch ($ReadHost){
                    Y {
                       GetInstanceCredential 
                        }
                    N {
+                      Return
                        }
                     }
             }
@@ -334,15 +334,16 @@ Function GetInstanceCredential {
     Catch {
         "You pressed cancel, retry?"
         $ReadHost = Read-Host "(Y/N)"
-        Switch ($ReadHost) 
-            {
+        Switch ($ReadHost){
             Y {
                 GetInstanceCredential
                 }
             N {
+                Return
                 }
             }
         }
+    Set-AutoLogon -Credential $Credential
     }
     
 Function PromptUserAutoLogon {
