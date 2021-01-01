@@ -318,10 +318,11 @@ Function GetInstanceCredential {
             TestCredential -Credential $Credential 
             }
         Catch {
+                Remove-Variable Credential
                 #$Error[0].Exception.Message
                 "Retry?"
-                $ReadHost = Read-Host "(Y/N)"
-                Switch ($ReadHost){
+                $Retry = Read-Host "(Y/N)"
+                Switch ($Retry){
                    Y {
                       GetInstanceCredential 
                        }
@@ -332,9 +333,10 @@ Function GetInstanceCredential {
             }
         }
     Catch {
+        if ($Credential) {Remove-Variable Credential}
         "You pressed cancel, retry?"
-        $ReadHost = Read-Host "(Y/N)"
-        Switch ($ReadHost){
+        $Cancel = Read-Host "(Y/N)"
+        Switch ($Cancel){
             Y {
                 GetInstanceCredential
                 }
@@ -343,7 +345,7 @@ Function GetInstanceCredential {
                 }
             }
         }
-    Set-AutoLogon -Credential $Credential
+    if($credential) {Set-AutoLogon -Credential $Credential}
     }
     
 Function PromptUserAutoLogon {
