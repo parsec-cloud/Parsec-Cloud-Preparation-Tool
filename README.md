@@ -22,7 +22,7 @@
                     ~Parsec Self Hosted Cloud Setup Script~
 
 ### We're hiring:
-We're hiring an experienced solution architect in the US East Coast: [See here](https://careers.parsec.app/o/sales-engineer-solutions-architect)
+We're hiring an experienced solutions architect on the US East Coast: [See here](https://careers.parsec.app/o/sales-engineer-solutions-architect)
 
 ### Parsec Cloud Preparation Tool
 This script sets up your cloud computer with a bunch of settings and drivers
