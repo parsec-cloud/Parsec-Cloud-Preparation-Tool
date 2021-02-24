@@ -734,9 +734,10 @@ Function ExtractInstallFiles {
 Function Server2019Controller {
     ProgressWriter -Status "Adding Xbox 360 Controller driver to Windows Server 2019" -PercentComplete $PercentComplete
     if ((gwmi win32_operatingsystem | % caption) -like '*Windows Server 2019*') {
-        (New-Object System.Net.WebClient).DownloadFile("http://download.microsoft.com/download/6/9/4/69446ACF-E625-4CCF-8F56-58B589934CD3/Xbox360_64Eng.exe", "C:\ParsecTemp\Drivers\Xbox360_64Eng.exe")
-        cmd.exe /c '"C:\Program Files\7-Zip\7z.exe" x C:\ParsecTemp\Drivers\Xbox360_64Eng.exe -oC:\ParsecTemp\Drivers\Xbox360_64Eng -y' | Out-Null
-        cmd.exe /c '"C:\Program Files\Parsec\vigem\10\x64\devcon.exe" dp_add "C:\ParsecTemp\Drivers\Xbox360_64Eng\xbox360\setup64\files\driver\win7\xusb21.inf"' | Out-Null
+        (New-Object System.Net.WebClient).DownloadFile("http://www.download.windowsupdate.com/msdownload/update/v3-19990518/cabpool/2060_8edb3031ef495d4e4247e51dcb11bef24d2c4da7.cab", "C:\ParsecTemp\Drivers\Xbox360_64Eng.cab")
+        if((Test-Path -Path C:\ParsecTemp\Drivers\Xbox360_64Eng) -eq $true) {} Else {New-Item -Path C:\ParsecTemp\Drivers\Xbox360_64Eng -ItemType directory | Out-Null}
+        cmd.exe /c "C:\Windows\System32\expand.exe C:\ParsecTemp\Drivers\Xbox360_64Eng.cab -F:* C:\ParsecTemp\Drivers\Xbox360_64Eng" | Out-Null
+        cmd.exe /c '"C:\Program Files\Parsec\vigem\10\x64\devcon.exe" dp_add "C:\ParsecTemp\Drivers\Xbox360_64Eng\xusb21.inf"' | Out-Null
         }
     }
 
