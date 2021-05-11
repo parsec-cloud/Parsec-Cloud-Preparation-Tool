@@ -773,7 +773,7 @@ Function Server2019Controller {
 
 
 Function InstallParsec {
-    Start-Process "C:\ParsecTemp\Apps\parsec-windows.exe" -ArguementList -ArgumentList "/silent", "/shared" 
+    Start-Process "C:\ParsecTemp\Apps\parsec-windows.exe" -ArgumentList "/silent", "/shared" 
 #    ExtractInstallFiles
 #    InstallViGEmBus
 #    CreateFireWallRule
