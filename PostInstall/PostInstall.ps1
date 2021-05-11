@@ -758,7 +758,7 @@ Function Server2019Controller {
     #Start-Sleep 5
     #cmd.exe /c '"C:\Program Files\Parsec\vigem\devcon.exe" install "C:\Program Files\Parsec\vigem\ViGEmBus.inf" Root\ViGEmBus' | Out-Null
     #}
-    }
+    #}
 
 #Creates Parsec Firewall Rule in Windows Firewall
 #Function CreateFireWallRule {
