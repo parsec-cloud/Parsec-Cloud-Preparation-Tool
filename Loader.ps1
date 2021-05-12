@@ -42,6 +42,8 @@
                     CLOUD SKU:
                     AWS G3.4xLarge    (Tesla M60)
                     AWS G2.2xLarge    (GRID K520)
+                    AWS g4dn.xlarge   (Tesla T4)
+                    AWS g4ad.4xlarge  (AMD Radeon Pro V520)
                     Azure NV6         (Tesla M60)
                     Paperspace P4000  (Quadro P4000)
                     Paperspace P5000  (Quadro P5000)
