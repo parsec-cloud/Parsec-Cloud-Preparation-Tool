@@ -62,7 +62,7 @@ Server 2019
 AWS g3.4xLarge    (Tesla M60)  
 AWS g2.2xLarge    (GRID K520)  
 AWS g4dn.xLarge   (Tesla T4 with vGaming driver)  
-AWS g4ad.4xlarge  (AMD Radeon Pro V520). 
+AWS g4ad.4xlarge  (AMD Radeon Pro V520)  
 Azure NV6         (Tesla M60)  
 Paperspace P4000  (Quadro P4000)  
 Paperspace P5000  (Quadro P5000)  
