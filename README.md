@@ -21,8 +21,6 @@
                                        
                     ~Parsec Self Hosted Cloud Setup Script~
 
-### We're hiring:
-We're hiring an experienced solutions architect on the US East Coast: [See here](https://careers.parsec.app/o/sales-engineer-solutions-architect)
 
 ### Parsec Cloud Preparation Tool
 This script sets up your cloud computer with a bunch of settings and drivers
@@ -61,9 +59,10 @@ Server 2016
 Server 2019
                     
 ### CLOUD SKU:
-AWS G3.4xLarge    (Tesla M60)  
-AWS G2.2xLarge    (GRID K520)  
-AWS G4dn.xLarge   (Tesla T4 with vGaming driver)  
+AWS g3.4xLarge    (Tesla M60)  
+AWS g2.2xLarge    (GRID K520)  
+AWS g4dn.xLarge   (Tesla T4 with vGaming driver)  
+AWS g4ad.4xlarge  (AMD Radeon Pro V520). 
 Azure NV6         (Tesla M60)  
 Paperspace P4000  (Quadro P4000)  
 Paperspace P5000  (Quadro P5000)  
