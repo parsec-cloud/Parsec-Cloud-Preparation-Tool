@@ -73,9 +73,18 @@ Google T4 VW      (Tesla T4 with Virtual Workstation Driver)
 ### RDP:  
 Only use RDP to intially setup the instance. Parsec and RDP are not friendly with each other.  
 
-## Special notes for Parsec Team customers
+### Special notes for Parsec Team customers
 On AWS EC2 you can add populate the instance userdata and the machine will automatically be provisioned as a team machine.  
-```team_id={teamID}:key{key}:name{the name of the machine as you want it to appear in parsec}:user_email{email} etc
+Available arguments:
+[string]$key (required)
+[string]$team_id (required)
+[String]$name
+[int]$group_id 
+[int]$user_id 
+[string]$user_email
+[boolean]$is_guest_access = $false
+
+```
 example: team_id=1234:key=5678:name=mycoolhost:user_email:person@company.com
 ```  
 
