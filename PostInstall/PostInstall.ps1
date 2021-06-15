@@ -494,8 +494,8 @@ Function TeamMachineSetupScheduledTask {
         }
     catch {}
     $action = New-ScheduledTaskAction -Execute 'C:\WINDOWS\system32\WindowsPowerShell\v1.0\powershell.exe' -Argument '-file %programdata%\ParsecLoader\TeamMachineSetup.ps1'
-    $trigger =  New-ScheduledTaskTrigger -AtStartup -User $env:USERNAME 
-    Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "Setup Team Machine" -Description "Attempts to read instance userdata and set up as Team Machine at startup" -RunLevel Highest
+    $trigger =  New-ScheduledTaskTrigger -AtStartup 
+    Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "Setup Team Machine" -Description "Attempts to read instance userdata and set up as Team Machine at startup" -RunLevel Highest | Out-Null
     }
 
 #set update policy
