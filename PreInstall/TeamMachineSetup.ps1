@@ -61,7 +61,7 @@ function fetchUserData {
 
 
 Function PeerIDGetter {
-    $configfile = fetchUserData
+    $configfile = get-content $configtxtdir
     foreach ($configline in $configfile) {
         if ($configline -like 'app_host_peer_id*') {
             $peerid = $configline.Split(' = ')[-1]
