@@ -813,7 +813,7 @@ function clean-up {
 #cleanup recent files
 function clean-up-recent {
     ProgressWriter -Status "Delete recently accessed files list from Windows Explorer" -PercentComplete $PercentComplete
-    remove-item "$env:ProgramData\Microsoft\Windows\Recent\*" -Recurse -Force | Out-Null
+    remove-item "$env:AppData\Microsoft\Windows\Recent\*" -Recurse -Force | Out-Null
     }
 
 #Start GPU Update Tool
