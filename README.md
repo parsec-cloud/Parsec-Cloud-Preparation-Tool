@@ -85,7 +85,7 @@ Available arguments:
 [type: boolean]$is_guest_access= {true or false} (if you want this machine to have guest access enabled)  
 
 ```
-example: team_id=1234:key=5678:name=mycoolhost:user_email:person@company.com
+example: team_id=1234:key=5678:name=mycoolhost:user_email:person@company.com:is_guest_access=true
 ```  
 
 ### Issues:
