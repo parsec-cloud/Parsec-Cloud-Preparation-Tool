@@ -13,7 +13,7 @@ Until
 (
 $CountSinceStart -ge $MinutesSinceStart
 )
-Start-Process powershell.exe -ArgumentList "-windowstyle hidden -executionpolicy bypass -file $env:appdata\ParsecLoader\ShowDialog.ps1"
+Start-Process powershell.exe -ArgumentList "-windowstyle hidden -executionpolicy bypass -file $env:programdata\ParsecLoader\ShowDialog.ps1"
 }
 
 

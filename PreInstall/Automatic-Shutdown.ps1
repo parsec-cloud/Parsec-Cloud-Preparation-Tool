@@ -62,7 +62,7 @@ function AutomaticShutdown {
 	}
 	
     $button_logic = {
-    Start-Process powershell.exe -ArgumentList "-ExecutionPolicy Bypass -windowstyle hidden -file $ENV:APPDATA\ParsecLoader\Automatic-Shutdown.ps1"
+    Start-Process powershell.exe -ArgumentList "-ExecutionPolicy Bypass -windowstyle hidden -file $ENV:ProgramData\Automatic-Shutdown.ps1"
     $form1.Close()
     }
 
@@ -123,7 +123,7 @@ function AutomaticShutdown {
 }
 
 function idle {
-$readfile = (Get-Content -Path $env:APPDATA\ParsecLoader\Autoshutdown.txt) - 10
+$readfile = (Get-Content -Path $env:ProgramData\Autoshutdown.txt) - 10
 do {
 [PInvoke.Win32.UserInput]::LastInput | Out-Null
 [PInvoke.Win32.UserInput]::IdleTime | Out-Null

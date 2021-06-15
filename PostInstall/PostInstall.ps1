@@ -23,19 +23,19 @@ function setupEnvironment {
     ProgressWriter -Status "Moving files and folders into place" -PercentComplete $PercentComplete
     if((Test-Path -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup) -eq $true) {} Else {New-Item -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Startup -ItemType directory | Out-Null}
     if((Test-Path -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown) -eq $true) {} Else {New-Item -Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown -ItemType directory | Out-Null}
-    if((Test-Path -Path $env:USERPROFILE\AppData\Roaming\ParsecLoader) -eq $true) {} Else {New-Item -Path $env:USERPROFILE\AppData\Roaming\ParsecLoader -ItemType directory | Out-Null}
+    if((Test-Path -Path $env:ProgramData\ParsecLoader) -eq $true) {} Else {New-Item -Path $env:ProgramData\ParsecLoader -ItemType directory | Out-Null}
     if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\psscripts.ini) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\psscripts.ini -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts}
     if((Test-Path C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown\NetworkRestore.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\NetworkRestore.ps1 -Destination C:\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown} 
-    if((Test-Path $ENV:APPDATA\ParsecLoader\clear-proxy.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\clear-proxy.ps1 -Destination $ENV:APPDATA\ParsecLoader}
-    if((Test-Path $ENV:APPDATA\ParsecLoader\CreateClearProxyScheduledTask.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\CreateClearProxyScheduledTask.ps1 -Destination $ENV:APPDATA\ParsecLoader}
-    if((Test-Path $ENV:APPDATA\ParsecLoader\Automatic-Shutdown.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\Automatic-Shutdown.ps1 -Destination $ENV:APPDATA\ParsecLoader}
-    if((Test-Path $ENV:APPDATA\ParsecLoader\CreateAutomaticShutdownScheduledTask.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\CreateAutomaticShutdownScheduledTask.ps1 -Destination $ENV:APPDATA\ParsecLoader}
-    if((Test-Path $ENV:APPDATA\ParsecLoader\GPU-Update.ico) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\GPU-Update.ico -Destination $ENV:APPDATA\ParsecLoader}
-    if((Test-Path $ENV:APPDATA\ParsecLoader\CreateOneHourWarningScheduledTask.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\CreateOneHourWarningScheduledTask.ps1 -Destination $ENV:APPDATA\ParsecLoader}
-    if((Test-Path $ENV:APPDATA\ParsecLoader\WarningMessage.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\WarningMessage.ps1 -Destination $ENV:APPDATA\ParsecLoader}
-    if((Test-Path $ENV:APPDATA\ParsecLoader\Parsec.png) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\Parsec.png -Destination $ENV:APPDATA\ParsecLoader}
-    if((Test-Path $ENV:APPDATA\ParsecLoader\ShowDialog.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\ShowDialog.ps1 -Destination $ENV:APPDATA\ParsecLoader}
-    if((Test-Path $ENV:APPDATA\ParsecLoader\OneHour.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\OneHour.ps1 -Destination $ENV:APPDATA\ParsecLoader}
+    if((Test-Path $env:ProgramData\ParsecLoader\clear-proxy.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\clear-proxy.ps1 -Destination $env:ProgramData\ParsecLoader}
+    if((Test-Path $env:ProgramData\ParsecLoader\CreateClearProxyScheduledTask.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\CreateClearProxyScheduledTask.ps1 -Destination $env:ProgramData\ParsecLoader}
+    if((Test-Path $env:ProgramData\ParsecLoader\Automatic-Shutdown.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\Automatic-Shutdown.ps1 -Destination $env:ProgramData\ParsecLoader}
+    if((Test-Path $env:ProgramData\ParsecLoader\CreateAutomaticShutdownScheduledTask.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\CreateAutomaticShutdownScheduledTask.ps1 -Destination $env:ProgramData\ParsecLoader}
+    if((Test-Path $env:ProgramData\ParsecLoader\GPU-Update.ico) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\GPU-Update.ico -Destination $env:ProgramData\ParsecLoader}
+    if((Test-Path $env:ProgramData\ParsecLoader\CreateOneHourWarningScheduledTask.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\CreateOneHourWarningScheduledTask.ps1 -Destination $env:ProgramData\ParsecLoader}
+    if((Test-Path $env:ProgramData\ParsecLoader\WarningMessage.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\WarningMessage.ps1 -Destination $env:ProgramData\ParsecLoader}
+    if((Test-Path $env:ProgramData\ParsecLoader\Parsec.png) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\Parsec.png -Destination $env:ProgramData\ParsecLoader}
+    if((Test-Path $env:ProgramData\ParsecLoader\ShowDialog.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\ShowDialog.ps1 -Destination $env:ProgramData\ParsecLoader}
+    if((Test-Path $env:ProgramData\ParsecLoader\OneHour.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\OneHour.ps1 -Destination $env:ProgramData\ParsecLoader}
     }
 
 function cloudprovider { 
@@ -466,7 +466,7 @@ function download-resources {
     ProgressWriter -Status "Downloading GPU Updater" -PercentComplete $PercentComplete
     (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/parsec+desktop.png", "C:\ParsecTemp\parsec+desktop.png")
     (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parseccloud/image/white_ico_agc_icon.ico", "C:\ParsecTemp\white_ico_agc_icon.ico")
-    (New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/parsec-cloud/Cloud-GPU-Updater/master/GPUUpdaterTool.ps1", "$env:APPDATA\ParsecLoader\GPUUpdaterTool.ps1")
+    (New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/parsec-cloud/Cloud-GPU-Updater/master/GPUUpdaterTool.ps1", "$env:ProgramData\ParsecLoader\GPUUpdaterTool.ps1")
     ProgressWriter -Status "Downloading Google Chrome" -PercentComplete $PercentComplete
     (New-Object System.Net.WebClient).DownloadFile("https://dl.google.com/tag/s/dl/chrome/install/googlechromestandaloneenterprise64.msi", "C:\ParsecTemp\Apps\googlechromestandaloneenterprise64.msi")
     }
@@ -585,8 +585,8 @@ function Create-AutoShutdown-Shortcut{
     $Shell = New-Object -ComObject ("WScript.Shell")
     $ShortCut = $Shell.CreateShortcut("$env:USERPROFILE\Desktop\Setup Auto Shutdown.lnk")
     $ShortCut.TargetPath="powershell.exe"
-    $ShortCut.Arguments='-ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\CreateAutomaticShutdownScheduledTask.ps1"'
-    $ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
+    $ShortCut.Arguments='-ExecutionPolicy Bypass -File "C:\ProgramData\ParsecLoader\CreateAutomaticShutdownScheduledTask.ps1"'
+    $ShortCut.WorkingDirectory = "$env:ProgramData\ParsecLoader";
     $ShortCut.WindowStyle = 0;
     $ShortCut.Description = "ClearProxy shortcut";
     $ShortCut.Save()
@@ -598,8 +598,8 @@ function Create-One-Hour-Warning-Shortcut{
     $Shell = New-Object -ComObject ("WScript.Shell")
     $ShortCut = $Shell.CreateShortcut("$env:USERPROFILE\Desktop\Setup One Hour Warning.lnk")
     $ShortCut.TargetPath="powershell.exe"
-    $ShortCut.Arguments='-ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\CreateOneHourWarningScheduledTask.ps1"'
-    $ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
+    $ShortCut.Arguments='-ExecutionPolicy Bypass -File "C:\ProgramData\ParsecLoader\CreateOneHourWarningScheduledTask.ps1"'
+    $ShortCut.WorkingDirectory = "$env:ProgramData\ParsecLoader";
     $ShortCut.WindowStyle = 0;
     $ShortCut.Description = "OneHourWarning shortcut";
     $ShortCut.Save()
@@ -648,15 +648,15 @@ function AudioInstall {
 
 #Creates shortcut for the GPU Updater tool
 function gpu-update-shortcut {
-    (New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/parsec-cloud/Cloud-GPU-Updater/master/GPUUpdaterTool.ps1", "$ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1")
-    Unblock-File -Path "$ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1"
+    (New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/parsec-cloud/Cloud-GPU-Updater/master/GPUUpdaterTool.ps1", "$env:ProgramData\ParsecLoader\GPUUpdaterTool.ps1")
+    Unblock-File -Path "$env:ProgramData\ParsecLoader\GPUUpdaterTool.ps1"
     ProgressWriter -Status "Creating GPU Updater icon on Desktop" -PercentComplete $PercentComplete
     $Shell = New-Object -ComObject ("WScript.Shell")
     $ShortCut = $Shell.CreateShortcut("$path\GPU Updater.lnk")
     $ShortCut.TargetPath="powershell.exe"
-    $ShortCut.Arguments='-ExecutionPolicy Bypass -File "%homepath%\AppData\Roaming\ParsecLoader\GPUUpdaterTool.ps1"'
-    $ShortCut.WorkingDirectory = "$env:USERPROFILE\AppData\Roaming\ParsecLoader";
-    $ShortCut.IconLocation = "$env:USERPROFILE\AppData\Roaming\ParsecLoader\GPU-Update.ico, 0";
+    $ShortCut.Arguments='-ExecutionPolicy Bypass -File "C:\ProgramData\ParsecLoader\GPUUpdaterTool.ps1"'
+    $ShortCut.WorkingDirectory = "$env:ProgramData\ParsecLoader";
+    $ShortCut.IconLocation = "$env:ProgramData\ParsecLoader\GPU-Update.ico, 0";
     $ShortCut.WindowStyle = 0;
     $ShortCut.Description = "GPU Updater shortcut";
     $ShortCut.Save()
@@ -813,7 +813,7 @@ function clean-up {
 #cleanup recent files
 function clean-up-recent {
     ProgressWriter -Status "Delete recently accessed files list from Windows Explorer" -PercentComplete $PercentComplete
-    remove-item "$env:APPDATA\Microsoft\Windows\Recent\*" -Recurse -Force | Out-Null
+    remove-item "$env:ProgramData\Microsoft\Windows\Recent\*" -Recurse -Force | Out-Null
     }
 
 #Start GPU Update Tool
@@ -824,7 +824,7 @@ Function StartGPUUpdate {
     if ($DontPromptPasswordUpdateGPU) {
         }
     Else {
-      start-process powershell.exe -verb RunAS -argument "-file $ENV:Appdata\ParsecLoader\GPUUpdaterTool.ps1"
+      start-process powershell.exe -verb RunAS -argument "-file $env:ProgramData\ParsecLoader\GPUUpdaterTool.ps1"
         }
     }
 Write-Host -foregroundcolor red "

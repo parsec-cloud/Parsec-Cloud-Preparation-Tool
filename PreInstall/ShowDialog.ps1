@@ -35,7 +35,7 @@ $form.AutoScale =
 $Form.Left = ($Screen.Bounds.Width - $Form.Width)/2
 $form.add_Load($form1_Load)
 
-$image = [System.Drawing.Image]::FromFile("$ENV:APPDATA\ParsecLoader\Parsec.png")
+$image = [System.Drawing.Image]::FromFile("$ENV:ProgramData\ParsecLoader\Parsec.png")
 $pictureBox = new-object Windows.Forms.PictureBox
 $pictureBox.Width = 100
 $pictureBox.Height = 100
@@ -99,10 +99,10 @@ $Form.controls.Add($TextMessage)
     $cancelBtnY = $Form.Height - $cancelBtn.Height - 25
     $cancelBtn.Location = New-Object System.Drawing.Point($cancelBtnX,$cancelBtnY)
     $cancelBtn.Add_Click({
-    [int]3300 + ([int]3599 - [int]$script:countdown.TotalSeconds) | Out-File $env:Appdata\ParsecLoader\Time.txt
+    [int]3300 + ([int]3599 - [int]$script:countdown.TotalSeconds) | Out-File $env:programdata\ParsecLoader\Time.txt
 
 
-Start-Process powershell.exe -ArgumentList "-windowstyle hidden -executionpolicy bypass -file $env:appdata\ParsecLoader\OneHour.ps1" 
+Start-Process powershell.exe -ArgumentList "-windowstyle hidden -executionpolicy bypass -file $env:programdata\ParsecLoader\OneHour.ps1" 
 
 $form.Close()
 
