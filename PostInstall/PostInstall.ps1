@@ -488,14 +488,61 @@ function install-windows-features {
     }
 
 Function TeamMachineSetupScheduledTask {
+$XML = @"
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>Attempts to read instance userdata and set up as Team Machine at startup</Description>
+    <URI>\Setup Team Machine</URI>
+  </RegistrationInfo>
+  <Triggers>
+    <BootTrigger>
+      <Enabled>true</Enabled>
+    </BootTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <UserId>$(([System.Security.Principal.WindowsIdentity]::GetCurrent()).User.Value)</UserId>
+      <LogonType>S4U</LogonType>
+      <RunLevel>HighestAvailable</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>true</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>true</StopIfGoingOnBatteries>
+    <AllowHardTerminate>true</AllowHardTerminate>
+    <StartWhenAvailable>false</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
+    <IdleSettings>
+      <StopOnIdleEnd>true</StopOnIdleEnd>
+      <RestartOnIdle>false</RestartOnIdle>
+    </IdleSettings>
+    <AllowStartOnDemand>true</AllowStartOnDemand>
+    <Enabled>true</Enabled>
+    <Hidden>false</Hidden>
+    <RunOnlyIfIdle>false</RunOnlyIfIdle>
+    <WakeToRun>false</WakeToRun>
+    <ExecutionTimeLimit>PT72H</ExecutionTimeLimit>
+    <Priority>7</Priority>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>C:\WINDOWS\system32\WindowsPowerShell\v1.0\powershell.exe</Command>
+      <Arguments>-file %programdata%\ParsecLoader\TeamMachineSetup.ps1</Arguments>
+    </Exec>
+  </Actions>
+</Task>
+"@
+
     try {
         Get-ScheduledTask -TaskName "Setup Team Machine" -ErrorAction Stop | Out-Null
         Unregister-ScheduledTask -TaskName "Setup Team Machine" -Confirm:$false
         }
     catch {}
     $action = New-ScheduledTaskAction -Execute 'C:\WINDOWS\system32\WindowsPowerShell\v1.0\powershell.exe' -Argument '-file %programdata%\ParsecLoader\TeamMachineSetup.ps1'
-    $trigger =  New-ScheduledTaskTrigger -AtStartup 
-    Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "Setup Team Machine" -Description "Attempts to read instance userdata and set up as Team Machine at startup" -RunLevel Highest | Out-Null
+    $trigger =  New-ScheduledTaskTrigger -AtStartup
+    Register-ScheduledTask -XML $XML -TaskName "Setup Team Machine" | Out-Null
     }
 
 #set update policy
