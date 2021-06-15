@@ -180,7 +180,7 @@ function setnvsmi-shortcut{
 #creates startup shortcut that will start the script downloaded in setnvsmi
 Write-Output "Create NVSMI shortcut"
 $Shell = New-Object -ComObject ("WScript.Shell")
-$ShortCut = $Shell.CreateShortcut("$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\NVSMI.lnk")
+$ShortCut = $Shell.CreateShortcut("$env:PROGRAMDATA\Microsoft\Windows\Start Menu\Programs\Startup\NVSMI.lnk")
 $ShortCut.TargetPath="powershell.exe"
 $ShortCut.Arguments='-WindowStyle hidden -ExecutionPolicy Bypass -File "C:\ParsecTemp\Drivers\NVSMI.ps1"'
 $ShortCut.WorkingDirectory = "C:\ParsecTemp\Drivers";
