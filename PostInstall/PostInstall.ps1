@@ -36,6 +36,7 @@ function setupEnvironment {
     if((Test-Path $env:ProgramData\ParsecLoader\Parsec.png) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\Parsec.png -Destination $env:ProgramData\ParsecLoader}
     if((Test-Path $env:ProgramData\ParsecLoader\ShowDialog.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\ShowDialog.ps1 -Destination $env:ProgramData\ParsecLoader}
     if((Test-Path $env:ProgramData\ParsecLoader\OneHour.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\OneHour.ps1 -Destination $env:ProgramData\ParsecLoader}
+    if((Test-Path $env:ProgramData\ParsecLoader\TeamMachineSetup.ps1) -eq $true) {} Else {Move-Item -Path $path\ParsecTemp\PreInstall\TeamMachineSetup.ps1 -Destination $env:ProgramData\ParsecLoader}
     }
 
 function cloudprovider { 
@@ -486,6 +487,17 @@ function install-windows-features {
     Remove-Item -Path C:\ParsecTemp\DirectX -force -Recurse 
     }
 
+Function TeamMachineSetupScheduledTask {
+    try {
+        Get-ScheduledTask -TaskName "Setup Team Machine" -ErrorAction Stop | Out-Null
+        Unregister-ScheduledTask -TaskName "Setup Team Machine" -Confirm:$false
+        }
+    catch {}
+    $action = New-ScheduledTaskAction -Execute 'C:\WINDOWS\system32\WindowsPowerShell\v1.0\powershell.exe' -Argument '-file %programdata%\ParsecLoader\TeamMachineSetup.ps1'
+    $trigger =  New-ScheduledTaskTrigger -AtStartup -User $env:USERNAME 
+    Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "Setup Team Machine" -Description "Attempts to read instance userdata and set up as Team Machine at startup" -RunLevel Highest
+    }
+
 #set update policy
 function set-update-policy {
     ProgressWriter -Status "Disabling Windows Update" -PercentComplete $PercentComplete
@@ -907,7 +919,8 @@ $ScripttaskList = @(
 "disable-devices";
 "clean-up";
 "clean-up-recent";
-"provider-specific"
+"provider-specific";
+"TeamMachineSetupScheduledTask"
 )
 
 foreach ($func in $ScripttaskList) {
