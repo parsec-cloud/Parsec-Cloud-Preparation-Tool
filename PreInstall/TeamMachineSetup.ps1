@@ -17,7 +17,7 @@ Class Post
 [bool]$is_guest_access = $false
 
     [void] Fill(){
-        $config = cloudprovider
+        $config = fetchUserData
         foreach ($line in $config) {
         $this."$($line.split("=")[0])" = $($line.split("=")[1])
         $this.peer_id = $(PeerIDGetter)
@@ -164,5 +164,5 @@ WriteHostname -host_name $RequestDetails.name
 #$Details = GenerateMeData -Session $TeamsEndpointRequest.data.id
 SessionIDToUserBin -session $TeamsEndpointRequest.data.id
 
-Stop-Process -Name parsecd
+Stop-Process -Name parsecd -Force
 
