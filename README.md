@@ -42,7 +42,7 @@ If you are an IT person or business owner who is looking to roll out Parsec enab
 ### Special notes for Google Cloud users:
 Do not select "Turn on Display Device" when setting up the instance, this will cause you to have a display that cannot be removed. Parsec can't use this display and you will need to start again from scratch if you create an instance with that option enabled.
 
-### Copy this code into Powershell (you may need to press enter at the end):
+### START HERE! Copy this code into Powershell (you may need to press enter at the end):
 ```
 [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls" 
 $ScriptWebArchive = "https://github.com/parsec-cloud/Parsec-Cloud-Preparation-Tool/archive/master.zip"  
@@ -72,6 +72,12 @@ Google T4 VW      (Tesla T4 with Virtual Workstation Driver)
 
 ### RDP:  
 Only use RDP to intially setup the instance. Parsec and RDP are not friendly with each other.  
+
+## Special notes for Parsec Team customers
+On AWS EC2 you can add populate the instance userdata and the machine will automatically be provisioned as a team machine.  
+```team_id={teamID}:key{key}:name{the name of the machine as you want it to appear in parsec}:user_email{email} etc
+example: team_id=1234:key=5678:name=mycoolhost:user_email:person@company.com
+```  
 
 ### Issues:
 Q. Stuck at 24%  
