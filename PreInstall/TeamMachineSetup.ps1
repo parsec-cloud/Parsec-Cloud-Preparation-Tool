@@ -35,11 +35,6 @@ function fetchUserData {
                 catch {
                     }
                 Try {
-                    (Invoke-WebRequest -uri http://169.254.169.254/latest/user-data/ -TimeoutSec 5)
-                    }
-                catch {
-                    }
-                Try {
                     (Invoke-WebRequest -uri http://metadata.paperspace.com/meta-data/machine -TimeoutSec 5)
                     }
                 catch {
