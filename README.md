@@ -79,7 +79,7 @@ Available arguments:
 [type: string]$key= (required)  
 [type: string]$team_id= (required)  
 [type: string]$name=  (name of the host as you want it to appear in Parsec)  
-[type: int]$group_id= (group id of the group you want to assign this computer to)  
+[type: int]$team_group_id= (group id of the group you want to assign this computer to)  
 [type: int]$user_id= (user id of the user you want to assign this computer to)  
 [type: string]$user_email= (email address of the user you want to assign this computer to)  
 [type: boolean]$is_guest_access= {true or false} (if you want this machine to have guest access enabled)  
