@@ -9,7 +9,7 @@ Class Post
 {
 [String]$name
 [String]$peer_id 
-[int]$group_id 
+[int]$team_group_id 
 [int]$user_id 
 [string]$user_email
 [string]$key
