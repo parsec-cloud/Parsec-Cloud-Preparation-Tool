@@ -946,7 +946,6 @@ $ScripttaskList = @(
 "disable-iesecurity";
 "download-resources";
 "install-windows-features";
-"set-update-policy";
 "force-close-apps";
 "disable-network-window";
 "disable-logout";
