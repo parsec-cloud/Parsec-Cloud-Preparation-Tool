@@ -108,7 +108,8 @@ Q. How do I change my wallpaper?
 A. Delete the Wallpaper registry value from HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\System  
   
 Q. I created an Amazon AMI using this script but when I create a machine from the AMI I can't select high display resolutions above 1366x768  
-A. AWS adds some persistent routes to machines which will need to be deleted if you want the NVIDIA Driver to be licensed and display all features and resolutions.  You can do this via  `route print` then making note of the persistant routes and using `route -p DELETE NETWORK.ADDRESS.OF.ROUTE`.  After a reboot the machine should allow high resolutions.  
+A. You didn't create the AMI in the correct way, you should search for "Run Sysprep with EC2Launch" on [this page](https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/Creating_EBSbacked_WinAMI.html).  It's important you "
+Shutdown with sysprep", and then when the instance has shutdown, you create the AMI based off this instance once its in an shutdown/stopped state.  If you must turn on the instance again, you should run the sysprep tool again and shutdown.  Sysprep correctly sets up the instance for AMI's.
 
 Q. I connect to my cloud machine with Parsec and see a Parsec logo on the desktop, and the Windows Task bar, but when I click icons in the task bar, nothing happens.  
 A. There is another screen on the cloud machine that Parsec can't capture, that is set to your default/primary display. Do the following to switch the primary display to the screen that Parsec can capture.  
