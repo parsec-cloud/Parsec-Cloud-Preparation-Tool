@@ -76,13 +76,13 @@ Only use RDP to intially setup the instance. Parsec and RDP are not friendly wit
 ### Special notes for Parsec Team customers:
 On AWS EC2 you can populate the instance userdata and the machine will automatically be provisioned as a team machine.  Each value must be seperated by : as shown in the example.  
 Available arguments:  
-[type: string]$key= (required)  
-[type: string]$team_id= (required)  
-[type: string]$name=  (name of the host as you want it to appear in Parsec)  
-[type: int]$team_group_id= (group id of the group you want to assign this computer to)  
-[type: int]$user_id= (user id of the user you want to assign this computer to)  
-[type: string]$user_email= (email address of the user you want to assign this computer to)  
-[type: boolean]$is_guest_access= {true or false} (if you want this machine to have guest access enabled)  
+[type: string]key= (required)  
+[type: string]team_id= (required)  
+[type: string]name=  (name of the host as you want it to appear in Parsec)  
+[type: int]team_group_id= (group id of the group you want to assign this computer to)  
+[type: int]user_id= (user id of the user you want to assign this computer to)  
+[type: string]user_email= (email address of the user you want to assign this computer to)  
+[type: boolean]is_guest_access= {true or false} (if you want this machine to have guest access enabled)  
 
 ```
 example: team_id=1234:key=5678:name=mycoolhost:user_email=person@company.com:is_guest_access=true
