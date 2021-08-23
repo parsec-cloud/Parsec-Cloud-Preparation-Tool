@@ -1,0 +1,4 @@
+package/*
+!package/package.ps1
+!package/deployDev.ps1
+*.log

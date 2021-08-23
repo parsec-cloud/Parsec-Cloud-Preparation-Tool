@@ -1,0 +1,165 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "basics": [
+      {
+        "name": "vmSize",
+        "type": "Microsoft.Compute.SizeSelector",
+        "label": "VM size",
+        "toolTip": "The size of the virtual machine where the Teradici PCoIP Agent is installed.",
+        "recommendedSizes": [
+          "Standard_NV4as_v4",
+          "Standard_NV8as_v4"
+        ],
+        "constraints": {
+          "allowedSizes": [
+            "Standard_NV4as_v4",
+            "Standard_NV8as_v4",
+            "Standard_NV16as_v4",
+            "Standard_NV32as_v4"
+          ]
+        },
+        "osPlatform": "Windows",
+        "imageReference": {
+          "publisher": "microsoft-agci-gaming",
+          "offer": "microsoftepicpixelstreamer-preview",
+          "sku": "amd"
+        }
+      },
+      {
+        "name": "adminUsername",
+        "type": "Microsoft.Compute.UserNameTextBox",
+        "label": "Admin username",
+        "toolTip": "Admin username for the Teradici PCoIP VM.",
+        "osPlatform": "Windows"
+      },
+      {
+        "name": "adminPassword",
+        "type": "Microsoft.Compute.CredentialsCombo",
+        "label": {
+          "password": "Password",
+          "confirmPassword": "Confirm password"
+        },
+        "toolTip": {
+          "password": "Admin password for the Teradici PCoIP VM."
+        },
+        "constraints": {
+          "required": true,
+          "customPasswordRegex": "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@!#$%?^{}~&+`¬:;_\\-=|<>\\\/\\[\\]£()*])(?=\\S+$).{8,}$",
+          "customValidationMessage": "Password must be at least 8 characters long, containing at least one of each of the following: upper case characters, lower case characters, numbers and special characters."
+        },
+        "options": {
+          "hideConfirmation": false
+        },
+        "osPlatform": "Windows",
+        "visible": true
+      }
+    ],
+    "steps": [
+      {
+        "name": "infrastructureConfig",
+        "label": "VM Network",
+        "subLabel": {
+          "preValidation": "Configure the PCoIP Agent settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "PCoIP Agent settings",
+        "elements": [
+          {
+            "name": "ipSection",
+            "type": "Microsoft.Common.Section",
+            "label": "Configure IP",
+            "elements": [
+              {
+                "name": "dnsAndPublicIP",
+                "type": "Microsoft.Network.PublicIpAddressCombo",
+                "label": {
+                  "publicIpAddress": "Public IP address name",
+                  "domainNameLabel": "DNS Prefix"
+                },
+                "toolTip": {
+                  "domainNameLabel": "Unique DNS Prefix for the Parsec VM public IP address."
+                },
+                "defaultValue": {
+                  "publicIpAddressName": "ParsecVm-IP",
+                  "domainNameLabel": "[concat('parsec', take(replace(guid(), '-', ''), 6))]"
+                },
+                "options": {
+                  "hideNone": false,
+                  "hideDomainNameLabel": false
+                }
+              }
+            ],
+            "visible": true
+          },
+          {
+            "name": "virtualNetwork",
+            "type": "Microsoft.Network.VirtualNetworkCombo",
+            "label": {
+              "virtualNetwork": "Virtual network",
+              "subnets": "Subnets"
+            },
+            "toolTip": {
+              "virtualNetwork": "Virtual Network Name",
+              "subnets": "Subnet requried for Azure Application"
+            },
+            "defaultValue": {
+              "name": "ParsecVm-vnet",
+              "addressPrefixSize": "/24"
+            },
+            "constraints": {
+              "minAddressPrefixSize": "/24"
+            },
+            "subnets": {
+              "subnet1": {
+                "label": "Subnet name",
+                "defaultValue": {
+                  "name": "ParsecVm-subnet",
+                  "addressPrefixSize": "/26"
+                },
+                "constraints": {
+                  "minAddressPrefixSize": "/26",
+                  "minAddressCount": 12,
+                  "requireContiguousAddresses": false
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "tags",
+        "label": "Tags",
+        "elements": [
+          {
+            "name": "tagsByResource",
+            "type": "Microsoft.Common.TagsByResource",
+            "resources": [
+              "Microsoft.Storage/storageAccounts",
+              "Microsoft.Compute/virtualMachines"
+            ]
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "location": "[location()]",
+      "vmSize": "[basics('vmSize')]",
+      "adminName": "[basics('adminUsername')]",
+      "adminPass": "[basics('adminPassword').password]",
+      "vNetName": "[steps('infrastructureConfig').virtualNetwork.name]",
+      "vNetARPrefixes": "[steps('infrastructureConfig').virtualNetwork.addressPrefixes]",
+      "VNetNewOrExisting": "[steps('infrastructureConfig').virtualNetwork.newOrExisting]",
+      "subNetName": "[steps('infrastructureConfig').virtualNetwork.subnets.subnet1.name]",
+      "subNetARPrefix": "[steps('infrastructureConfig').virtualNetwork.subnets.subnet1.addressPrefix]",
+      "publicIpName": "[steps('infrastructureConfig').ipSection.dnsAndPublicIP.name]",
+      "publicIpDns": "[steps('infrastructureConfig').ipSection.dnsAndPublicIP.domainNameLabel]",
+      "publicIpAllocationMethod": "[steps('infrastructureConfig').ipSection.dnsAndPublicIP.publicIPAllocationMethod]",
+      "publicIpSku": "[steps('infrastructureConfig').ipSection.dnsAndPublicIP.sku]",
+      "publicIpNewOrExisting": "[steps('infrastructureConfig').ipSection.dnsAndPublicIP.newOrExistingOrNone]",
+      "outTagsByResource": "[steps('tags').tagsByResource]"
+    }
+  }
+}

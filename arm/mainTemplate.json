@@ -1,0 +1,320 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Resource Location."
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_NV4as_v4",
+      "metadata": {
+        "description": "Virtual Machine Size."
+      }
+    },
+    "osDiskVhdUri": {
+      "type": "string",
+      "defaultValue": "https://packerwesteurope.blob.core.windows.net/system/Microsoft.Compute/Images/vhds/ParsecNvidiaVS2019-osDisk.5ec65c27-7788-40e1-b503-6acb0801f655.vhd"
+    },
+    "adminName": {
+      "type": "string",
+      "metadata": {
+        "description": "Virtual Machine User Name ."
+      }
+    },
+    "adminPass": {
+      "type": "securestring",
+      "metadata": {
+        "type": "password",
+        "description": "Admin password."
+      }
+    },
+    "vNetName": {
+      "type": "string",
+      "defaultValue": "ParsecVm-vnet",
+      "metadata": {
+        "description": "Parsec VM Virtual Network name"
+      }
+    },
+    "vNetARPrefixes": {
+      "type": "array",
+      "defaultValue": [
+        "10.0.0.0/26"
+      ],
+      "metadata": {
+        "description": "Address prefix of the virtual network"
+      }
+    },
+    "VNetNewOrExisting": {
+      "type": "string",
+      "defaultValue": "new",
+      "metadata": {
+        "description": "Virtual network is new or existing"
+      }
+    },
+    "subNetName": {
+      "type": "string",
+      "defaultValue": "ParsecVm-subnet1",
+      "metadata": {
+        "description": "Parsec VM Subnet name"
+      }
+    },
+    "subNetARPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/28",
+      "metadata": {
+        "description": "Subnet prefix of the virtual network"
+      }
+    },
+    "publicIpName": {
+      "type": "string",
+      "defaultValue": "ParsecVm-IP",
+      "metadata": {
+        "description": "Unique public ip address name"
+      }
+    },
+    "publicIpDns": {
+      "type": "string",
+      "defaultValue": "[concat('parsec', uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "Unique DNS Public IP attached the VM"
+      }
+    },
+    "publicIpAllocationMethod": {
+      "type": "string",
+      "defaultValue": "Dynamic",
+      "metadata": {
+        "description": "Public IP Allocoation Method"
+      }
+    },
+    "publicIpSku": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [
+        "Basic",
+        "Standard"
+      ],
+      "metadata": {
+        "description": "SKU number"
+      }
+    },
+    "publicIpNewOrExisting": {
+      "type": "string",
+      "defaultValue": "new",
+      "metadata": {
+        "description": "Public IP New or Existing?"
+      }
+    },
+    "outTagsByResource": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Tags by resource."
+      }
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "The base URI where artifacts required by this template are located including a trailing '/'"
+      },
+      "defaultValue": "[deployment().properties.templateLink.uri]"
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The sasToken required to access _artifactsLocation."
+      },
+      "defaultValue": ""
+    }
+  },
+
+  "variables": {
+    "vmName": "ParsecVm",
+    "location": "[parameters('location')]",
+    "vmSize": "[parameters('vmSize')]",
+    "domainNameLabel": "[concat('parsec', take(replace(guid(resourceGroup().name), '-', ''), 6))]",
+
+    "imageName": "ParsecVm-image",
+
+    "pubIpName": "[parameters('publicIpName')]",
+    "pubIpId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('pubIpName'))]",
+    "ipconfName": "[concat(variables('vmName'),'-ipconf')]",
+
+    "vnetName": "[parameters('vNetName')]",
+    "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+    "subnetName": "[parameters('subnetName')]",
+    "SubNetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNetName'), variables('subnetName'))]",
+
+    "nicName": "[concat(variables('vmName'),'-nic')]",
+    "nicId": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
+
+    "nsgName": "[concat(variables('vmName'),'-nsg')]",
+    "nsgId": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]",
+
+    "VNetAddressSpacePrefix": "[first(parameters('vNetARPrefixes'))]",
+    "SNetAddressRangePrefix": "[parameters('subnetARPrefix')]",
+
+    "nsgRules": [
+      {
+        "name": "RDP",
+        "properties": {
+          "priority": 1010,
+          "protocol": "*",
+          "access": "Allow",
+          "direction": "Inbound",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "3389"
+        }
+      }
+    ]
+  },
+
+  "resources": [
+    {
+      "condition": "[equals(parameters('publicIpNewOrExisting'), 'new')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('pubIpName')]",
+      "apiVersion": "2019-04-01",
+      "sku": { "name": "[parameters('publicIpSku')]" },
+      "location": "[variables('location')]",
+      "properties": {
+        "publicIPAllocationMethod": "[parameters('publicIpAllocationMethod')]",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('domainNameLabel')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('nsgName')]",
+      "apiVersion": "2018-11-01",
+      "location": "[variables('location')]",
+      "properties": {
+        "securityRules": "[variables('nsgRules')]"
+      }
+
+    },
+    {
+      "condition": "[equals(parameters('VNetNewOrExisting'), 'new')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('vNetName')]",
+      "apiVersion": "2019-04-01",
+      "location": "[variables('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('VNetAddressSpacePrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('SNetAddressRangePrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('nicName')]",
+      "apiVersion": "2019-04-01",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[variables('pubIpId')]",
+        "[variables('vnetId')]",
+        "[variables('nsgId')]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "[variables('ipconfName')]",
+            "properties": {
+              "subnet": {
+                "id": "[variables('SubNetID')]"
+              },
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[variables('pubIpId')]"
+              }
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[variables('nsgId')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/images",
+      "apiVersion": "2019-12-01",
+      "name": "[variables('imageName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+          "storageProfile": {
+              "osDisk": {
+                  "osType": "Windows",
+                  "osState": "Generalized",
+                  "blobUri": "[parameters('osDiskVhdUri')]",
+                  "storageAccountType": "Standard_LRS"
+              }
+          },
+          "hyperVGeneration": "V1"
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('vmName')]",
+      "apiVersion": "2019-03-01",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[variables('nicId')]",
+        "[variables('imageName')]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('vmSize')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "id": "[resourceId('Microsoft.Compute/images', variables('imageName'))]"
+          }
+        },
+        "osProfile": {
+          "computerName": "[variables('vmName')]",
+          "adminUsername": "[parameters('adminName')]",
+          "adminPassword": "[parameters('adminPass')]"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[variables('nicId')]"
+            }
+          ]
+        }
+      },
+      "tags": "[if(contains(parameters('outTagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('outTagsByResource')['Microsoft.Compute/virtualMachines'], json('{}'))]"
+    }
+  ],
+  "outputs": {
+    "Host Name": {
+      "type": "string",
+      "value": "[reference(variables('pubIpId')).dnsSettings.fqdn]"
+    },
+    "UserName": {
+      "type": "string",
+      "value": "[parameters('adminName')]"
+    },
+    "IPAddress": {
+      "type": "string",
+      "value": "[variables('pubIpId')]"
+    }
+  }
+}
