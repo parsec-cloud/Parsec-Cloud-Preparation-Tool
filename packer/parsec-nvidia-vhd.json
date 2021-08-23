@@ -5,7 +5,7 @@
     "resource_group_name": "packer-westeurope",
     "vm-size": "Standard_NV12s_v3",
     "image_name": "ParsecNvidiaVS2019",
-    "temp_compute_name": "parsecgoldnv11",
+    "temp_compute_name": "parsecgoldnv4",
     "image_storage": "Standard_LRS",
     "storageAccount": "packerwesteurope",
     "capture_container_name": "vhds"
@@ -55,15 +55,8 @@
       "type": "powershell",
       "inline": [
         "echo 'Installing Chocolatey packages...'",
-        "choco install -y directx 7zip chrome",
+        "choco install -y 7zip googlechrome directx",
         "echo 'Chocolatey packages installed.'"
-      ]
-    },
-    {
-      "type": "powershell",
-      "inline": [
-        "Install-WindowsFeature Direct-Play | Out-Null",
-        "Install-WindowsFeature Net-Framework-Core | Out-Null"
       ]
     },
     {

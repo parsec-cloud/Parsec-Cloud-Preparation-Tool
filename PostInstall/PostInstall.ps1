@@ -485,10 +485,10 @@ function install-windows-features {
     #ProgressWriter -Status "Installing DirectX June 2010 Redist" -PercentComplete $PercentComplete
     #Start-Process -FilePath "C:\ParsecTemp\Apps\directx_jun2010_redist.exe" -ArgumentList '/T:C:\ParsecTemp\DirectX /Q'-wait
     #Start-Process -FilePath "C:\ParsecTemp\DirectX\DXSETUP.EXE" -ArgumentList '/silent' -wait
-    #ProgressWriter -Status "Installing Direct Play" -PercentComplete $PercentComplete
-    #Install-WindowsFeature Direct-Play | Out-Null
-    #ProgressWriter -Status "Installing .net 3.5" -PercentComplete $PercentComplete
-    #Install-WindowsFeature Net-Framework-Core | Out-Null
+    ProgressWriter -Status "Installing Direct Play" -PercentComplete $PercentComplete
+    Install-WindowsFeature Direct-Play | Out-Null
+    ProgressWriter -Status "Installing .net 3.5" -PercentComplete $PercentComplete
+    Install-WindowsFeature Net-Framework-Core | Out-Null
     #ProgressWriter -Status "Cleaning up" -PercentComplete $PercentComplete
     #Remove-Item -Path C:\ParsecTemp\DirectX -force -Recurse 
     }

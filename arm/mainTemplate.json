@@ -18,7 +18,7 @@
     },
     "osDiskVhdUri": {
       "type": "string",
-      "defaultValue": "https://packerwesteurope.blob.core.windows.net/system/Microsoft.Compute/Images/vhds/ParsecNvidiaVS2019-osDisk.5ec65c27-7788-40e1-b503-6acb0801f655.vhd"
+      "defaultValue": "https://packerwesteurope.blob.core.windows.net/system/Microsoft.Compute/Images/vhds/ParsecNvidiaVS2019-osDisk.555b19f7-307d-422d-add8-725199f32b2e.vhd"
     },
     "adminName": {
       "type": "string",
@@ -301,6 +301,27 @@
         }
       },
       "tags": "[if(contains(parameters('outTagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('outTagsByResource')['Microsoft.Compute/virtualMachines'], json('{}'))]"
+    },
+        {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2019-12-01",
+      "name": "[concat(variables('vmName'),'/', 'CustomScriptExtension')]",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.10",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[uri(parameters('_artifactsLocation'), concat('PostInstall.ps1', parameters('_artifactsLocationSasToken')))]"
+          ],
+          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -command \"./PostInstall.ps1;\"')]"
+        }
+      }
     }
   ],
   "outputs": {

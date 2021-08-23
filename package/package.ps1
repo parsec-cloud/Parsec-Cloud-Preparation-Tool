@@ -13,6 +13,7 @@ Set-Location $tempFolder
 
 Copy-Item "..\..\..\arm\createUiDefinition.json"
 Copy-Item "..\..\..\arm\mainTemplate.json"
+Copy-Item "..\..\..\PostInstall\PostInstall.ps1"
 
 Set-Location "..\"
 Compress-Archive -Path ".\temp\*" -DestinationPath ".\marketplacePackage.zip"
