@@ -33,6 +33,7 @@ Expand-Archive "marketplacePackage.zip"
 Set-Location ".\marketplacePackage"
 az storage container create -n $releaseFolder --connection-string $storageCS
 az storage blob upload -c ($releaseFolder) -f "PostInstall.ps1" -n "PostInstall.ps1" --connection-string $storageCS
+az storage blob upload -c ($releaseFolder+"\scripts") -f "scripts\PreInstall.zip" -n "PreInstall.zip" --connection-string $storageCS
 
 $containerLocation = Get-StorageAccountName $storageCS $releaseFolder
 

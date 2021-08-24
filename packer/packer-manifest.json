@@ -107,7 +107,25 @@
       "artifact_id": "https://packerwesteurope.blob.core.windows.net/system/Microsoft.Compute/Images/vhds/ParsecNvidiaVS2019-osDisk.555b19f7-307d-422d-add8-725199f32b2e.vhd",
       "packer_run_uuid": "b775b8cb-e421-7c3b-3a7f-8c05a5a10248",
       "custom_data": null
+    },
+    {
+      "name": "azure-arm",
+      "builder_type": "azure-arm",
+      "build_time": 1629750669,
+      "files": null,
+      "artifact_id": "https://packerwesteurope.blob.core.windows.net/system/Microsoft.Compute/Images/vhds/ParsecNvidiaVS2019-osDisk.5f36f43f-018c-4939-8350-6943cece0c5c.vhd",
+      "packer_run_uuid": "ae0340c7-9f8c-d53a-b8c7-481578c09442",
+      "custom_data": null
+    },
+    {
+      "name": "azure-arm",
+      "builder_type": "azure-arm",
+      "build_time": 1629789279,
+      "files": null,
+      "artifact_id": "https://packerwesteurope.blob.core.windows.net/system/Microsoft.Compute/Images/vhds/ParsecNvidiaVS2019-osDisk.22297588-b7ba-4bad-aaee-0ca6a765926b.vhd",
+      "packer_run_uuid": "e2f1109c-4d35-e285-d073-1dc16c4cbfee",
+      "custom_data": null
     }
   ],
-  "last_run_uuid": "b775b8cb-e421-7c3b-3a7f-8c05a5a10248"
+  "last_run_uuid": "e2f1109c-4d35-e285-d073-1dc16c4cbfee"
 }
