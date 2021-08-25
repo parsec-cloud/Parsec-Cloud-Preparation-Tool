@@ -35,6 +35,31 @@
   ],
   "provisioners": [
     {
+      "type": "file",
+      "source": "PreLogon.ps1",
+      "destination": "C:/Azure/PreLogon.ps1"
+    },
+    {
+      "type": "file",
+      "source": "LogonScript-Add.ps1",
+      "destination": "C:/Azure/LogonScript-Add.ps1"
+    },
+    {
+      "type": "file",
+      "source": "LogonScript-Delete.ps1",
+      "destination": "C:/Azure/LogonScript-Delete.ps1"
+    },
+    {
+      "type": "file",
+      "source": "ScriptPolicies-Add.txt",
+      "destination": "C:/Azure/ScriptPolicies-Add.txt"
+    },
+    {
+      "type": "file",
+      "source": "ScriptPolicies-Delete.txt",
+      "destination": "C:/Azure/ScriptPolicies-Delete.txt"
+    },
+    {
       "type": "shell-local",
       "inline": [
         "echo 'Installing Nvidia driver extension...'",
@@ -58,6 +83,17 @@
         "echo 'Installing Chocolatey packages...'",
         "choco install -y 7zip googlechrome directx",
         "echo 'Chocolatey packages installed.'"
+      ]
+    },
+    {
+      "type": "powershell",
+      "inline": [
+        "$client = new-object System.Net.WebClient",
+        "$client.DownloadFile('https://download.microsoft.com/download/8/5/C/85C25433-A1B0-4FFA-9429-7E023E7DA8D8/LGPO.zip','C:\\Azure\\LGPO.zip')",
+        "7z x 'C:\\Azure\\LGPO.zip' -oC:\\Azure\\",
+        "del 'C:\\Azure\\LGPO.zip'",
+        "C:\\Azure\\LGPO_30\\LGPO.exe /t 'C:\\Azure\\ScriptPolicies-Add.txt'",
+        "powershell.exe 'C:\\Azure\\LogonScript-Add.ps1'"
       ]
     },
     {

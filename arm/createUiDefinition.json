@@ -8,31 +8,33 @@
         "name": "vmSize",
         "type": "Microsoft.Compute.SizeSelector",
         "label": "VM size",
-        "toolTip": "The size of the virtual machine where the Teradici PCoIP Agent is installed.",
+        "toolTip": "The size of the virtual machine",
         "recommendedSizes": [
-          "Standard_NV4as_v4",
-          "Standard_NV8as_v4"
+          "Standard_NV6",
+          "Standard_NV12s_v3"
         ],
         "constraints": {
           "allowedSizes": [
-            "Standard_NV4as_v4",
-            "Standard_NV8as_v4",
-            "Standard_NV16as_v4",
-            "Standard_NV32as_v4"
+            "Standard_NV6",
+            "Standard_NV12",
+            "Standard_NV24",
+            "Standard_NV12s_v3",
+            "Standard_NV24s_v3",
+            "Standard_NV48s_v3"
           ]
         },
         "osPlatform": "Windows",
         "imageReference": {
           "publisher": "microsoft-agci-gaming",
-          "offer": "microsoftepicpixelstreamer-preview",
-          "sku": "amd"
+          "offer": "agci-golden-images-preview",
+          "sku": "parsec"
         }
       },
       {
         "name": "adminUsername",
         "type": "Microsoft.Compute.UserNameTextBox",
         "label": "Admin username",
-        "toolTip": "Admin username for the Teradici PCoIP VM.",
+        "toolTip": "Admin username for the VM.",
         "osPlatform": "Windows"
       },
       {
@@ -43,7 +45,7 @@
           "confirmPassword": "Confirm password"
         },
         "toolTip": {
-          "password": "Admin password for the Teradici PCoIP VM."
+          "password": "Admin password for the VM."
         },
         "constraints": {
           "required": true,
@@ -62,10 +64,10 @@
         "name": "infrastructureConfig",
         "label": "VM Network",
         "subLabel": {
-          "preValidation": "Configure the PCoIP Agent settings",
+          "preValidation": "Configure the VM network settings",
           "postValidation": "Done"
         },
-        "bladeTitle": "PCoIP Agent settings",
+        "bladeTitle": "VM Network",
         "elements": [
           {
             "name": "ipSection",
