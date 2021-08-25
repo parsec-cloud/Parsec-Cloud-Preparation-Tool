@@ -25,9 +25,9 @@
         },
         "osPlatform": "Windows",
         "imageReference": {
-          "publisher": "microsoft-agci-gaming",
-          "offer": "agci-golden-images-preview",
-          "sku": "parsec"
+          "publisher": "MicrosoftWindowsServer",
+          "offer": "WindowsServer",
+          "sku": "2019-Datacenter"
         }
       },
       {
