@@ -11,14 +11,14 @@
     },
     "vmSize": {
       "type": "string",
-      "defaultValue": "Standard_NV4as_v4",
+      "defaultValue": "Standard_NV12s_v3",
       "metadata": {
         "description": "Virtual Machine Size."
       }
     },
     "osDiskVhdUri": {
       "type": "string",
-      "defaultValue": "https://packerwesteurope.blob.core.windows.net/system/Microsoft.Compute/Images/vhds/ParsecNvidiaVS2019-osDisk.22297588-b7ba-4bad-aaee-0ca6a765926b.vhd"
+      "defaultValue": "https://packerwesteurope.blob.core.windows.net/system/Microsoft.Compute/Images/vhds/ParsecNvidiaVS2019-osDisk.017130e3-4166-40f7-a878-f0a41804ea33.vhd"
     },
     "adminName": {
       "type": "string",
@@ -258,15 +258,15 @@
       "name": "[variables('imageName')]",
       "location": "[parameters('location')]",
       "properties": {
-          "storageProfile": {
-              "osDisk": {
-                  "osType": "Windows",
-                  "osState": "Generalized",
-                  "blobUri": "[parameters('osDiskVhdUri')]",
-                  "storageAccountType": "Standard_LRS"
-              }
-          },
-          "hyperVGeneration": "V1"
+        "storageProfile": {
+          "osDisk": {
+            "osType": "Windows",
+            "osState": "Generalized",
+            "blobUri": "[parameters('osDiskVhdUri')]",
+            "storageAccountType": "Standard_LRS"
+          }
+        },
+        "hyperVGeneration": "V1"
       }
     },
     {
@@ -302,7 +302,7 @@
       },
       "tags": "[if(contains(parameters('outTagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('outTagsByResource')['Microsoft.Compute/virtualMachines'], json('{}'))]"
     },
-        {
+    {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2019-12-01",
       "name": "[concat(variables('vmName'),'/', 'CustomScriptExtension')]",
@@ -318,7 +318,7 @@
         "settings": {
           "fileUris": [
             "[uri(parameters('_artifactsLocation'), concat('PostInstall.ps1', parameters('_artifactsLocationSasToken')))]",
-            "[uri(parameters('_artifactsLocation'), concat('scripts/PreInstall.zip', parameters('_artifactsLocationSasToken')))]"
+            "[uri(parameters('_artifactsLocation'), concat('PreInstall.zip', parameters('_artifactsLocationSasToken')))]"
           ],
           "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -command \"./PostInstall.ps1;\"')]"
         }

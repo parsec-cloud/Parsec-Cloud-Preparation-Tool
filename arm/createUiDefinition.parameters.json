@@ -1,46 +1,46 @@
 {
     "location": {
-      "value": "westeurope"
+        "value": "westeurope"
     },
     "vmSize": {
-      "value": "Standard_NV12s_v3"
+        "value": "Standard_NV12s_v3"
     },
     "adminName": {
-      "value": "azureadmin"
+        "value": "azureadmin"
     },
     "vNetName": {
-      "value": "ParsecVm-vnet"
+        "value": "ParsecVm-vnet"
     },
     "vNetARPrefixes": {
-      "value": [
-        "10.1.0.0/24"
-      ]
+        "value": [
+            "10.1.0.0/24"
+        ]
     },
     "VNetNewOrExisting": {
-      "value": "new"
+        "value": "new"
     },
     "subNetName": {
-      "value": "ParsecVm-subnet"
+        "value": "ParsecVm-subnet"
     },
     "subNetARPrefix": {
-      "value": "10.1.0.0/26"
+        "value": "10.1.0.0/26"
     },
     "publicIpName": {
-      "value": "ParsecVm-IP"
+        "value": "ParsecVm-IP"
     },
     "publicIpDns": {
-      "value": "parsec295e29"
+        "value": "parsec295e29"
     },
     "publicIpAllocationMethod": {
-      "value": "Dynamic"
+        "value": "Dynamic"
     },
     "publicIpSku": {
-      "value": "Basic"
+        "value": "Basic"
     },
     "publicIpNewOrExisting": {
-      "value": "new"
+        "value": "new"
     },
     "outTagsByResource": {
-      "value": {}
+        "value": {}
     }
-  }
+}

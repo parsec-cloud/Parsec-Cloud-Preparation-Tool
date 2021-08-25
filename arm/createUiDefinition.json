@@ -10,22 +10,24 @@
         "label": "VM size",
         "toolTip": "The size of the virtual machine where the Teradici PCoIP Agent is installed.",
         "recommendedSizes": [
-          "Standard_NV4as_v4",
-          "Standard_NV8as_v4"
+          "Standard_NV6",
+          "Standard_NV12s_v3"
         ],
         "constraints": {
           "allowedSizes": [
-            "Standard_NV4as_v4",
-            "Standard_NV8as_v4",
-            "Standard_NV16as_v4",
-            "Standard_NV32as_v4"
+            "Standard_NV6",
+            "Standard_NV12",
+            "Standard_NV24",
+            "Standard_NV12s_v3",
+            "Standard_NV24s_v3",
+            "Standard_NV48s_v3"
           ]
         },
         "osPlatform": "Windows",
         "imageReference": {
           "publisher": "microsoft-agci-gaming",
-          "offer": "microsoftepicpixelstreamer-preview",
-          "sku": "amd"
+          "offer": "agci-golden-images-preview",
+          "sku": "parsec"
         }
       },
       {
