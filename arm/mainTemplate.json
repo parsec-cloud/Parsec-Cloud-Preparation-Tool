@@ -18,7 +18,7 @@
     },
     "osDiskVhdUri": {
       "type": "string",
-      "defaultValue": "https://packerwesteurope.blob.core.windows.net/system/Microsoft.Compute/Images/vhds/ParsecNvidiaVS2019-osDisk.017130e3-4166-40f7-a878-f0a41804ea33.vhd"
+      "defaultValue": "https://packerwesteurope.blob.core.windows.net/system/Microsoft.Compute/Images/vhds/ParsecNvidia-osDisk.77df3c3e-f93a-4dcf-8b5f-82463d6eb221.vhd"
     },
     "adminName": {
       "type": "string",
@@ -31,6 +31,18 @@
       "metadata": {
         "type": "password",
         "description": "Admin password."
+      }
+    },
+    "teamId": {
+      "type": "string",
+      "metadata": {
+        "description": "Parsec Team ID"
+      }
+    },
+    "teamKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Parsec Team Key"
       }
     },
     "vNetName": {
@@ -320,7 +332,7 @@
             "[uri(parameters('_artifactsLocation'), concat('PostInstall.ps1', parameters('_artifactsLocationSasToken')))]",
             "[uri(parameters('_artifactsLocation'), concat('PreInstall.zip', parameters('_artifactsLocationSasToken')))]"
           ],
-          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -command \"./PostInstall.ps1;\"')]"
+          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -command \"./PostInstall.ps1 -teamId ''', parameters('teamId'), ''' -teamKey ''', parameters('teamKey'), ''';\"')]"
         }
       }
     }

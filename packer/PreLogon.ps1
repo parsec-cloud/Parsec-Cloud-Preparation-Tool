@@ -3,9 +3,6 @@ New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies" -Name 
 New-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System -Name Wallpaper -PropertyType String -value "C:\ParsecTemp\parsec+desktop.png" | Out-Null
 New-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System -Name WallpaperStyle -PropertyType String -value 2 | Out-Null
 
-Write-Host "Starting Parsec"
-& 'C:\Program Files\Parsec\parsecd.exe' /fullscreen
-
 Start-Sleep -s 1
 
 Write-Host "Cleaning up and exiting..."

@@ -24,6 +24,8 @@ $config = (Get-Content  "config.json" -Raw) | ConvertFrom-Json
 $location = $config.location
 $adminPass = $config.adminPass
 $storageCS = $config.storageConnectionString
+$teamId = $config.teamId
+$teamKey = $config.teamKey
 
 $releaseFolder = ('dev' + (get-date).ToString('MMddyyhhmmss'))
 .\package.ps1 $releaseFolder
@@ -45,5 +47,5 @@ $sas = ("?" + $sas)
 Set-Location "..\..\"
 Set-Location "..\arm"
 az group create -n $resourceGroup -l $location
-az deployment group create -f mainTemplate.json --parameters "@createUiDefinition.parameters.json" -g $resourceGroup --parameters location=$location --parameters adminPass=$adminPass --parameter _artifactsLocation=$containerLocation --parameter _artifactsLocationSasToken="""$sas"""
+az deployment group create -f mainTemplate.json --parameters "@createUiDefinition.parameters.json" -g $resourceGroup --parameters location=$location --parameters adminPass=$adminPass --parameters teamId=$teamId --parameters teamKey=$teamKey --parameter _artifactsLocation=$containerLocation --parameter _artifactsLocationSasToken="""$sas"""
 Set-Location "..\package"

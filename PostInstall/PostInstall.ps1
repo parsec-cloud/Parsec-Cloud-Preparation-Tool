@@ -1,4 +1,8 @@
 param (
+    [Parameter(Mandatory = $True, HelpMessage = "Team ID")]
+    [String]$teamId = "",
+    [Parameter(Mandatory = $True, HelpMessage = "Team Key")]
+    [String]$teamKey = "",
     [switch]$DontPromptPasswordUpdateGPU
     )
     
@@ -847,7 +851,7 @@ Function Server2019Controller {
 
 
 Function InstallParsec {
-    Start-Process "C:\ParsecTemp\Apps\parsec-windows.exe" -ArgumentList "/silent", "/shared" -wait
+    Start-Process "C:\ParsecTemp\Apps\parsec-windows.exe" -ArgumentList "/silent","/shared","/team_id",$teamId,"/team_computer_key",$teamKey -wait
 #    ExtractInstallFiles
 #    InstallViGEmBus
 #    CreateFireWallRule

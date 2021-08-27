@@ -57,6 +57,26 @@
         },
         "osPlatform": "Windows",
         "visible": true
+      },
+      {
+        "name": "teamId",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Parsec Team ID",
+        "toolTip": "Parsec Team ID",
+        "visible": true,
+        "constraints": {
+          "required": true
+        }
+      },
+      {
+        "name": "teamKey",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Parsec Team Key",
+        "toolTip": "Parsec Team Key",
+        "visible": true,
+        "constraints": {
+          "required": true
+        }
       }
     ],
     "steps": [
@@ -151,6 +171,8 @@
       "vmSize": "[basics('vmSize')]",
       "adminName": "[basics('adminUsername')]",
       "adminPass": "[basics('adminPassword').password]",
+      "teamId": "[basics('teamId')]",
+      "teamKey": "[basics('teamKey')]",
       "vNetName": "[steps('infrastructureConfig').virtualNetwork.name]",
       "vNetARPrefixes": "[steps('infrastructureConfig').virtualNetwork.addressPrefixes]",
       "VNetNewOrExisting": "[steps('infrastructureConfig').virtualNetwork.newOrExisting]",
