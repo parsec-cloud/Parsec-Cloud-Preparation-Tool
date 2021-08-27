@@ -892,11 +892,17 @@ function clean-up-recent {
 
 #stopping all parsec services
 function stop-parsec {
-    ProgressWriter -Status "Stopping all Parsec Services" -PercentComplete $PercentComplete
+    ProgressWriter -Status "Stopping all Parsec Services and restarting" -PercentComplete $PercentComplete
     Stop-Process -Name pservice -Force
     Stop-Process -Name parsecd -Force
+
+    Restart-Computer -Force
 }
 
+function register-team-computer {
+  ProgressWriter -Status "Registering Team Computer" -PercentComplete $PercentComplete
+  Start-Process powershell.exe -argument "-file $env:ProgramData\ParsecLoader\TeamMachineSetup.ps1" -Wait
+}
     
 #Start GPU Update Tool
 Function StartGPUUpdate {
@@ -990,7 +996,8 @@ $ScripttaskList = @(
 #"clean-up";
 #"clean-up-recent";
 "provider-specific";
-"TeamMachineSetupScheduledTask";
+# "TeamMachineSetupScheduledTask";
+"register-team-computer";
 "stop-parsec"
 )
 
