@@ -57,29 +57,67 @@
         },
         "osPlatform": "Windows",
         "visible": true
-      },
-      {
-        "name": "teamId",
-        "type": "Microsoft.Common.TextBox",
-        "label": "Parsec Team ID",
-        "toolTip": "Parsec Team ID",
-        "visible": true,
-        "constraints": {
-          "required": true
-        }
-      },
-      {
-        "name": "teamKey",
-        "type": "Microsoft.Common.TextBox",
-        "label": "Parsec Team Key",
-        "toolTip": "Parsec Team Key",
-        "visible": true,
-        "constraints": {
-          "required": true
-        }
       }
     ],
     "steps": [
+      {
+        "name": "parsecConfig",
+        "label": "Parsec Configuration",
+        "subLabel": {
+          "preValidation": "Configure Parsec Teams ",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Parsec Configuration",
+        "elements": [
+          {
+            "name": "teamId",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Parsec Team ID",
+            "toolTip": "Parsec Team ID",
+            "visible": true,
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "teamKey",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Parsec Team Key",
+            "toolTip": "Parsec Team Key",
+            "visible": true,
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "host",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Hostname",
+            "toolTip": "Hostname for the Parsec VM",
+            "visible": true,
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "userEmail",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Parsec User Email",
+            "toolTip": "Email address of the Parsec Account",
+            "visible": true,
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "isGuestAccess",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Guest Access",
+            "toolTip": "Configure Guest Access",
+            "visible": true
+          }
+        ]
+      },
       {
         "name": "infrastructureConfig",
         "label": "VM Network",
@@ -171,8 +209,11 @@
       "vmSize": "[basics('vmSize')]",
       "adminName": "[basics('adminUsername')]",
       "adminPass": "[basics('adminPassword').password]",
-      "teamId": "[basics('teamId')]",
-      "teamKey": "[basics('teamKey')]",
+      "parsec_teamId": "[steps('parsecConfig').teamId]",
+      "parsec_teamKey": "[steps('parsecConfig').teamKey]",
+      "parsec_host": "[steps('parsecConfig').host]",
+      "parsec_userEmail": "[steps('parsecConfig').userEmail]",
+      "parsec_isGuestAccess": "[steps('parsecConfig').isGuestAccess]",
       "vNetName": "[steps('infrastructureConfig').virtualNetwork.name]",
       "vNetARPrefixes": "[steps('infrastructureConfig').virtualNetwork.addressPrefixes]",
       "VNetNewOrExisting": "[steps('infrastructureConfig').virtualNetwork.newOrExisting]",

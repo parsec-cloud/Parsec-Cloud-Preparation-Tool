@@ -8,6 +8,12 @@
     "adminName": {
         "value": "azureadmin"
     },
+    "parsec_host": {
+        "value": "MyHost"
+    },
+    "parsec_isGuestAccess": {
+        "value": false
+    },
     "vNetName": {
         "value": "ParsecVm-vnet"
     },

@@ -33,16 +33,35 @@
         "description": "Admin password."
       }
     },
-    "teamId": {
+    "parsec_teamId": {
       "type": "string",
       "metadata": {
         "description": "Parsec Team ID"
       }
     },
-    "teamKey": {
+    "parsec_teamKey": {
       "type": "securestring",
       "metadata": {
         "description": "Parsec Team Key"
+      }
+    },
+    "parsec_host": {
+      "type": "string",
+      "metadata": {
+        "description": "Parsec Hostname"
+      }
+    },
+    "parsec_userEmail": {
+      "type": "string",
+      "metadata": {
+        "description": "Parsec User Email"
+      }
+    },
+    "parsec_isGuestAccess": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Parsec Is Guest Access"
       }
     },
     "vNetName": {
@@ -184,7 +203,9 @@
           "destinationPortRange": "3389"
         }
       }
-    ]
+    ],
+
+    "teamConfig": "[concat('team_id=', parameters('parsec_teamId'), ':key=', parameters('parsec_teamKey') , ':name=', parameters('parsec_host') ,':user_email=', parameters('parsec_userEmail'), ':is_guest_access=', parameters('parsec_isGuestAccess'))]"
   },
 
   "resources": [
@@ -284,7 +305,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[variables('vmName')]",
-      "apiVersion": "2019-03-01",
+      "apiVersion": "2021-03-01",
       "location": "[variables('location')]",
       "dependsOn": [
         "[variables('nicId')]",
@@ -304,6 +325,7 @@
           "adminUsername": "[parameters('adminName')]",
           "adminPassword": "[parameters('adminPass')]"
         },
+        "userData": "[base64(variables('teamConfig'))]",
         "networkProfile": {
           "networkInterfaces": [
             {
@@ -332,7 +354,7 @@
             "[uri(parameters('_artifactsLocation'), concat('PostInstall.ps1', parameters('_artifactsLocationSasToken')))]",
             "[uri(parameters('_artifactsLocation'), concat('PreInstall.zip', parameters('_artifactsLocationSasToken')))]"
           ],
-          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -command \"./PostInstall.ps1 -teamId ''', parameters('teamId'), ''' -teamKey ''', parameters('teamKey'), ''';\"')]"
+          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -NoProfile -NonInteractive -command \"./PostInstall.ps1;\"')]"
         }
       }
     }

@@ -28,29 +28,59 @@ Class Post
 
 
 function fetchUserData { 
-    $metadata = $(
-                try {
-                    (Invoke-WebRequest -uri http://metadata.google.internal/computeMetadata/v1/instance/attributes/parsec -Method GET -header @{'metadata-flavor'='Google'} -TimeoutSec 5)
-                    }
-                catch {
-                    }
-                Try {
-                    (Invoke-WebRequest -uri http://metadata.paperspace.com/meta-data/machine -TimeoutSec 5)
-                    }
-                catch {
-                    }
-                  Try {
-                      (Invoke-WebRequest -Uri "http://169.254.169.254/latest/user-data?api-version=2018-10-01" -Headers @{Metadata="true"} -TimeoutSec 5)
-                      }
-                  catch {
-                    }              
-               )
-    if ($metadata.StatusCode -eq 200) {
-    [System.Text.Encoding]::ASCII.GetString($metadata.content).split(':')
+    $metadata = $null;
+    $found = $false;
+    #GCP
+    try {
+        $req = Invoke-WebRequest -uri http://metadata.google.internal/computeMetadata/v1/instance/attributes/parsec -Method GET -header @{'metadata-flavor'='Google'} -TimeoutSec 5;
+        if($req.StatusCode -eq 200) {
+            $metadata = [System.Text.Encoding]::ASCII.GetString($req.content).split(':');
+            $found = $true;
+        }
     }
-    else {
-    #no userdata found, exiting...
-    exit
+    catch {}
+    
+    #Paperspace
+    if(!$found) {
+        Try {
+            $req = Invoke-WebRequest -uri http://metadata.paperspace.com/meta-data/machine -TimeoutSec 5;
+            if($req.StatusCode -eq 200) {
+                $metadata = [System.Text.Encoding]::ASCII.GetString($req.content).split(':')
+                $found = $true;
+            }
+        }
+        catch {}
+    }
+    
+    #AWS
+    if(!$found) {
+        Try {
+            $req = Invoke-WebRequest -Uri "http://169.254.169.254/latest/user-data?api-version=2018-10-01" -Headers @{Metadata="true"} -TimeoutSec 5
+            if($req.StatusCode -eq 200) {
+                $metadata = [System.Text.Encoding]::ASCII.GetString($req.content).split(':')
+                $found = $true;
+            }
+        }
+        catch {}   
+    }
+
+    #Azure
+    if(!$found) {
+        Try {
+            $userData = Invoke-RestMethod -Headers @{"Metadata"="true"} -Method GET  -Uri "http://169.254.169.254/metadata/instance/compute/userData?api-version=2021-01-01&format=text" -TimeoutSec 5
+            $base64 = [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($userData));
+
+            $metadata = $base64.split(':');
+            $found = $true;
+        }
+        catch {}
+    }
+
+    if ($null -ne $metadata) {
+        return $metadata;
+    } else {
+        #no userdata found, exiting...
+        exit
     }
 }
 
