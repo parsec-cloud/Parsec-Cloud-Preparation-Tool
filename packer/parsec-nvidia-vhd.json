@@ -21,9 +21,9 @@
       "storage_account": "{{user `storageAccount`}}",
       "temp_compute_name": "{{user `temp_compute_name`}}",
       "os_type": "Windows",
-      "image_publisher": "MicrosoftWindowsServer",
-      "image_offer": "WindowsServer",
-      "image_sku": "2019-Datacenter",
+      "image_publisher": "microsoftvisualstudio",
+      "image_offer": "visualstudio2019latest",
+      "image_sku": "vs-2019-comm-latest-ws2019",
       "communicator": "winrm",
       "winrm_use_ssl": "true",
       "winrm_insecure": "true",
@@ -81,8 +81,16 @@
       "type": "powershell",
       "inline": [
         "echo 'Installing Chocolatey packages...'",
-        "choco install -y 7zip googlechrome directx",
+        "choco install -y 7zip googlechrome directx azure-cli",
         "echo 'Chocolatey packages installed.'"
+      ]
+    },
+    {
+      "type": "powershell",
+      "inline": [
+        "echo '>>> Installing Epic Games Launcher ...'",
+        "$process = Start-Process -FilePath 'C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vs_installer.exe' -ArgumentList \"modify\",\"--installPath\",'\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\"',\"--add\",\"Component.Unreal\",\"--quiet\",\"--norestart\" -Wait -PassThru",
+        "Write-Output $process.ExitCode"
       ]
     },
     {
