@@ -473,8 +473,8 @@ function disable-iesecurity {
 function download-resources {
     $ProgressPreference = 'SilentlyContinue'
 
-    ProgressWriter -Status "Downloading DirectX June 2010 Redist" -PercentComplete $PercentComplete
-    Invoke-WebRequest -Uri "https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe" -OutFile "C:\ParsecTemp\Apps\directx_Jun2010_redist.exe"
+    #ProgressWriter -Status "Downloading DirectX June 2010 Redist" -PercentComplete $PercentComplete
+    #Invoke-WebRequest -Uri "https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe" -OutFile "C:\ParsecTemp\Apps\directx_Jun2010_redist.exe"
     ProgressWriter -Status "Downloading Devcon" -PercentComplete $PercentComplete
     Invoke-WebRequest -Uri "https://s3.amazonaws.com/parsec-files-ami-setup/Devcon/devcon.exe" -OutFile "C:\ParsecTemp\Devcon\devcon.exe"
     ProgressWriter -Status "Downloading Parsec" -PercentComplete $PercentComplete
@@ -482,9 +482,9 @@ function download-resources {
     ProgressWriter -Status "Downloading GPU Updater" -PercentComplete $PercentComplete
     Invoke-WebRequest -Uri "https://s3.amazonaws.com/parseccloud/image/parsec+desktop.png" -OutFile "C:\ParsecTemp\parsec+desktop.png"
     Invoke-WebRequest -Uri "https://s3.amazonaws.com/parseccloud/image/white_ico_agc_icon.ico" -OutFile "C:\ParsecTemp\white_ico_agc_icon.ico"
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/parsec-cloud/Cloud-GPU-Updater/master/GPUUpdaterTool.ps1" -OutFile "$env:ProgramData\ParsecLoader\GPUUpdaterTool.ps1"
-    ProgressWriter -Status "Downloading Google Chrome" -PercentComplete $PercentComplete
-    Invoke-WebRequest -Uri "https://dl.google.com/tag/s/dl/chrome/install/googlechromestandaloneenterprise64.msi" -OutFile "C:\ParsecTemp\Apps\googlechromestandaloneenterprise64.msi"
+    #Invoke-WebRequest -Uri "https://raw.githubusercontent.com/parsec-cloud/Cloud-GPU-Updater/master/GPUUpdaterTool.ps1" -OutFile "$env:ProgramData\ParsecLoader\GPUUpdaterTool.ps1"
+    #ProgressWriter -Status "Downloading Google Chrome" -PercentComplete $PercentComplete
+    #Invoke-WebRequest -Uri "https://dl.google.com/tag/s/dl/chrome/install/googlechromestandaloneenterprise64.msi" -OutFile "C:\ParsecTemp\Apps\googlechromestandaloneenterprise64.msi"
     }
 
 #install-base-files-silently
@@ -896,7 +896,8 @@ function stop-parsec {
     Stop-Process -Name pservice -Force
     Stop-Process -Name parsecd -Force
 
-    Restart-Computer -Force
+    #Restart-Computer -Force
+    Start-Service -Name Parsec
 }
 
 function register-team-computer {
@@ -975,7 +976,7 @@ $ScripttaskList = @(
 "create-directories";
 "disable-iesecurity";
 "download-resources";
-"install-windows-features";
+#"install-windows-features";
 "force-close-apps";
 "disable-network-window";
 "disable-logout";
