@@ -18,7 +18,7 @@
     },
     "osDiskVhdUri": {
       "type": "string",
-      "defaultValue": "https://packerwesteurope.blob.core.windows.net/system/Microsoft.Compute/Images/vhds/ParsecNvidia-osDisk.77df3c3e-f93a-4dcf-8b5f-82463d6eb221.vhd"
+      "defaultValue": "https://packerwesteurope.blob.core.windows.net/system/Microsoft.Compute/Images/vhds/ParsecNvidiaVS2019-osDisk.4368ed57-67c0-45be-9f58-ec5da1b7b034.vhd"
     },
     "adminName": {
       "type": "string",

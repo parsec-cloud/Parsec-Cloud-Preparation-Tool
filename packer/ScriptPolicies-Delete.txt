@@ -1,4 +1,0 @@
-Computer
-Software\Microsoft\Windows\CurrentVersion\Policies\System
-*
-CLEAR
