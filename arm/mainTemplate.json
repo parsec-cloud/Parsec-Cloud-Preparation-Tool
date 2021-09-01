@@ -16,10 +16,6 @@
         "description": "Virtual Machine Size."
       }
     },
-    "osDiskVhdUri": {
-      "type": "string",
-      "defaultValue": "https://packerwesteurope.blob.core.windows.net/system/Microsoft.Compute/Images/vhds/ParsecNvidiaVS2019-osDisk.4368ed57-67c0-45be-9f58-ec5da1b7b034.vhd"
-    },
     "adminName": {
       "type": "string",
       "metadata": {
@@ -169,7 +165,17 @@
     "vmSize": "[parameters('vmSize')]",
     "domainNameLabel": "[concat('parsec', take(replace(guid(resourceGroup().name), '-', ''), 6))]",
 
-    "imageName": "ParsecVm-image",
+    "vmImage": {
+      "publisher": "microsoft-agci-gaming",
+      "offer": "agci-golden-images-preview",
+      "sku": "parsec",
+      "version": "latest"
+    },
+    "vmPlan": {
+      "publisher": "microsoft-agci-gaming",
+      "product": "agci-golden-images-preview",
+      "name": "parsec"
+    },
 
     "pubIpName": "[parameters('publicIpName')]",
     "pubIpId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('pubIpName'))]",
@@ -286,38 +292,27 @@
       }
     },
     {
-      "type": "Microsoft.Compute/images",
-      "apiVersion": "2019-12-01",
-      "name": "[variables('imageName')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "storageProfile": {
-          "osDisk": {
-            "osType": "Windows",
-            "osState": "Generalized",
-            "blobUri": "[parameters('osDiskVhdUri')]",
-            "storageAccountType": "Standard_LRS"
-          }
-        },
-        "hyperVGeneration": "V1"
-      }
-    },
-    {
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[variables('vmName')]",
       "apiVersion": "2021-03-01",
       "location": "[variables('location')]",
       "dependsOn": [
-        "[variables('nicId')]",
-        "[variables('imageName')]"
+        "[variables('nicId')]"
       ],
+      "plan": "[variables('vmPlan')]",
       "properties": {
         "hardwareProfile": {
           "vmSize": "[variables('vmSize')]"
         },
         "storageProfile": {
-          "imageReference": {
-            "id": "[resourceId('Microsoft.Compute/images', variables('imageName'))]"
+          "imageReference": "[variables('vmImage')]",
+          "osDisk": {
+            "name": "[concat(variables('vmName'),'-osdisk')]",
+            "createOption": "FromImage",
+            "caching": "ReadWrite",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            }
           }
         },
         "osProfile": {
