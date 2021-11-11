@@ -55,7 +55,7 @@ function fetchUserData {
                     }              
                )
     if ($metadata.StatusCode -eq 200) {
-        if ($NULL -ne "$metadata.Content") { 
+        if (($metadata.Content.Length) -gt 1) { 
             if ($stream -eq "bytes") {
                 [System.Text.Encoding]::ASCII.GetString($metadata.content).split(':')
                 }
