@@ -67,7 +67,7 @@ function cloudprovider {
                     )
 
     $azure = $(
-                  Try {(Invoke-WebRequest -Uri "http://169.254.169.254/metadata/instance?api-version=2018-10-01" -Headers @{Metadata="true"} -TimeoutSec 5)}
+                  Try {(Invoke-Webrequest -Headers @{"Metadata"="true"} -Uri "http://169.254.169.254/metadata/instance/compute/userData?api-version=2021-01-01&format=text" -TimeoutSec 5)}
                   catch {}              
                )
 
@@ -836,7 +836,7 @@ Function Server2019Controller {
 
 Function InstallParsec {
     Start-Process "C:\ParsecTemp\Apps\parsec-windows.exe" -ArgumentList "/silent", "/shared" -wait
-    Import-Certificate -CertStoreLocation "Cert:\CurrentUser\TrustedPublisher" -FilePath "$env:ProgramData\ParsecLoader\parsecpublic.cer"
+    Import-Certificate -CertStoreLocation "Cert:\LocalMachine\TrustedPublisher" -FilePath "$env:ProgramData\ParsecLoader\parsecpublic.cer"
     Start-Process "C:\ParsecTemp\Apps\parsec-vdd.exe" -ArgumentList "/silent" -Wait
     $configfile = Get-Content C:\ProgramData\Parsec\config.txt
     $configfile += "host_virtual_monitors = 1"
