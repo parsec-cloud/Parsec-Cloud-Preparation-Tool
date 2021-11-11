@@ -728,7 +728,7 @@ function gpu-update-shortcut {
 Function provider-specific {
     ProgressWriter -Status "Installing Audio Driver if required and removing system information from appearing on Google Cloud Desktops" -PercentComplete $PercentComplete
     #Device ID Query 
-    $gputype = get-wmiobject -query "select DeviceID from Win32_PNPEntity Where (deviceid like '%PCI\VEN_10DE%' or deviceid Like '%PCI\VEN_1002%') and (PNPClass = 'Display' or Name like '%Video Controller')" | Select-Object DeviceID -ExpandProperty DeviceID
+    $gputype = Get-PnpDevice | Where-Object {($_.DeviceID -like 'PCI\VEN_10DE*' -or $_.DeviceID -like '*PCI\VEN_1002*') -and ($_.PNPClass -eq 'Display' -or $_.Name -like '*Video Controller')} | Select-Object InstanceID -ExpandProperty InstanceID
     if ($gputype -eq $null) {
         }
     Else {
@@ -840,8 +840,12 @@ Function Server2019Controller {
 
 Function InstallParsec {
     Start-Process "C:\ParsecTemp\Apps\parsec-windows.exe" -ArgumentList "/silent", "/shared" -wait
-    Import-Certificate -CertStoreLocation "Cert:\LocalMachine\TrustedPublisher" -FilePath "$env:ProgramData\ParsecLoader\parsecpublic.cer"
-    Start-Process "C:\ParsecTemp\Apps\parsec-vdd.exe" -ArgumentList "/silent" -Wait
+    Import-Certificate -CertStoreLocation "Cert:\LocalMachine\TrustedPublisher" -FilePath "$env:ProgramData\ParsecLoader\parsecpublic.cer" | Out-Null
+    Start-Process "C:\ParsecTemp\Apps\parsec-vdd.exe" -ArgumentList "/silent" 
+    While (!(Get-PnpDevice | Where-Object {$_.Name -eq "Parsec Virtual Display Adapter"})) {
+        Start-Sleep -s 2
+        }
+    Stop-Process -name  "parsec-vdd" -Force 
     $configfile = Get-Content C:\ProgramData\Parsec\config.txt
     $configfile += "host_virtual_monitors = 1"
     $configfile += "host_privacy_mode = 1"
