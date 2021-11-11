@@ -842,10 +842,15 @@ Function InstallParsec {
     Start-Process "C:\ParsecTemp\Apps\parsec-windows.exe" -ArgumentList "/silent", "/shared" -wait
     Import-Certificate -CertStoreLocation "Cert:\LocalMachine\TrustedPublisher" -FilePath "$env:ProgramData\ParsecLoader\parsecpublic.cer" | Out-Null
     Start-Process "C:\ParsecTemp\Apps\parsec-vdd.exe" -ArgumentList "/silent" 
-    While (!(Get-PnpDevice | Where-Object {$_.Name -eq "Parsec Virtual Display Adapter"})) {
+    $iterator = 0    
+    do {
         Start-Sleep -s 2
+        $iterator++
         }
-    Stop-Process -name  "parsec-vdd" -Force 
+    Until (($null -ne ((Get-PnpDevice | Where-Object {$_.Name -eq "Parsec Virtual Display Adapter"}).DeviceID)) -or ($iterator -gt 7))
+    if (Get-process -name parsec-vdd -ErrorAction SilentlyContinue) {
+        Stop-Process -name parsec-vdd -Force
+        }
     $configfile = Get-Content C:\ProgramData\Parsec\config.txt
     $configfile += "host_virtual_monitors = 1"
     $configfile += "host_privacy_mode = 1"
