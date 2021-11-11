@@ -31,27 +31,47 @@ function fetchUserData {
     $metadata = $(
                 try {
                     (Invoke-WebRequest -uri http://metadata.google.internal/computeMetadata/v1/instance/attributes/parsec -Method GET -header @{'metadata-flavor'='Google'} -TimeoutSec 5)
+                    $stream = "bytes"
                     }
                 catch {
                     }
                 Try {
                     (Invoke-WebRequest -uri http://metadata.paperspace.com/meta-data/machine -TimeoutSec 5)
+                    $stream = "bytes"
                     }
                 catch {
                     }
-                  Try {
-                      (Invoke-WebRequest -Uri "http://169.254.169.254/latest/user-data?api-version=2018-10-01" -Headers @{Metadata="true"} -TimeoutSec 5)
+                Try {
+                      (Invoke-WebRequest -Uri "http://169.254.169.254/latest/user-data?" -TimeoutSec 5)
+                      $stream = "bytes"
                       }
-                  catch {
+                catch {
+                    }    
+                Try {
+                    Invoke-Webrequest -Headers @{"Metadata"="true"} -Uri "http://169.254.169.254/metadata/instance/compute/userData?api-version=2021-01-01&format=text" -TimeoutSec 5
+                    $stream = "base64"
+                    }
+                Catch {
                     }              
                )
     if ($metadata.StatusCode -eq 200) {
-    [System.Text.Encoding]::ASCII.GetString($metadata.content).split(':')
-    }
+        if ($NULL -like "$metadata.Content") { 
+            if ($stream -eq "bytes") {
+                [System.Text.Encoding]::ASCII.GetString($metadata.content).split(':')
+                }
+            elseif ($stream -eq "base64") {
+                [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($metadata.Content)).split(':')
+                }
+            }
+        else {
+            #no userdata found, exiting...
+            Exit
+            }
+        }
     else {
-    #no userdata found, exiting...
-    exit
-    }
+        #no userdata found, exiting...
+        Exit
+        }
 }
 
 
@@ -128,7 +148,7 @@ Function PostTeamEndpoint {
 param (
 [post]$Params
 )
-    $body = $Params | select * -ExcludeProperty key, team_id
+    $body = $Params | Select-Object * -ExcludeProperty key, team_id
     $TeamEndpointHeaders = @{
 	    "Content-Type" = "application/json"
 	    "X-Machine-Key" = $params.key
