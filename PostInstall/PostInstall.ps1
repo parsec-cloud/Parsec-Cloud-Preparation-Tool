@@ -982,10 +982,10 @@ $ScripttaskList = @(
 "Create-AutoShutdown-Shortcut";
 "Create-One-Hour-Warning-Shortcut";
 "disable-server-manager";
+"disable-devices";
 "Install-Gaming-Apps";
 "Server2019Controller";
 "gpu-update-shortcut";
-"disable-devices";
 "clean-up";
 "clean-up-recent";
 "provider-specific";
