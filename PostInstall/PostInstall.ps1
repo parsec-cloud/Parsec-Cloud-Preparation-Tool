@@ -807,7 +807,7 @@ Function InstallParsec {
     }
 
 Function InstallParsecVDD {
-    ProgressWriter -Status "Parsec Virtual Display Driver" -PercentComplete $PercentComplete
+    ProgressWriter -Status "Installing Parsec Virtual Display Driver" -PercentComplete $PercentComplete
     Import-Certificate -CertStoreLocation "Cert:\LocalMachine\TrustedPublisher" -FilePath "$env:ProgramData\ParsecLoader\parsecpublic.cer" | Out-Null
     Start-Process "C:\ParsecTemp\Apps\parsec-vdd.exe" -ArgumentList "/silent" 
     $iterator = 0    
@@ -961,8 +961,9 @@ foreach ($func in $ScripttaskList) {
     }
 
 StartGPUUpdate -DontPromptPasswordUpdateGPU:$DontPromptPasswordUpdateGPU
+Start-ScheduledTask -TaskName "Setup Team Machine"
 ProgressWriter -status "Done" -percentcomplete 100
-Write-Host "1. Open Parsec and sign in" -ForegroundColor black -BackgroundColor Green 
+Write-Host "1. Open Parsec and sign in (Team machines should have automatically signed in if userdata was correct)" -ForegroundColor black -BackgroundColor Green 
 Write-Host "2. Use GPU Updater to update your GPU Drivers!" -ForegroundColor black -BackgroundColor Green 
 #Write-Host "You don't need to sign into Razer Synapse, the login box will stop appearing after a couple of reboots" -ForegroundColor black -BackgroundColor Green 
 Write-Host "You may want to change your Windows password to something simpler if the password your cloud provider gave you is super long" -ForegroundColor black -BackgroundColor Green 
