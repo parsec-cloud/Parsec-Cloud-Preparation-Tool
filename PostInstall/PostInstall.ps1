@@ -804,6 +804,10 @@ Function Server2019Controller {
 
 Function InstallParsec {
     Start-Process "C:\ParsecTemp\Apps\parsec-windows.exe" -ArgumentList "/silent", "/shared" -wait
+    }
+
+Function InstallParsecVDD {
+    ProgressWriter -Status "Parsec Virtual Display Driver" -PercentComplete $PercentComplete
     Import-Certificate -CertStoreLocation "Cert:\LocalMachine\TrustedPublisher" -FilePath "$env:ProgramData\ParsecLoader\parsecpublic.cer" | Out-Null
     Start-Process "C:\ParsecTemp\Apps\parsec-vdd.exe" -ArgumentList "/silent" 
     $iterator = 0    
@@ -819,7 +823,7 @@ Function InstallParsec {
     $configfile += "host_virtual_monitors = 1"
     $configfile += "host_privacy_mode = 1"
     $configfile | Out-File C:\ProgramData\Parsec\config.txt -Encoding ascii
-    }
+}
 
 #Apps that require human intervention
 function Install-Gaming-Apps {
@@ -940,8 +944,9 @@ $ScripttaskList = @(
 "Create-AutoShutdown-Shortcut";
 "Create-One-Hour-Warning-Shortcut";
 "disable-server-manager";
-"disable-devices";
 "Install-Gaming-Apps";
+"disable-devices";
+"InstallParsecVDD";
 "Server2019Controller";
 "gpu-update-shortcut";
 "clean-up";
