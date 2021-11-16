@@ -446,7 +446,6 @@ function create-directories {
     if((Test-Path -Path C:\ParsecTemp\Apps) -eq $true) {} Else {New-Item -Path C:\ParsecTemp\Apps -ItemType directory | Out-Null}
     if((Test-Path -Path C:\ParsecTemp\DirectX) -eq $true) {} Else {New-Item -Path C:\ParsecTemp\DirectX -ItemType directory | Out-Null}
     if((Test-Path -Path C:\ParsecTemp\Drivers) -eq $true) {} Else {New-Item -Path C:\ParsecTemp\Drivers -ItemType Directory | Out-Null}
-    if((Test-Path -Path C:\ParsecTemp\Devcon) -eq $true) {} Else {New-Item -Path C:\ParsecTemp\Devcon -ItemType Directory | Out-Null}
     }
 
 #disable IE security
@@ -461,8 +460,6 @@ function disable-iesecurity {
 function download-resources {
     ProgressWriter -Status "Downloading DirectX June 2010 Redist" -PercentComplete $PercentComplete
     (New-Object System.Net.WebClient).DownloadFile("https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe", "C:\ParsecTemp\Apps\directx_Jun2010_redist.exe") 
-    ProgressWriter -Status "Downloading Devcon" -PercentComplete $PercentComplete
-    (New-Object System.Net.WebClient).DownloadFile("https://s3.amazonaws.com/parsec-files-ami-setup/Devcon/devcon.exe", "C:\ParsecTemp\Devcon\devcon.exe")
     ProgressWriter -Status "Downloading Parsec" -PercentComplete $PercentComplete
     (New-Object System.Net.WebClient).DownloadFile("https://builds.parsecgaming.com/package/parsec-windows.exe", "C:\ParsecTemp\Apps\parsec-windows.exe")
     ProgressWriter -Status "Downloading Parsec Virtual Display Driver" -percentcomplete $PercentComplete
@@ -891,13 +888,13 @@ function Install-Gaming-Apps {
 #Disable Devices
 function disable-devices {
     ProgressWriter -Status "Disabling Microsoft Basic Display Adapter, Generic Non PNP Monitor and other devices" -PercentComplete $PercentComplete
-    Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/r disable "HDAUDIO\FUNC_01&VEN_10DE&DEV_0083&SUBSYS_10DE11A3*"'
+    Start-Process -FilePath "C:\Program Files\Parsec\vigem\10\x64\devcon.exe" -ArgumentList '/r disable "HDAUDIO\FUNC_01&VEN_10DE&DEV_0083&SUBSYS_10DE11A3*"'
     Get-PnpDevice | where {$_.friendlyname -like "Generic Non-PNP Monitor" -and $_.status -eq "OK"} | Disable-PnpDevice -confirm:$false
     Get-PnpDevice | where {$_.friendlyname -like "Microsoft Basic Display Adapter" -and $_.status -eq "OK"} | Disable-PnpDevice -confirm:$false
     Get-PnpDevice | where {$_.friendlyname -like "Google Graphics Array (GGA)" -and $_.status -eq "OK"} | Disable-PnpDevice -confirm:$false
-    Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/r disable "PCI\VEN_1013&DEV_00B8*"'
-    Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/r disable "PCI\VEN_1D0F&DEV_1111*"'
-    Start-Process -FilePath "C:\ParsecTemp\Devcon\devcon.exe" -ArgumentList '/r disable "PCI\VEN_1AE0&DEV_A002*"'
+    Start-Process -FilePath "C:\Program Files\Parsec\vigem\10\x64\devcon.exe" -ArgumentList '/r disable "PCI\VEN_1013&DEV_00B8*"'
+    Start-Process -FilePath "C:\Program Files\Parsec\vigem\10\x64\devcon.exe" -ArgumentList '/r disable "PCI\VEN_1D0F&DEV_1111*"'
+    Start-Process -FilePath "C:\Program Files\Parsec\vigem\10\x64\devcon.exe" -ArgumentList '/r disable "PCI\VEN_1AE0&DEV_A002*"'
     }
 
 #Cleanup
