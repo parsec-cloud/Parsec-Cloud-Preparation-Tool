@@ -967,7 +967,7 @@ Write-Host "1. Open Parsec and sign in (Team machines should have automatically 
 Write-Host "2. Use GPU Updater to update your GPU Drivers!" -ForegroundColor black -BackgroundColor Green 
 #Write-Host "You don't need to sign into Razer Synapse, the login box will stop appearing after a couple of reboots" -ForegroundColor black -BackgroundColor Green 
 Write-Host "You may want to change your Windows password to something simpler if the password your cloud provider gave you is super long" -ForegroundColor black -BackgroundColor Green 
-Write-host "DONE!" -ForegroundColor black -BackgroundColor Green}
+Write-host "DONE!" -ForegroundColor black -BackgroundColor Green
 if ($DontPromptPasswordUpdateGPU) {} 
 Else {pause}
 
