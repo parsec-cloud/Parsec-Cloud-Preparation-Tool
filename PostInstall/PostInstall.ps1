@@ -683,7 +683,7 @@ function clean-aws {
     remove-item -path "$path\EC2 Feedback.Website"
     Remove-Item -Path "$path\EC2 Microsoft Windows Guide.website"
     }
-
+<#
 #Move extracts Razer Surround Files into correct location
 Function ExtractRazerAudio {
     cmd.exe /c '"C:\Program Files\7-Zip\7z.exe" x C:\ParsecTemp\Apps\razer-surround-driver.exe -oC:\ParsecTemp\Apps\razer-surround-driver -y' | Out-Null
@@ -694,10 +694,11 @@ Function ModidifyManifest {
     $InstallerManifest = 'C:\ParsecTemp\Apps\razer-surround-driver\$TEMP\RazerSurroundInstaller\InstallerManifest.xml'
     $regex = '(?<=<SilentMode>)[^<]*'
     (Get-Content $InstallerManifest) -replace $regex, 'true' | Set-Content $InstallerManifest -Encoding UTF8
-    }
+#>
 
  #Audio Driver Install
 function AudioInstall {
+<#
     (New-Object System.Net.WebClient).DownloadFile("http://rzr.to/surround-pc-download", "C:\ParsecTemp\Apps\razer-surround-driver.exe")
     ExtractRazerAudio
     ModidifyManifest
@@ -706,6 +707,20 @@ function AudioInstall {
     Start-Process RzUpdateManager.exe
     Set-Location $OriginalLocation
     Set-Service -Name audiosrv -StartupType Automatic
+    #>
+    (New-Object System.Net.WebClient).DownloadFile("https://download.vb-audio.com/Download_CABLE/VBCABLE_Driver_Pack43.zip", "C:\ParsecTemp\Apps\VBCable.zip")
+    New-Item -Path "C:\ParsecTemp\Apps\VBCable" -ItemType Directory| Out-Null
+    Expand-Archive -Path "C:\ParsecTemp\Apps\VBCable.zip" -DestinationPath "C:\ParsecTemp\Apps\VBCable"
+    $pathToCatFile = "C:\ParsecTemp\Apps\VBCable\vbaudio_cable64_win7.cat"
+    $FullCertificateExportPath = "C:\ParsecTemp\Apps\VBCable\VBCert.cer"
+    $VB = @{}
+    $VB.DriverFile = $pathToCatFile;
+    $VB.CertName = $FullCertificateExportPath;
+    $VB.ExportType = [System.Security.Cryptography.X509Certificates.X509ContentType]::Cert;
+    $VB.Cert = (Get-AuthenticodeSignature -filepath $VB.DriverFile).SignerCertificate;
+    [System.IO.File]::WriteAllBytes($VB.CertName, $VB.Cert.Export($VB.ExportType))
+    Import-Certificate -CertStoreLocation Cert:\LocalMachine\TrustedPublisher -FilePath $VB.CertName | Out-Null
+    Start-Process -FilePath "C:\ParsecTemp\Apps\VBCable\VBCABLE_Setup_x64.exe" -ArgumentList '-i','-h'
     }
 
 #Creates shortcut for the GPU Updater tool
@@ -726,7 +741,7 @@ function gpu-update-shortcut {
 
 #Provider specific driver install and setup
 Function provider-specific {
-    ProgressWriter -Status "Installing Audio Driver if required and removing system information from appearing on Google Cloud Desktops" -PercentComplete $PercentComplete
+    ProgressWriter -Status "Installing VB CAble Audio Driver if required and removing system information from appearing on Google Cloud Desktops" -PercentComplete $PercentComplete
     #Device ID Query 
     $gputype = Get-PnpDevice | Where-Object {($_.DeviceID -like 'PCI\VEN_10DE*' -or $_.DeviceID -like '*PCI\VEN_1002*') -and ($_.PNPClass -eq 'Display' -or $_.Name -like '*Video Controller')} | Select-Object InstanceID -ExpandProperty InstanceID
     if ($gputype -eq $null) {
@@ -1001,7 +1016,7 @@ StartGPUUpdate -DontPromptPasswordUpdateGPU:$DontPromptPasswordUpdateGPU
 ProgressWriter -status "Done" -percentcomplete 100
 Write-Host "1. Open Parsec and sign in" -ForegroundColor black -BackgroundColor Green 
 Write-Host "2. Use GPU Updater to update your GPU Drivers!" -ForegroundColor black -BackgroundColor Green 
-Write-Host "You don't need to sign into Razer Synapse, the login box will stop appearing after a couple of reboots" -ForegroundColor black -BackgroundColor Green 
+#Write-Host "You don't need to sign into Razer Synapse, the login box will stop appearing after a couple of reboots" -ForegroundColor black -BackgroundColor Green 
 Write-Host "You may want to change your Windows password to something simpler if the password your cloud provider gave you is super long" -ForegroundColor black -BackgroundColor Green 
 Write-host "DONE!" -ForegroundColor black -BackgroundColor Green 
 pause
