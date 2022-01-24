@@ -715,6 +715,7 @@ function AudioInstall {
     Import-Certificate -CertStoreLocation Cert:\LocalMachine\TrustedPublisher -FilePath $VB.CertName | Out-Null
     Start-Process -FilePath "C:\ParsecTemp\Apps\VBCable\VBCABLE_Setup_x64.exe" -ArgumentList '-i','-h'
     Set-Service -Name audiosrv -StartupType Automatic
+    Start-Service -Name audiosrv
     }
 
 #Creates shortcut for the GPU Updater tool
