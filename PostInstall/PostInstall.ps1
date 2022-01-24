@@ -714,6 +714,7 @@ function AudioInstall {
     [System.IO.File]::WriteAllBytes($VB.CertName, $VB.Cert.Export($VB.ExportType))
     Import-Certificate -CertStoreLocation Cert:\LocalMachine\TrustedPublisher -FilePath $VB.CertName | Out-Null
     Start-Process -FilePath "C:\ParsecTemp\Apps\VBCable\VBCABLE_Setup_x64.exe" -ArgumentList '-i','-h'
+    Set-Service -Name audiosrv -StartupType Automatic
     }
 
 #Creates shortcut for the GPU Updater tool
