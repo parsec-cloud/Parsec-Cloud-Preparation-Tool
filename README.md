@@ -114,7 +114,7 @@ Shutdown with sysprep". When the instance has shutdown/stopped after running the
 Q. I connect to my cloud machine with Parsec and see a Parsec logo on the desktop, and the Windows Task bar, but when I click icons in the task bar, nothing happens.  
 A. There is another screen on the cloud machine that Parsec can't capture, that is set to your default/primary display. Do the following to switch the primary display to the screen that Parsec can capture.  
 
-1. Connect to the host via Parssec
+1. Connect to the host via Parsec
 2. Press CTRL + Shift + i (this will enter into immersive mode)
 3. Press Windows Key + P
 4. Press Down Arrow, Down Arrow, Enter.
