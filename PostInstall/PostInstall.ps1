@@ -915,15 +915,16 @@ Write-Host -foregroundcolor red "
                     Server 2019
                     
                     CLOUD SKU:
-                    AWS G3.4xLarge    (Tesla M60)
-                    AWS G2.2xLarge    (GRID K520)
-                    AWS G4dn.xLarge   (Tesla T4 with vGaming driver)
+                    AWS g3.4xLarge    (Tesla M60)
+                    AWS g2.2xLarge    (GRID K520)
+                    AWS g4dn.xLarge   (Tesla T4 with vGaming driver)
+                    AWS g4ad.4xlarge  (AMD Radeon Pro V520)
                     Azure NV6         (Tesla M60)
                     Paperspace P4000  (Quadro P4000)
                     Paperspace P5000  (Quadro P5000)
-                    Google P100 VW    (Tesla P100 Virtual Workstation)
-                    Google P4  VW    (Tesla P4 Virtual Workstation)
-                    Google T4  VW    (Tesla T4 Virtual Workstation)
+                    Google P100 VW    (Tesla P100 with Virtual Workstation Driver)
+                    Google P4 VW      (Tesla P4 with Virtual Workstation Driver)
+                    Google T4 VW      (Tesla T4 with Virtual Workstation Driver)
 
 "   
 #PromptUserAutoLogon -DontPromptPasswordUpdateGPU:$DontPromptPasswordUpdateGPU
