@@ -458,7 +458,7 @@ function AudioInstall {
     (New-Item -Path "C:\Hovercast\Apps\VBCable0" -ItemType Directory| Out-Null
     New-Item -Path "C:\Hovercast\Apps\VBCable1" -ItemType Directory| Out-Null
     New-Item -Path "C:\Hovercast\Apps\VBCable2" -ItemType Directory| Out-Null
-    Expand-Archive -Path "$path\HovercastTemp\InstallFiles\VBCABLE_Driver_Pack43.zip" -DestinationPath "C:\Hovercast\Apps\VBCable0"
+    Expand-Archive -Path "$path\HovercastTemp\PreInstall\VBCABLE_Driver_Pack43.zip" -DestinationPath "C:\Hovercast\Apps\VBCable0"
     $pathToCatFile = "C:\Hovercast\Apps\VBCable0\vbaudio_cable64_win7.cat"
     $FullCertificateExportPath = "C:\Hovercast\Apps\VBCable0\VBCert.cer"
     $VB = @{}
@@ -471,7 +471,7 @@ function AudioInstall {
     Start-Process -FilePath "C:\Hovercast\Apps\VBCable\VBCABLE_Setup_x64.exe" -ArgumentList '-i','-h' -wait
     
 
-    Expand-Archive -Path "$path\HovercastTemp\InstallFiles\VBCABLE_A_Driver_Pack43.zip" -DestinationPath "C:\Hovercast\Apps\VBCable1"
+    Expand-Archive -Path "$path\HovercastTemp\PreInstall\VBCABLE_A_Driver_Pack43.zip" -DestinationPath "C:\Hovercast\Apps\VBCable1"
     $pathToCatFile = "C:\Hovercast\Apps\VBCable1\vbaudio_cablea_win7.cat"
     $FullCertificateExportPath = "C:\Hovercast\Apps\VBCable1\VBCert.cer"
     $VB = @{}
@@ -484,7 +484,7 @@ function AudioInstall {
     Start-Process -FilePath "C:\Hovercast\Apps\VBCable\VBCABLE_Setup_x64.exe" -ArgumentList '-i','-h' -wait
 
 
-    Expand-Archive -Path "$path\HovercastTemp\InstallFiles\VBCABLE_B_Driver_Pack43.zip" -DestinationPath "C:\Hovercast\Apps\VBCable2"
+    Expand-Archive -Path "$path\HovercastTemp\PreInstall\VBCABLE_B_Driver_Pack43.zip" -DestinationPath "C:\Hovercast\Apps\VBCable2"
     $pathToCatFile = "C:\Hovercast\Apps\VBCable1\vbaudio_cableb_win7.cat"
     $FullCertificateExportPath = "C:\Hovercast\Apps\VBCable1\VBCert.cer"
     $VB = @{}
