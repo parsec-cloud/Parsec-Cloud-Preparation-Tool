@@ -1,4 +1,4 @@
-                                       ,,,                                      
+~~~                                       ,,,                                      
                                 ,,,,,,,,,,,,,,,,,                               
                            ,,,,,,,,,,,,,,,,,,,,,,,,,,                           
                        ,,,,,,,,,,,,           ,,,,,,,,,,,,                      
@@ -27,7 +27,7 @@
                                        ,,,  
 
                            ~Hovercast VCR Prep Script~
-
+~~~
 
 ### START HERE! Copy this code into Powershell (you may need to press enter at the end):
 ```
