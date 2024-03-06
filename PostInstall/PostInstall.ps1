@@ -60,7 +60,7 @@ function cloudprovider {
 
     $paperspace = $(
                         Try {
-                            (Invoke-WebRequest -uri http://metadata.paperspace.com/meta-data/machine -TimeoutSec 5)
+                            (Invoke-WebRequest -uri http://169.254.169.254/meta-data/machine -TimeoutSec 5)
                             }
                         catch {
                             }
@@ -963,7 +963,7 @@ foreach ($func in $ScripttaskList) {
     & $func $PercentComplete
     }
 
-StartGPUUpdate -DontPromptPasswordUpdateGPU:$DontPromptPasswordUpdateGPU
+#StartGPUUpdate -DontPromptPasswordUpdateGPU:$DontPromptPasswordUpdateGPU
 Start-ScheduledTask -TaskName "Setup Team Machine"
 ProgressWriter -status "Done" -percentcomplete 100
 Write-Host "1. Open Parsec and sign in (Team machines should have automatically signed in if userdata was correct)" -ForegroundColor black -BackgroundColor Green 
@@ -973,5 +973,3 @@ Write-Host "You may want to change your Windows password to something simpler if
 Write-host "DONE!" -ForegroundColor black -BackgroundColor Green
 if ($DontPromptPasswordUpdateGPU) {} 
 Else {pause}
-
-

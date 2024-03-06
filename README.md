@@ -45,7 +45,7 @@ Do not select "Turn on Display Device" when setting up the instance, this will c
 ### START HERE! Copy this code into Powershell (you may need to press enter at the end):
 ```
 [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls" 
-$ScriptWebArchive = "https://github.com/parsec-cloud/Parsec-Cloud-Preparation-Tool/archive/master.zip"  
+$ScriptWebArchive = "https://github.com/kaktus42/Parsec-Cloud-Preparation-Tool/archive/master.zip"
 $LocalArchivePath = "$ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool"  
 (New-Object System.Net.WebClient).DownloadFile($ScriptWebArchive, "$LocalArchivePath.zip")  
 Expand-Archive "$LocalArchivePath.zip" -DestinationPath $LocalArchivePath -Force  
@@ -123,7 +123,7 @@ Q. I want to run this script automatically without user interraction.
 A. It's possible to do so but you will need to figure out how to install the GPU Driver on your own. The below code will do everything but install the GPU Driver.
 ```
 [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls" 
-$ScriptWebArchive = "https://github.com/parsec-cloud/Parsec-Cloud-Preparation-Tool/archive/master.zip"  
+$ScriptWebArchive = "https://github.com/kaktus42/Parsec-Cloud-Preparation-Tool/archive/master.zip"
 $LocalArchivePath = "$ENV:UserProfile\Downloads\Parsec-Cloud-Preparation-Tool"  
 (New-Object System.Net.WebClient).DownloadFile($ScriptWebArchive, "$LocalArchivePath.zip")  
 Expand-Archive "$LocalArchivePath.zip" -DestinationPath $LocalArchivePath -Force  
