@@ -36,7 +36,7 @@ function fetchUserData {
                 catch {
                     }
                 Try {
-                    (Invoke-WebRequest -uri http://metadata.paperspace.com/meta-data/machine -TimeoutSec 5)
+                    (Invoke-WebRequest -uri http://169.254.169.254/meta-data/machine -TimeoutSec 5)
                     $stream = "bytes"
                     }
                 catch {
